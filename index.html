@@ -553,19 +553,32 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Cifrar mensaje</div>
-    <div class="section-sub">Necesitas la clave pública de la persona a quien escribes.</div>
   </div>
 
   <div class="field">
-    <label class="field-label">Clave pública del destinatario</label>
-    <div class="file-drop" id="enc-pub-drop">
-      <input type="file" accept=".txt,.pem" onchange="loadPubKey(this,'enc')">
+    <label class="field-label">Modo</label>
+    <div class="size-group">
+      <div class="size-opt selected" id="enc-mode-pub" onclick="setEncMode('pub')">
+        <div class="size-opt-name">Con clave pública</div>
+        <div class="size-opt-sub">Solo el receptor puede descifrar</div>
+      </div>
+      <div class="size-opt" id="enc-mode-priv" onclick="setEncMode('priv')">
+        <div class="size-opt-name">Con clave privada</div>
+        <div class="size-opt-sub">Cualquiera con tu clave pública puede verificar</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="field-label" id="enc-key-label">Clave pública del destinatario</label>
+    <div class="file-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadEncKey(this)">
       <div class="file-drop-icon">📄</div>
       <div>Arrastra el archivo o haz clic para seleccionar</div>
-      <div class="file-drop-name" id="enc-pub-name"></div>
+      <div class="file-drop-name" id="enc-key-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="enc-pub-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----" oninput="onEncPubPaste()"></textarea>
+    <textarea class="mono" id="enc-key-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----" oninput="onEncKeyPaste()"></textarea>
   </div>
 
   <div class="field">
@@ -592,16 +605,29 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Descifrar mensaje</div>
-    <div class="section-sub">Usa tu clave privada para leer un mensaje que te han enviado.</div>
   </div>
 
   <div class="field">
-    <label class="field-label">Tu clave privada</label>
-    <div class="file-drop" id="dec-priv-drop">
-      <input type="file" accept=".txt,.pem" onchange="loadPrivKey(this,'dec')">
+    <label class="field-label">Modo</label>
+    <div class="size-group">
+      <div class="size-opt selected" id="dec-mode-priv" onclick="setDecMode('priv')">
+        <div class="size-opt-name">Con clave privada</div>
+        <div class="size-opt-sub">Mensaje cifrado con tu clave pública</div>
+      </div>
+      <div class="size-opt" id="dec-mode-pub" onclick="setDecMode('pub')">
+        <div class="size-opt-name">Con clave pública</div>
+        <div class="size-opt-sub">Mensaje cifrado con clave privada del emisor</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="field-label" id="dec-key-label">Tu clave privada</label>
+    <div class="file-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadDecKey(this)">
       <div class="file-drop-icon">🔐</div>
       <div>Arrastra el archivo o haz clic para seleccionar</div>
-      <div class="file-drop-name" id="dec-priv-name"></div>
+      <div class="file-drop-name" id="dec-key-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
     <textarea class="mono" id="dec-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----" oninput="onDecPrivPaste()"></textarea>
@@ -1601,8 +1627,12 @@ function goHome() { showView('home'); }
 // ── STATE ──
 let _genPubPEM = null, _genPrivPEM = null;
 let _advGenPubPEM = null, _advGenPrivPEM = null;
-let _encPubKey = null;   // {n, e}
-let _decPrivKey = null;  // {n, e, d}
+let _encPubKey = null;
+let _encPrivKey = null;
+let _encMode = 'pub';
+let _decPubKey = null;
+let _decPrivKey = null;
+let _decMode = 'priv';
 let _signPrivKey = null; // {n, e, d}
 let _signPubKey = null;  // {n, e} from sign file
 let _cipherData = null;  // parsed RSA CIPHER
@@ -1680,17 +1710,89 @@ function selectSize(el) {
 }
 
 // ── LOAD KEY FILES ──
+function setEncMode(mode) {
+  _encMode = mode;
+  _encPubKey = null; _encPrivKey = null;
+  const nameEl = document.getElementById('enc-key-name');
+  if (nameEl) { nameEl.textContent=''; nameEl.classList.remove('show'); }
+  const ta = document.getElementById('enc-key-paste');
+  if (ta) ta.value = '';
+  document.getElementById('enc-mode-pub').classList.toggle('selected', mode==='pub');
+  document.getElementById('enc-mode-priv').classList.toggle('selected', mode==='priv');
+  const lbl = document.getElementById('enc-key-label');
+  if (mode==='pub') {
+    lbl.textContent='Clave pública del destinatario';
+    if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
+  } else {
+    lbl.textContent='Tu clave privada';
+    if(ta) ta.placeholder='-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
+  }
+}
+
+function setDecMode(mode) {
+  _decMode = mode;
+  _decPrivKey = null; _decPubKey = null;
+  const nameEl = document.getElementById('dec-key-name');
+  if (nameEl) { nameEl.textContent=''; nameEl.classList.remove('show'); }
+  const ta = document.getElementById('dec-priv-paste');
+  if (ta) ta.value = '';
+  document.getElementById('dec-mode-priv').classList.toggle('selected', mode==='priv');
+  document.getElementById('dec-mode-pub').classList.toggle('selected', mode==='pub');
+  const lbl = document.getElementById('dec-key-label');
+  if (mode==='priv') {
+    lbl.textContent='Tu clave privada';
+    if(ta) ta.placeholder='-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
+  } else {
+    lbl.textContent='Clave pública del emisor';
+    if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
+  }
+}
+
+async function loadEncKey(input) {
+  const text = await readFile(input); if (!text) return;
+  const fname = input.files[0].name;
+  try {
+    const tipo = detectarTipoPEM(text);
+    if (_encMode==='pub') {
+      if (tipo==='RSA PUBLIC KEY') { const r=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); _encPubKey={n:r.n,e:r.e}; }
+      else if (tipo==='RSA PRIVATE KEY') { const r=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); _encPubKey={n:r.n,e:r.e}; }
+      else throw new Error('se necesita una clave pública');
+    } else {
+      if (tipo!=='RSA PRIVATE KEY') throw new Error('se necesita la clave privada');
+      _encPrivKey = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+    }
+    setDropName('enc-key-name', fname); hideAlert('enc-err');
+  } catch(ex) { showAlert('enc-err','Error: '+ex.message,'error'); }
+}
+
+async function loadDecKey(input) {
+  const text = await readFile(input); if (!text) return;
+  const fname = input.files[0].name;
+  try {
+    const tipo = detectarTipoPEM(text);
+    if (_decMode==='priv') {
+      if (tipo!=='RSA PRIVATE KEY') throw new Error('se necesita la clave privada');
+      _decPrivKey = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+    } else {
+      if (tipo==='RSA PUBLIC KEY') { const r=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); _decPubKey={n:r.n,e:r.e}; }
+      else if (tipo==='RSA PRIVATE KEY') { const r=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); _decPubKey={n:r.n,e:r.e}; }
+      else throw new Error('se necesita una clave pública');
+    }
+    setDropName('dec-key-name', fname); hideAlert('dec-err');
+  } catch(ex) { showAlert('dec-err','Error: '+ex.message,'error'); }
+}
+
 async function loadPubKey(input, prefix) {
   const text = await readFile(input); if (!text) return;
   const fname = input.files[0].name;
   try {
     const tipo = detectarTipoPEM(text);
     let n, e;
-    if (tipo === 'RSA PUBLIC KEY') { const r = parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); n=r.n; e=r.e; }
-    else if (tipo === 'RSA PRIVATE KEY') { const r = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); n=r.n; e=r.e; }
+    if (tipo==='RSA PUBLIC KEY') { const r=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); n=r.n; e=r.e; }
+    else if (tipo==='RSA PRIVATE KEY') { const r=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); n=r.n; e=r.e; }
     else throw new Error('no se reconoció el archivo');
-    if (prefix === 'enc') { _encPubKey = {n,e}; setDropName('enc-pub-name', fname); hideAlert('enc-err'); }
-  } catch(ex) { showAlert(prefix+'-err', 'Error leyendo clave: '+ex.message, 'error'); }
+    if (prefix==='enc') { _encPubKey={n,e}; setDropName('enc-key-name', fname); hideAlert('enc-err'); }
+  } catch(ex) { showAlert(prefix+'-err','Error: '+ex.message,'error'); }
 }
 
 async function loadPrivKey(input, prefix) {
@@ -1737,21 +1839,30 @@ async function loadPEMFile(input) {
 }
 
 // ── PASTE HANDLERS ──
-function onEncPubPaste() {
-  const text = document.getElementById('enc-pub-paste').value;
+function onEncKeyPaste() {
+  const text = document.getElementById('enc-key-paste').value;
   try {
     const tipo = detectarTipoPEM(text);
-    if (tipo === 'RSA PUBLIC KEY') { const r = parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); _encPubKey={n:r.n,e:r.e}; }
-    else if (tipo === 'RSA PRIVATE KEY') { const r = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); _encPubKey={n:r.n,e:r.e}; }
-  } catch(ex) { _encPubKey = null; }
+    if (_encMode==='pub') {
+      if (tipo==='RSA PUBLIC KEY') { const r=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); _encPubKey={n:r.n,e:r.e}; }
+      else if (tipo==='RSA PRIVATE KEY') { const r=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); _encPubKey={n:r.n,e:r.e}; }
+    } else {
+      if (tipo==='RSA PRIVATE KEY') _encPrivKey=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+    }
+  } catch(ex) { _encPubKey=null; _encPrivKey=null; }
 }
+function onEncPubPaste() { onEncKeyPaste(); }
 function onDecPrivPaste() {
   const text = document.getElementById('dec-priv-paste').value;
   try {
-    if (text.includes('-----BEGIN RSA PRIVATE KEY-----')) {
-      _decPrivKey = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+    const tipo = detectarTipoPEM(text);
+    if (_decMode==='priv') {
+      if (tipo==='RSA PRIVATE KEY') _decPrivKey=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+    } else {
+      if (tipo==='RSA PUBLIC KEY') { const r=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); _decPubKey={n:r.n,e:r.e}; }
+      else if (tipo==='RSA PRIVATE KEY') { const r=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); _decPubKey={n:r.n,e:r.e}; }
     }
-  } catch(ex) { _decPrivKey = null; }
+  } catch(ex) { _decPrivKey=null; _decPubKey=null; }
 }
 function onDecCipherPaste() {
   const text = document.getElementById('dec-cipher-paste').value;
@@ -1812,21 +1923,26 @@ function dlPriv() { if(_genPrivPEM) dlText(_genPrivPEM,'clave_privada.txt'); }
 // ── ENCRYPT (EASY) ──
 async function doEncrypt() {
   hideAlert('enc-err'); hideResult('enc-result');
-  // Try paste first, then stored key
-  const pasteText = document.getElementById('enc-pub-paste').value.trim();
-  if (pasteText && !_encPubKey) { onEncPubPaste(); }
-  if (!_encPubKey) { showAlert('enc-err','Carga o pega la clave pública del destinatario.','error'); return; }
+  const pasteText = document.getElementById('enc-key-paste').value.trim();
+  if (pasteText) onEncKeyPaste();
   const msg = document.getElementById('enc-msg').value.trim();
   if (!msg) { showAlert('enc-err','Escribe el mensaje a cifrar.','error'); return; }
   try {
-    const {n,e} = _encPubKey;
+    let n, e, exp, modo;
+    if (_encMode==='pub') {
+      if (!_encPubKey) { showAlert('enc-err','Carga o pega la clave pública del destinatario.','error'); return; }
+      n=_encPubKey.n; e=_encPubKey.e; exp=e; modo='e';
+    } else {
+      if (!_encPrivKey) { showAlert('enc-err','Carga o pega tu clave privada.','error'); return; }
+      n=_encPrivKey.n; e=_encPrivKey.e; exp=_encPrivKey.d; modo='d';
+    }
     const nums = textoANumeros(msg);
     const cifrados = nums.map(v => {
-      if (v===MARCADOR_DIGITO) return -modPow(BigInt(Math.abs(MARCADOR_DIGITO)),e,n);
+      if (v===MARCADOR_DIGITO) return -modPow(BigInt(Math.abs(MARCADOR_DIGITO)),exp,n);
       if (v===0) return 0n;
-      return modPow(BigInt(v),e,n);
+      return modPow(BigInt(v),exp,n);
     });
-    const pem = genCipherPEM(cifrados, n, e, null, 'e', '', true, false);
+    const pem = genCipherPEM(cifrados, n, e, null, modo, '', true, false);
     showResult('enc-result', pem);
   } catch(ex) { showAlert('enc-err','Error al cifrar: '+ex.message,'error'); }
 }
@@ -1834,20 +1950,25 @@ async function doEncrypt() {
 // ── DECRYPT (EASY) ──
 async function doDecrypt() {
   hideAlert('dec-err'); hideResult('dec-result');
-  const privPaste = document.getElementById('dec-priv-paste').value.trim();
-  if (privPaste && !_decPrivKey) onDecPrivPaste();
+  const pasteTxt = document.getElementById('dec-priv-paste').value.trim();
+  if (pasteTxt) onDecPrivPaste();
   const cipherPaste = document.getElementById('dec-cipher-paste').value.trim();
   if (cipherPaste && !_cipherData) onDecCipherPaste();
-  if (!_decPrivKey) { showAlert('dec-err','Carga o pega tu clave privada.','error'); return; }
   if (!_cipherData) { showAlert('dec-err','Carga o pega el mensaje cifrado.','error'); return; }
   try {
-    const {d, n: nPriv} = _decPrivKey;
-    const {n: nCipher, modo, nums, seed} = _cipherData;
-    const n = nCipher ?? nPriv;
-    let exp;
-    if (modo==='e') exp = d;
-    else exp = _decPrivKey.e;
-    if (seed) { applyAbc(genAbcWithSeed(seed)); }
+    const {n: nCipher, e: eCipher, modo, nums, seed} = _cipherData;
+    let n, exp;
+    if (_decMode==='priv') {
+      if (!_decPrivKey) { showAlert('dec-err','Carga o pega tu clave privada.','error'); return; }
+      n = nCipher ?? _decPrivKey.n;
+      exp = _decPrivKey.d;
+    } else {
+      if (!_decPubKey && !_decPrivKey) { showAlert('dec-err','Carga o pega la clave pública del emisor.','error'); return; }
+      const key = _decPubKey || {n:_decPrivKey.n, e:_decPrivKey.e};
+      n = nCipher ?? key.n;
+      exp = eCipher ?? key.e;
+    }
+    if (seed) applyAbc(genAbcWithSeed(seed));
     const descifrados = nums.map(c => {
       if (c<0n) return MARCADOR_DIGITO;
       if (c===0n) return 0;
