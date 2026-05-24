@@ -1,0 +1,2143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cipher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg:       #f5f4f0;
+  --bg2:      #edecea;
+  --bg3:      #e4e2de;
+  --surface:  #ffffff;
+  --border:   #d8d5cf;
+  --border2:  #c8c4bc;
+  --text:     #1a1916;
+  --text2:    #6b6760;
+  --text3:    #9b9790;
+  --accent:   #1a1916;
+  --accent2:  #3d3a35;
+  --green:    #2d6a4f;
+  --green-bg: #eaf4ee;
+  --red:      #9b2335;
+  --red-bg:   #fdf0f1;
+  --amber:    #7a5c1e;
+  --amber-bg: #fdf6e3;
+  --blue:     #1d4ed8;
+  --blue-bg:  #eff6ff;
+  --mono:     'DM Mono', monospace;
+  --sans:     'DM Sans', sans-serif;
+  --radius:   8px;
+  --radius-lg:14px;
+}
+
+html,body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+#app { min-height: 100vh; display: flex; flex-direction: column; }
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 50;
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--text2);
+  text-decoration: none;
+}
+.logo span { color: var(--text); }
+.header-nav { display: flex; gap: 6px; }
+.nav-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-weight: 400;
+}
+.nav-btn:hover { border-color: var(--border2); color: var(--text); background: var(--bg2); }
+.nav-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+main { flex: 1; padding: 48px 32px; max-width: 680px; margin: 0 auto; width: 100%; }
+
+/* ── VIEWS ── */
+.view { display: none; animation: fadein 0.2s ease; }
+.view.active { display: block; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── HOME ── */
+.home-title {
+  font-size: 32px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+.home-sub {
+  color: var(--text2);
+  font-size: 15px;
+  margin-bottom: 48px;
+  max-width: 440px;
+  line-height: 1.65;
+}
+.home-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--text);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.card:hover { border-color: var(--border2); box-shadow: 0 4px 24px rgba(0,0,0,0.06); transform: translateY(-1px); }
+.card:hover::after { opacity: 0.015; }
+.card:active { transform: translateY(0); }
+.card-icon {
+  width: 36px; height: 36px;
+  background: var(--bg2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.card-title { font-size: 15px; font-weight: 500; color: var(--text); }
+.card-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.card-full {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.card-full:hover { border-color: var(--border2); background: var(--bg2); }
+.card-full-text .card-title { margin-bottom: 2px; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  margin-bottom: 32px;
+}
+.section-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text2);
+  cursor: pointer;
+  margin-bottom: 20px;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.15s;
+}
+.section-back:hover { color: var(--text); }
+.section-title {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.section-sub { font-size: 14px; color: var(--text2); }
+
+/* ── FORM ELEMENTS ── */
+.field { margin-bottom: 20px; }
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+.field-sub { font-size: 12px; color: var(--text3); margin-top: 5px; }
+
+input[type=text], input[type=number], textarea, select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px rgba(26,25,22,0.08);
+}
+textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
+
+.file-drop {
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg);
+  color: var(--text2);
+  font-size: 13px;
+  position: relative;
+}
+.file-drop:hover, .file-drop.drag { border-color: var(--text); background: var(--bg2); color: var(--text); }
+.file-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.file-drop-icon { font-size: 22px; margin-bottom: 6px; }
+.file-drop-name { font-family: var(--mono); font-size: 11px; color: var(--green); margin-top: 4px; display: none; }
+.file-drop-name.show { display: block; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 11px 22px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+.btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+.btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--border2); background: var(--bg2); }
+.btn-ghost { background: none; color: var(--text2); border-color: transparent; }
+.btn-ghost:hover { color: var(--text); background: var(--bg2); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-full { width: 100%; }
+.btn-row { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+
+/* ── RESULT BOX ── */
+.result-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-top: 24px;
+  display: none;
+}
+.result-box.show { display: block; animation: fadein 0.25s ease; }
+.result-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 12px;
+}
+.result-text {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text);
+  word-break: break-all;
+  white-space: pre-wrap;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.result-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+/* ── ALERT ── */
+.alert {
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  display: none;
+}
+.alert.show { display: flex; align-items: flex-start; gap: 10px; }
+.alert-success { background: var(--green-bg); color: var(--green); border: 1px solid #c3e6d0; }
+.alert-error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #f5c6cb; }
+.alert-info    { background: var(--blue-bg);   color: var(--blue);  border: 1px solid #bfdbfe; }
+.alert-warn    { background: var(--amber-bg);  color: var(--amber); border: 1px solid #fde68a; }
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 28px 0;
+}
+.or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text3);
+  font-size: 12px;
+  margin: 16px 0;
+}
+.or-divider::before, .or-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── KEY SIZE SELECTOR ── */
+.size-group { display: flex; gap: 8px; }
+.size-opt {
+  flex: 1;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.size-opt:hover { border-color: var(--border2); }
+.size-opt.selected { border-color: var(--text); background: var(--text); color: var(--bg); }
+.size-opt-name { font-size: 13px; font-weight: 500; }
+.size-opt-sub { font-size: 11px; opacity: 0.65; margin-top: 2px; }
+
+/* ── PROGRESS ── */
+.progress-bar {
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+  margin-top: 16px;
+  display: none;
+}
+.progress-bar.show { display: block; }
+.progress-fill {
+  height: 100%;
+  background: var(--text);
+  border-radius: 1px;
+  animation: progress-pulse 1.5s ease-in-out infinite;
+  width: 40%;
+}
+@keyframes progress-pulse {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+.generating-msg { font-size: 13px; color: var(--text2); margin-top: 10px; display: none; }
+.generating-msg.show { display: block; }
+
+/* ── ADVANCED: PANEL GRID ── */
+.adv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+.adv-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: flex-start; gap: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+.adv-card:hover { border-color: var(--border2); background: var(--bg2); }
+.adv-card-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.adv-card-text .adv-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.adv-card-text .adv-sub { font-size: 12px; color: var(--text2); }
+
+/* ── TOGGLE ── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-label { font-size: 14px; color: var(--text); }
+.toggle-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.toggle {
+  width: 40px; height: 22px;
+  background: var(--border2);
+  border-radius: 11px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--text); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: white;
+  border-radius: 50%;
+  top: 3px; left: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle.on::after { transform: translateX(18px); }
+
+/* ── PEM DISPLAY ── */
+.pem-block {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.5;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  word-break: break-all;
+  white-space: pre-wrap;
+  color: var(--text2);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  header { padding: 16px 20px; }
+  main { padding: 32px 20px; }
+  .home-cards { grid-template-columns: 1fr; }
+  .adv-grid { grid-template-columns: 1fr; }
+  .size-group { flex-direction: column; }
+  .home-title { font-size: 26px; }
+  .btn-row { flex-direction: column; }
+  .btn-row .btn { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header>
+  <a class="logo" href="#" onclick="goHome()"><span>cipher</span></a>
+  <nav class="header-nav">
+    <button class="nav-btn" id="nav-home" onclick="goHome()">inicio</button>
+    <button class="nav-btn" id="nav-adv" onclick="showView('advanced')">avanzado</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="view active" id="view-home">
+  <div class="home-title">Cifra mensajes.<br>Sin complicaciones.</div>
+  <p class="home-sub">Comparte tu clave pública con quien quiera escribirte. Solo tú podrás leer los mensajes con tu clave privada.</p>
+  <div class="home-cards">
+    <button class="card" onclick="showView('genkeys')">
+      <div class="card-icon">🔑</div>
+      <div class="card-title">Generar claves</div>
+      <div class="card-desc">Primera vez aquí. Genera tu par de claves pública y privada.</div>
+    </button>
+    <button class="card" onclick="showView('encrypt')">
+      <div class="card-icon">🔒</div>
+      <div class="card-title">Cifrar</div>
+      <div class="card-desc">Tienes la clave pública de alguien y quieres enviarle un mensaje.</div>
+    </button>
+    <button class="card" onclick="showView('decrypt')">
+      <div class="card-icon">🔓</div>
+      <div class="card-title">Descifrar</div>
+      <div class="card-desc">Alguien te ha enviado un mensaje cifrado con tu clave pública.</div>
+    </button>
+    <button class="card" onclick="showView('sign')">
+      <div class="card-icon">✍️</div>
+      <div class="card-title">Firmar</div>
+      <div class="card-desc">Firma un mensaje para demostrar que es tuyo, o verifica una firma.</div>
+    </button>
+  </div>
+  <button class="card-full" onclick="showView('advanced')">
+    <div class="card-icon">⚙️</div>
+    <div class="card-full-text">
+      <div class="card-title">Modo avanzado</div>
+      <div class="card-desc">Control total sobre claves, PEM, seeds y operaciones RSA manuales.</div>
+    </div>
+  </button>
+</div>
+
+<!-- ══════════ GENKEYS ══════════ -->
+<div class="view" id="view-genkeys">
+  <button class="section-back" onclick="goHome()">← volver</button>
+  <div class="section-header">
+    <div class="section-title">Generar claves</div>
+    <div class="section-sub">Crea tu par de claves. Guarda la privada en un lugar seguro, nunca la compartas.</div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Tamaño de clave</label>
+    <div class="size-group">
+      <div class="size-opt selected" data-bits="512" onclick="selectSize(this)">
+        <div class="size-opt-name">Rápido</div>
+        <div class="size-opt-sub">~2s</div>
+      </div>
+      <div class="size-opt" data-bits="1024" onclick="selectSize(this)">
+        <div class="size-opt-name">Normal</div>
+        <div class="size-opt-sub">~15s</div>
+      </div>
+      <div class="size-opt" data-bits="2048" onclick="selectSize(this)">
+        <div class="size-opt-name">Seguro</div>
+        <div class="size-opt-sub">~2min</div>
+      </div>
+    </div>
+    <div class="field-sub">Para uso personal, "Normal" es más que suficiente.</div>
+  </div>
+
+  <div class="progress-bar" id="gen-progress"><div class="progress-fill"></div></div>
+  <div class="generating-msg" id="gen-msg">Generando primos aleatorios...</div>
+
+  <div class="alert alert-success" id="gen-ok">
+    <span>✓</span>
+    <span>Claves generadas. Descarga ambos archivos y guárdalos bien.</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="btn-gen" onclick="doGenKeys()">Generar</button>
+    <button class="btn btn-secondary" id="btn-dl-pub" style="display:none" onclick="dlPub()">↓ Clave pública</button>
+    <button class="btn btn-secondary" id="btn-dl-priv" style="display:none" onclick="dlPriv()">↓ Clave privada</button>
+  </div>
+</div>
+
+<!-- ══════════ ENCRYPT ══════════ -->
+<div class="view" id="view-encrypt">
+  <button class="section-back" onclick="goHome()">← volver</button>
+  <div class="section-header">
+    <div class="section-title">Cifrar mensaje</div>
+    <div class="section-sub">Necesitas la clave pública de la persona a quien escribes.</div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Clave pública del destinatario</label>
+    <div class="file-drop" id="enc-pub-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadPubKey(this,'enc')">
+      <div class="file-drop-icon">📄</div>
+      <div>Arrastra el archivo o haz clic para seleccionar</div>
+      <div class="file-drop-name" id="enc-pub-name"></div>
+    </div>
+    <div class="or-divider">o pega el contenido</div>
+    <textarea class="mono" id="enc-pub-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----" oninput="onEncPubPaste()"></textarea>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Mensaje</label>
+    <textarea id="enc-msg" placeholder="Escribe el mensaje a cifrar..."></textarea>
+  </div>
+
+  <div class="alert alert-error" id="enc-err"></div>
+
+  <button class="btn btn-primary btn-full" onclick="doEncrypt()">Cifrar</button>
+
+  <div class="result-box" id="enc-result">
+    <div class="result-label">Mensaje cifrado</div>
+    <div class="result-text mono" id="enc-result-text"></div>
+    <div class="result-actions">
+      <button class="btn btn-secondary" onclick="copyResult('enc-result-text')">Copiar</button>
+      <button class="btn btn-secondary" onclick="dlResult('enc-result-text','mensaje_cifrado.txt')">↓ Descargar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DECRYPT ══════════ -->
+<div class="view" id="view-decrypt">
+  <button class="section-back" onclick="goHome()">← volver</button>
+  <div class="section-header">
+    <div class="section-title">Descifrar mensaje</div>
+    <div class="section-sub">Usa tu clave privada para leer un mensaje que te han enviado.</div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Tu clave privada</label>
+    <div class="file-drop" id="dec-priv-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadPrivKey(this,'dec')">
+      <div class="file-drop-icon">🔐</div>
+      <div>Arrastra el archivo o haz clic para seleccionar</div>
+      <div class="file-drop-name" id="dec-priv-name"></div>
+    </div>
+    <div class="or-divider">o pega el contenido</div>
+    <textarea class="mono" id="dec-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----" oninput="onDecPrivPaste()"></textarea>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Mensaje cifrado</label>
+    <div class="file-drop" id="dec-cipher-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadCipherFile(this)">
+      <div class="file-drop-icon">📨</div>
+      <div>Arrastra el archivo o haz clic para seleccionar</div>
+      <div class="file-drop-name" id="dec-cipher-name"></div>
+    </div>
+    <div class="or-divider">o pega el contenido</div>
+    <textarea class="mono" id="dec-cipher-paste" placeholder="-----BEGIN RSA CIPHER-----&#10;...&#10;-----END RSA CIPHER-----" oninput="onDecCipherPaste()"></textarea>
+  </div>
+
+  <div class="alert alert-error" id="dec-err"></div>
+
+  <button class="btn btn-primary btn-full" onclick="doDecrypt()">Descifrar</button>
+
+  <div class="result-box" id="dec-result">
+    <div class="result-label">Mensaje descifrado</div>
+    <div class="result-text" id="dec-result-text"></div>
+    <div class="result-actions">
+      <button class="btn btn-secondary" onclick="copyResult('dec-result-text')">Copiar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SIGN ══════════ -->
+<div class="view" id="view-sign">
+  <button class="section-back" onclick="goHome()">← volver</button>
+  <div class="section-header">
+    <div class="section-title">Firma digital</div>
+  </div>
+  <div class="adv-grid" style="margin-bottom:0">
+    <button class="adv-card" onclick="showView('sign-create')">
+      <div class="adv-card-icon">✍️</div>
+      <div class="adv-card-text">
+        <div class="adv-title">Firmar mensaje</div>
+        <div class="adv-sub">Demuestra que un mensaje es tuyo</div>
+      </div>
+    </button>
+    <button class="adv-card" onclick="showView('sign-verify')">
+      <div class="adv-card-icon">🔍</div>
+      <div class="adv-card-text">
+        <div class="adv-title">Verificar firma</div>
+        <div class="adv-sub">Comprueba que una firma es auténtica</div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ SIGN CREATE ══════════ -->
+<div class="view" id="view-sign-create">
+  <button class="section-back" onclick="showView('sign')">← volver</button>
+  <div class="section-header">
+    <div class="section-title">Firmar mensaje</div>
+  </div>
+  <div class="field">
+    <label class="field-label">Tu clave privada</label>
+    <div class="file-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadPrivKey(this,'sign')">
+      <div class="file-drop-icon">🔐</div>
+      <div>Arrastra el archivo o haz clic</div>
+      <div class="file-drop-name" id="sign-priv-name"></div>
+    </div>
+    <div class="or-divider">o pega el contenido</div>
+    <textarea class="mono" id="sign-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----" oninput="onSignPrivPaste()"></textarea>
+  </div>
+  <div class="field">
+    <label class="field-label">Mensaje a firmar</label>
+    <textarea id="sign-msg" placeholder="Escribe el mensaje..."></textarea>
+  </div>
+  <div class="alert alert-error" id="sign-err"></div>
+  <button class="btn btn-primary btn-full" onclick="doSign()">Firmar</button>
+  <div class="result-box" id="sign-result">
+    <div class="result-label">Firma digital</div>
+    <div class="result-text mono" id="sign-result-text"></div>
+    <div class="result-actions">
+      <button class="btn btn-secondary" onclick="copyResult('sign-result-text')">Copiar</button>
+      <button class="btn btn-secondary" onclick="dlResult('sign-result-text','firma.txt')">↓ Descargar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SIGN VERIFY ══════════ -->
+<div class="view" id="view-sign-verify">
+  <button class="section-back" onclick="showView('sign')">← volver</button>
+  <div class="section-header">
+    <div class="section-title">Verificar firma</div>
+  </div>
+  <div class="field">
+    <label class="field-label">Mensaje original</label>
+    <textarea id="verify-msg" placeholder="El mensaje que se firmó..."></textarea>
+  </div>
+  <div class="field">
+    <label class="field-label">Firma</label>
+    <div class="file-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadSignFile(this)">
+      <div class="file-drop-icon">📋</div>
+      <div>Arrastra el archivo de firma o haz clic</div>
+      <div class="file-drop-name" id="verify-sign-name"></div>
+    </div>
+    <div class="or-divider">o pega el contenido</div>
+    <textarea class="mono" id="verify-sign-paste" placeholder="-----BEGIN RSA SIGN-----&#10;...&#10;-----END RSA SIGN-----" oninput="onVerifySignPaste()"></textarea>
+  </div>
+  <div class="alert alert-error" id="verify-err"></div>
+  <button class="btn btn-primary btn-full" onclick="doVerify()">Verificar</button>
+  <div class="alert" id="verify-result" style="margin-top:16px"></div>
+</div>
+
+<!-- ══════════ ADVANCED ══════════ -->
+<div class="view" id="view-advanced">
+  <button class="section-back" onclick="goHome()">← volver</button>
+  <div class="section-header">
+    <div class="section-title">Modo avanzado</div>
+    <div class="section-sub">Operaciones RSA manuales con control total.</div>
+  </div>
+  <div class="adv-grid">
+    <button class="adv-card" onclick="showView('adv-nums')">
+      <div class="adv-card-icon">🔢</div>
+      <div class="adv-card-text"><div class="adv-title">Cifrar/Descifrar número</div><div class="adv-sub">Operación RSA directa sobre un entero</div></div>
+    </button>
+    <button class="adv-card" onclick="showView('adv-text')">
+      <div class="adv-card-icon">🔤</div>
+      <div class="adv-card-text"><div class="adv-title">Cifrar/Descifrar texto</div><div class="adv-sub">Con abecedario numérico y seeds</div></div>
+    </button>
+    <button class="adv-card" onclick="showView('adv-pem')">
+      <div class="adv-card-icon">📜</div>
+      <div class="adv-card-text"><div class="adv-title">PEM universal</div><div class="adv-sub">Codificar y decodificar cualquier PEM</div></div>
+    </button>
+    <button class="adv-card" onclick="showView('adv-seeds')">
+      <div class="adv-card-icon">🌱</div>
+      <div class="adv-card-text"><div class="adv-title">Seeds</div><div class="adv-sub">Crear y explorar abecedarios personalizados</div></div>
+    </button>
+    <button class="adv-card" onclick="showView('adv-genkeys')">
+      <div class="adv-card-icon">⚙️</div>
+      <div class="adv-card-text"><div class="adv-title">Generar claves</div><div class="adv-sub">Con control de cifras y parámetros</div></div>
+    </button>
+    <button class="adv-card" onclick="showView('adv-sign')">
+      <div class="adv-card-icon">✍️</div>
+      <div class="adv-card-text"><div class="adv-title">Firma digital</div><div class="adv-sub">Firmar y verificar con claves manuales</div></div>
+    </button>
+  </div>
+</div>
+
+
+<!-- ══════════ ADV: NUMS ══════════ -->
+<div class="view" id="view-adv-nums">
+  <button class="section-back" onclick="showView('advanced')">← volver</button>
+  <div class="section-header">
+    <div class="section-title">Cifrar / Descifrar número</div>
+  </div>
+  <div class="field">
+    <label class="field-label">Modo</label>
+    <select id="adv-num-mode">
+      <option value="enc-e">Cifrar con e</option>
+      <option value="enc-d">Cifrar con d</option>
+      <option value="dec-e">Descifrar con e</option>
+      <option value="dec-d">Descifrar con d</option>
+    </select>
+  </div>
+  <div class="field"><label class="field-label">Número</label><input type="text" id="adv-num-input" placeholder="12345"></div>
+  <div class="field"><label class="field-label">n</label><input type="text" id="adv-num-n" placeholder="módulo"></div>
+  <div class="field"><label class="field-label">Exponente (e o d)</label><input type="text" id="adv-num-exp" placeholder="exponente"></div>
+  <div class="alert alert-error" id="adv-num-err"></div>
+  <button class="btn btn-primary" onclick="doAdvNum()">Calcular</button>
+  <div class="result-box" id="adv-num-result">
+    <div class="result-label">Resultado</div>
+    <div class="result-text mono" id="adv-num-result-text"></div>
+    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('adv-num-result-text')">Copiar</button></div>
+  </div>
+</div>
+
+<!-- ══════════ ADV: TEXT ══════════ -->
+<div class="view" id="view-adv-text">
+  <button class="section-back" onclick="showView('advanced')">← volver</button>
+  <div class="section-header"><div class="section-title">Cifrar / Descifrar texto</div></div>
+  <div class="field">
+    <label class="field-label">Modo</label>
+    <select id="adv-text-mode" onchange="updateAdvTextMode()">
+      <option value="enc-e">Cifrar con e</option>
+      <option value="enc-d">Cifrar con d</option>
+      <option value="dec-e">Descifrar con e</option>
+      <option value="dec-d">Descifrar con d</option>
+    </select>
+  </div>
+  <div class="field"><label class="field-label">Texto / Números cifrados</label><textarea id="adv-text-input" placeholder="Texto a cifrar o números separados por espacios..."></textarea></div>
+  <div class="field"><label class="field-label">n</label><input type="text" id="adv-text-n" placeholder="módulo"></div>
+  <div class="field"><label class="field-label">Exponente (e o d)</label><input type="text" id="adv-text-exp" placeholder="exponente"></div>
+  <div class="field">
+    <label class="field-label">Seed (opcional)</label>
+    <input type="text" id="adv-text-seed" placeholder="vacío = abecedario normal">
+    <div class="field-sub">Genera un abecedario personalizado para mayor ofuscación.</div>
+  </div>
+  <div class="alert alert-error" id="adv-text-err"></div>
+  <button class="btn btn-primary" onclick="doAdvText()">Ejecutar</button>
+  <div class="result-box" id="adv-text-result">
+    <div class="result-label">Resultado</div>
+    <div class="result-text mono" id="adv-text-result-text"></div>
+    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('adv-text-result-text')">Copiar</button></div>
+  </div>
+</div>
+
+<!-- ══════════ ADV: PEM ══════════ -->
+<div class="view" id="view-adv-pem">
+  <button class="section-back" onclick="showView('advanced')">← volver</button>
+  <div class="section-header"><div class="section-title">PEM universal</div></div>
+  <div class="adv-grid" style="margin-bottom:0">
+    <button class="adv-card" onclick="showView('adv-pem-decode')">
+      <div class="adv-card-icon">🔍</div>
+      <div class="adv-card-text"><div class="adv-title">Decodificar</div><div class="adv-sub">PEM → valores</div></div>
+    </button>
+    <button class="adv-card" onclick="showView('adv-pem-encode')">
+      <div class="adv-card-icon">📝</div>
+      <div class="adv-card-text"><div class="adv-title">Codificar</div><div class="adv-sub">Valores → PEM</div></div>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ ADV: PEM DECODE ══════════ -->
+<div class="view" id="view-adv-pem-decode">
+  <button class="section-back" onclick="showView('adv-pem')">← volver</button>
+  <div class="section-header"><div class="section-title">Decodificar PEM</div></div>
+  <div class="field">
+    <label class="field-label">Archivo PEM</label>
+    <div class="file-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadPEMFile(this)">
+      <div class="file-drop-icon">📄</div><div>Arrastra el archivo o haz clic</div>
+      <div class="file-drop-name" id="pem-decode-name"></div>
+    </div>
+    <div class="or-divider">o pega el contenido</div>
+    <textarea class="mono" id="pem-decode-input" placeholder="-----BEGIN ...-----&#10;...&#10;-----END ...-----"></textarea>
+  </div>
+  <div class="alert alert-error" id="pem-decode-err"></div>
+  <button class="btn btn-primary" onclick="doDecoPEM()">Decodificar</button>
+  <div class="result-box" id="pem-decode-result">
+    <div class="result-label">Contenido</div>
+    <div class="result-text mono" id="pem-decode-result-text"></div>
+    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('pem-decode-result-text')">Copiar</button></div>
+  </div>
+</div>
+
+<!-- ══════════ ADV: PEM ENCODE ══════════ -->
+<div class="view" id="view-adv-pem-encode">
+  <button class="section-back" onclick="showView('adv-pem')">← volver</button>
+  <div class="section-header"><div class="section-title">Codificar PEM</div></div>
+  <div class="field">
+    <label class="field-label">Tipo</label>
+    <select id="pem-enc-type" onchange="updatePEMEncFields()">
+      <option value="pub">RSA PUBLIC KEY (n, e)</option>
+      <option value="priv">RSA PRIVATE KEY (n, e, d, p, q)</option>
+      <option value="cipher">RSA CIPHER (mensaje cifrado)</option>
+      <option value="sign">RSA SIGN (firma)</option>
+    </select>
+  </div>
+  <div id="pem-enc-fields"></div>
+  <div class="alert alert-error" id="pem-enc-err"></div>
+  <button class="btn btn-primary" onclick="doEncodePEM()">Generar PEM</button>
+  <div class="result-box" id="pem-enc-result">
+    <div class="result-label">PEM generado</div>
+    <div class="result-text mono" id="pem-enc-result-text"></div>
+    <div class="result-actions">
+      <button class="btn btn-secondary" onclick="copyResult('pem-enc-result-text')">Copiar</button>
+      <button class="btn btn-secondary" onclick="dlResult('pem-enc-result-text','output.txt')">↓ Descargar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADV: SEEDS ══════════ -->
+<div class="view" id="view-adv-seeds">
+  <button class="section-back" onclick="showView('advanced')">← volver</button>
+  <div class="section-header"><div class="section-title">Seeds</div></div>
+  <div class="field">
+    <label class="field-label">Seed</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="seed-input" placeholder="escribe una seed o genera aleatoria" style="flex:1">
+      <button class="btn btn-secondary" onclick="genRandomSeedUI()">Aleatoria</button>
+    </div>
+    <div class="field-sub">Una seed personaliza el abecedario numérico. Compatible con el programa Python.</div>
+  </div>
+  <button class="btn btn-primary" onclick="showSeedABC()">Ver abecedario</button>
+  <div class="result-box" id="seed-result">
+    <div class="result-label">Abecedario</div>
+    <div class="result-text mono" id="seed-result-text"></div>
+    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('seed-result-text')">Copiar seed</button></div>
+  </div>
+  <div class="divider"></div>
+  <div class="section-title" style="font-size:16px;margin-bottom:16px">Crear seed personalizada</div>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Intercambia letras manualmente. Introduce pares separados por espacio (ej: <code style="font-family:var(--mono);background:var(--bg2);padding:1px 5px;border-radius:3px">a z</code>).</p>
+  <div id="custom-seed-swaps"></div>
+  <div style="display:flex;gap:8px;margin-bottom:16px">
+    <input type="text" id="custom-seed-input" placeholder="ej: a z" style="flex:1" onkeydown="if(event.key==='Enter')addSwap()">
+    <button class="btn btn-secondary" onclick="addSwap()">Añadir</button>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="buildCustomSeed()">Generar seed</button>
+    <button class="btn btn-ghost" onclick="resetCustomSeed()">Reiniciar</button>
+  </div>
+  <div class="result-box" id="custom-seed-result">
+    <div class="result-label">Seed generada</div>
+    <div class="result-text mono" id="custom-seed-result-text"></div>
+    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('custom-seed-result-text')">Copiar</button></div>
+  </div>
+</div>
+
+<!-- ══════════ ADV: GENKEYS ══════════ -->
+<div class="view" id="view-adv-genkeys">
+  <button class="section-back" onclick="showView('advanced')">← volver</button>
+  <div class="section-header"><div class="section-title">Generar claves (avanzado)</div></div>
+  <div class="field">
+    <label class="field-label">Cifras de n</label>
+    <input type="number" id="adv-gen-digits-n" placeholder="ej: 200" min="10" max="5000">
+    <div class="field-sub">Deja vacío para aleatorio (10-30 cifras).</div>
+  </div>
+  <div class="field">
+    <label class="field-label">Cifras de e</label>
+    <input type="number" id="adv-gen-digits-e" placeholder="vacío = 65537" min="1" max="5000">
+  </div>
+  <div class="progress-bar" id="adv-gen-progress"><div class="progress-fill"></div></div>
+  <div class="generating-msg" id="adv-gen-msg">Generando primos...</div>
+  <div class="alert alert-error" id="adv-gen-err"></div>
+  <button class="btn btn-primary" id="btn-adv-gen" onclick="doAdvGenKeys()">Generar</button>
+  <div class="result-box" id="adv-gen-result">
+    <div class="result-label">Claves generadas</div>
+    <div class="result-text mono" id="adv-gen-result-text"></div>
+    <div class="result-actions">
+      <button class="btn btn-secondary" onclick="dlAdvPub()">↓ Clave pública</button>
+      <button class="btn btn-secondary" onclick="dlAdvPriv()">↓ Clave privada</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADV: SIGN ══════════ -->
+<div class="view" id="view-adv-sign">
+  <button class="section-back" onclick="showView('advanced')">← volver</button>
+  <div class="section-header"><div class="section-title">Firma digital (avanzado)</div></div>
+  <div class="adv-grid" style="margin-bottom:0">
+    <button class="adv-card" onclick="showView('sign-create')">
+      <div class="adv-card-icon">✍️</div>
+      <div class="adv-card-text"><div class="adv-title">Firmar</div><div class="adv-sub">Firma un mensaje</div></div>
+    </button>
+    <button class="adv-card" onclick="showView('sign-verify')">
+      <div class="adv-card-icon">🔍</div>
+      <div class="adv-card-text"><div class="adv-title">Verificar</div><div class="adv-sub">Comprueba una firma</div></div>
+    </button>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  BIG INTEGER HELPERS (native BigInt)
+// ═══════════════════════════════════════════════════════
+
+function modPow(base, exp, mod) {
+  if (mod === 1n) return 0n;
+  let result = 1n;
+  base = base % mod;
+  while (exp > 0n) {
+    if (exp % 2n === 1n) result = result * base % mod;
+    exp = exp >> 1n;
+    base = base * base % mod;
+  }
+  return result;
+}
+
+function modInverse(a, m) {
+  // Extended Euclidean
+  let [old_r, r] = [a, m];
+  let [old_s, s] = [1n, 0n];
+  while (r !== 0n) {
+    let q = old_r / r;
+    [old_r, r] = [r, old_r - q * r];
+    [old_s, s] = [s, old_s - q * s];
+  }
+  if (old_r !== 1n) throw new Error('No tiene inverso modular');
+  return ((old_s % m) + m) % m;
+}
+
+function randomBigIntBelow(max) {
+  // Returns a random BigInt in [0, max) using rejection sampling
+  const bits = max.toString(2).length;
+  while (true) {
+    const bytes = Math.ceil(bits / 8);
+    const arr = new Uint8Array(bytes);
+    crypto.getRandomValues(arr);
+    // mask top bits so we don't overshoot too often
+    const mask = (1 << (bits % 8 || 8)) - 1;
+    arr[0] &= mask;
+    let n = 0n;
+    for (const b of arr) n = (n << 8n) | BigInt(b);
+    if (n < max) return n;
+  }
+}
+
+function millerRabin(n, k = 20) {
+  if (n < 2n) return false;
+  if (n === 2n || n === 3n) return true;
+  if (n % 2n === 0n) return false;
+  let r = 0n, d = n - 1n;
+  while (d % 2n === 0n) { r++; d /= 2n; }
+  for (let i = 0; i < k; i++) {
+    // safe random witness for any size n
+    const a = 2n + randomBigIntBelow(n - 4n);
+    let x = modPow(a, d, n);
+    if (x === 1n || x === n - 1n) continue;
+    let cont = false;
+    for (let j = 0n; j < r - 1n; j++) {
+      x = modPow(x, 2n, n);
+      if (x === n - 1n) { cont = true; break; }
+    }
+    if (!cont) return false;
+  }
+  return true;
+}
+
+function randomBigInt(bits) {
+  const bytes = Math.ceil(bits / 8);
+  const arr = new Uint8Array(bytes);
+  crypto.getRandomValues(arr);
+  arr[0] |= 0x80;
+  arr[bytes - 1] |= 0x01;
+  let n = 0n;
+  for (const b of arr) n = (n << 8n) | BigInt(b);
+  return n;
+}
+
+function randomPrime(bits) {
+  while (true) {
+    let n = randomBigInt(bits);
+    if (millerRabin(n)) return n;
+  }
+}
+
+function gcd(a, b) {
+  a = a < 0n ? -a : a;
+  b = b < 0n ? -b : b;
+  while (b !== 0n) { [a, b] = [b, a % b]; }
+  return a;
+}
+
+function digitsToN(digits) {
+  // bits = ceil(digits * log2(10)) = ceil(digits * 3.32193)
+  // Use integer arithmetic to avoid Infinity for large digit counts
+  return Math.ceil(digits * 3.32193);
+}
+
+// ═══════════════════════════════════════════════════════
+//  ABECEDARIO
+// ═══════════════════════════════════════════════════════
+
+const DEFAULT_ABC = {
+  a:1,b:2,c:3,d:4,e:5,f:6,g:7,h:8,i:9,j:10,
+  k:11,l:12,m:13,n:14,o:15,p:16,q:17,r:18,s:19,t:20,
+  u:21,v:22,w:23,x:24,y:25,z:26
+};
+
+let ABECEDARIO = {...DEFAULT_ABC};
+let NUMERO_A_LETRA = Object.fromEntries(Object.entries(ABECEDARIO).map(([k,v])=>[v,k]));
+
+const MARCADOR_DIGITO = -1;
+const OFFSET_DIGITO = 27;
+
+function resetAbc() {
+  ABECEDARIO = {...DEFAULT_ABC};
+  NUMERO_A_LETRA = Object.fromEntries(Object.entries(ABECEDARIO).map(([k,v])=>[v,k]));
+}
+
+function applyAbc(abc) {
+  ABECEDARIO = {...abc};
+  NUMERO_A_LETRA = Object.fromEntries(Object.entries(ABECEDARIO).map(([k,v])=>[v,k]));
+}
+
+function genAbcWithSeed(seed) {
+  seed = seed.trim();
+  // Numeric seed "1-2-3-..."
+  const parts = seed.split('-');
+  if (parts.length === 26 && parts.every(p => !isNaN(p))) {
+    const nums = parts.map(Number);
+    const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    return Object.fromEntries(letters.map((l, i) => [l, nums[i]]));
+  }
+  // String seed → seeded shuffle
+  const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const nums = Array.from({length:26}, (_,i) => i+1);
+  // LCG seeded shuffle
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) >>> 0;
+  function rand() { h = (Math.imul(1664525, h) + 1013904223) >>> 0; return h / 0x100000000; }
+  for (let i = nums.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [nums[i], nums[j]] = [nums[j], nums[i]];
+  }
+  return Object.fromEntries(letters.map((l, i) => [l, nums[i]]));
+}
+
+function randomSeed(len = 8) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let s = '';
+  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TEXTO ↔ NÚMEROS
+// ═══════════════════════════════════════════════════════
+
+function textoANumeros(txt) {
+  const out = [];
+  for (const ch of txt) {
+    if (ch === ' ') { out.push(0); }
+    else if (ABECEDARIO[ch.toLowerCase()] !== undefined) { out.push(ABECEDARIO[ch.toLowerCase()]); }
+    else if (/\d/.test(ch)) { out.push(MARCADOR_DIGITO); out.push(OFFSET_DIGITO + parseInt(ch)); }
+  }
+  return out;
+}
+
+function numerosATexto(nums) {
+  let out = '';
+  for (let i = 0; i < nums.length; i++) {
+    const v = nums[i];
+    if (v === 0) out += ' ';
+    else if (v === MARCADOR_DIGITO) {
+      i++;
+      if (i < nums.length) { const d = nums[i] - OFFSET_DIGITO; if (d >= 0 && d <= 9) out += d; }
+    } else if (NUMERO_A_LETRA[v]) out += NUMERO_A_LETRA[v];
+    else out += `[${v}]`;
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════
+//  DER / PEM ENCODING
+// ═══════════════════════════════════════════════════════
+
+function bigIntToBytes(n) {
+  if (n === 0n) return new Uint8Array([0]);
+  const bits = n.toString(2).length;
+  const len = Math.ceil(bits / 8);
+  const arr = new Uint8Array(len);
+  let tmp = n;
+  for (let i = len - 1; i >= 0; i--) { arr[i] = Number(tmp & 0xffn); tmp >>= 8n; }
+  return arr;
+}
+
+function encodeLen(len) {
+  if (len < 0x80) return new Uint8Array([len]);
+  if (len < 0x100) return new Uint8Array([0x81, len]);
+  if (len < 0x10000) return new Uint8Array([0x82, len >> 8, len & 0xff]);
+  throw new Error('Longitud demasiado grande');
+}
+
+function encodeDERInt(n) {
+  let raw = bigIntToBytes(n);
+  if (raw[0] & 0x80) { const tmp = new Uint8Array(raw.length + 1); tmp[0] = 0; tmp.set(raw, 1); raw = tmp; }
+  const lenBytes = encodeLen(raw.length);
+  return concat([new Uint8Array([0x02]), lenBytes, raw]);
+}
+
+function encodeDERSeq(inner) {
+  const lenBytes = encodeLen(inner.length);
+  return concat([new Uint8Array([0x30]), lenBytes, inner]);
+}
+
+function concat(arrays) {
+  const total = arrays.reduce((s, a) => s + a.length, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const a of arrays) { out.set(a, off); off += a.length; }
+  return out;
+}
+
+function toBase64(bytes) {
+  let s = '';
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s);
+}
+
+function fromBase64(s) {
+  const bin = atob(s.replace(/\s/g, ''));
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+function wrapPEM(label, bytes) {
+  const b64 = toBase64(bytes);
+  const lines = b64.match(/.{1,64}/g).join('\n');
+  return `-----BEGIN ${label}-----\n${lines}\n-----END ${label}-----`;
+}
+
+function stripPEM(pem) {
+  const b64 = pem.replace(/-----BEGIN [A-Z0-9 ]+-----/g, '')
+                  .replace(/-----END [A-Z0-9 ]+-----/g, '')
+                  .replace(/\s/g, '');
+  return fromBase64(b64);
+}
+
+function decodeDERTLV(data, off) {
+  const tag = data[off++];
+  let lb = data[off++], length;
+  if (lb < 0x80) length = lb;
+  else if (lb === 0x81) { length = data[off++]; }
+  else if (lb === 0x82) { length = (data[off] << 8) | data[off+1]; off += 2; }
+  else throw new Error('Longitud DER no soportada');
+  return { tag, value: data.slice(off, off + length), next: off + length };
+}
+
+function decodeDERInt(bytes) {
+  let n = 0n;
+  for (const b of bytes) n = (n << 8n) | BigInt(b);
+  return n;
+}
+
+// RSA Public Key PEM (formato propio)
+function genPubKeyPEM(n, e) {
+  const seq = concat([encodeDERInt(n), encodeDERInt(e)]);
+  return wrapPEM('RSA PUBLIC KEY', encodeDERSeq(seq));
+}
+
+function parsePubKeyPEM(pem) {
+  const der = stripPEM(pem);
+  const { value: seqVal } = decodeDERTLV(der, 0);
+  let off = 0;
+  const nTLV = decodeDERTLV(seqVal, off);
+  const eTLV = decodeDERTLV(seqVal, nTLV.next);
+  return { n: decodeDERInt(nTLV.value), e: decodeDERInt(eTLV.value) };
+}
+
+// RSA Private Key PEM (PKCS#1-like)
+function genPrivKeyPEM(n, e, d, p, q) {
+  const dp = d % (p - 1n);
+  const dq = d % (q - 1n);
+  const qInv = modInverse(q, p);
+  const seq = concat([
+    encodeDERInt(0n), encodeDERInt(n), encodeDERInt(e), encodeDERInt(d),
+    encodeDERInt(p), encodeDERInt(q), encodeDERInt(dp), encodeDERInt(dq), encodeDERInt(qInv)
+  ]);
+  return wrapPEM('RSA PRIVATE KEY', encodeDERSeq(seq));
+}
+
+function parsePrivKeyPEM(pem) {
+  const der = stripPEM(pem);
+  const { value: seqVal } = decodeDERTLV(der, 0);
+  let off = 0;
+  const ver = decodeDERTLV(seqVal, off); off = ver.next;
+  const nT  = decodeDERTLV(seqVal, off); off = nT.next;
+  const eT  = decodeDERTLV(seqVal, off); off = eT.next;
+  const dT  = decodeDERTLV(seqVal, off); off = dT.next;
+  const pT  = decodeDERTLV(seqVal, off); off = pT.next;
+  const qT  = decodeDERTLV(seqVal, off); off = qT.next;
+  return {
+    n: decodeDERInt(nT.value), e: decodeDERInt(eT.value),
+    d: decodeDERInt(dT.value), p: decodeDERInt(pT.value), q: decodeDERInt(qT.value)
+  };
+}
+
+// Encrypted message PEM
+// (compatibilidad interna — los nuevos archivos usan RSA CIPHER)
+function pemToNums(pem) {
+  const data = stripPEM(pem);
+  const nums = [];
+  let i = 0;
+  while (i < data.length) {
+    const sign = data[i++];
+    const len = new DataView(data.buffer, data.byteOffset + i, 4).getUint32(0, false); i += 4;
+    const nb = data.slice(i, i + len); i += len;
+    let val = 0n;
+    for (const b of nb) val = (val << 8n) | BigInt(b);
+    nums.push(sign === 1 ? -val : val);
+  }
+  return nums;
+}
+
+// ═══════════════════════════════════════════════════════
+//  NUEVO SISTEMA PEM UNIFICADO
+//  RSA PUBLIC KEY   → DER(n, e)
+//  RSA PRIVATE KEY  → DER(0, n, e, d, p, q, dp, dq, qInv)
+//  RSA CIPHER       → MPI(n) + MPI(e) [+ MPI(d) si cifrado con d] + mensaje_raw
+//  RSA SIGN         → MPI(firma) + MPI(n) + MPI(e)
+// ═══════════════════════════════════════════════════════
+
+function encodeMPI(n) {
+  const b = bigIntToBytes(n);
+  const hdr = new Uint8Array(2);
+  new DataView(hdr.buffer).setUint16(0, b.length, false);
+  return concat([hdr, b]);
+}
+
+function decodeMPI(data, off) {
+  const len = new DataView(data.buffer, data.byteOffset + off, 2).getUint16(0, false);
+  off += 2;
+  let val = 0n;
+  for (let i = 0; i < len; i++) val = (val << 8n) | BigInt(data[off + i]);
+  return { value: val, next: off + len };
+}
+
+// RSA SIGN: MPI(firma) + MPI(n) + MPI(e)
+function genSignPEM(firma, n, e) {
+  return wrapPEM('RSA SIGN', concat([encodeMPI(firma), encodeMPI(n), encodeMPI(e)]));
+}
+function parseSignPEM(pem) {
+  const data = stripPEM(pem);
+  const fR = decodeMPI(data, 0);
+  const nR = decodeMPI(data, fR.next);
+  const eR = decodeMPI(data, nR.next);
+  return { firma: fR.value, n: nR.value, e: eR.value };
+}
+
+// RSA CIPHER: 1 byte modo (0=e,1=d) + MPI(n) + MPI(e) [+ MPI(d) si modo=1] + raw_mensaje
+function genCipherPEM(nums, n, e, d_val, modoCifrado, seed, incluirClaves, incluirSeed) {
+  // Formato: 1B(modo) + 1B(tieneClaves) + [MPI(n)+MPI(e)] + 1B(tieneSeed) + [2B(len)+seedBytes] + msg_raw
+  // d nunca se incluye.
+  const modo = modoCifrado === 'd' ? 1 : 0;
+  const modoByte = new Uint8Array([modo]);
+  const tieneClaves = incluirClaves ? 1 : 0;
+  const tieneClavesByte = new Uint8Array([tieneClaves]);
+  let clavesPart = new Uint8Array(0);
+  if (tieneClaves) clavesPart = concat([encodeMPI(n), encodeMPI(e)]);
+  const tieneSeed = (incluirSeed && seed) ? 1 : 0;
+  const tieneSeedByte = new Uint8Array([tieneSeed]);
+  let seedPart = new Uint8Array(0);
+  if (tieneSeed) {
+    const seedBytes = new TextEncoder().encode(seed);
+    const seedLen = new Uint8Array(2);
+    new DataView(seedLen.buffer).setUint16(0, seedBytes.length, false);
+    seedPart = concat([seedLen, seedBytes]);
+  }
+  // mensaje raw
+  const parts = [];
+  for (const num of nums) {
+    const isNeg = num < 0n;
+    const abs = isNeg ? -num : num;
+    const nb = bigIntToBytes(abs);
+    const sign = new Uint8Array([isNeg ? 1 : 0]);
+    const lenBytes = new Uint8Array(4);
+    new DataView(lenBytes.buffer).setUint32(0, nb.length, false);
+    parts.push(sign, lenBytes, nb);
+  }
+  const msgPart = concat(parts);
+  return wrapPEM('RSA CIPHER', concat([modoByte, tieneClavesByte, clavesPart, tieneSeedByte, seedPart, msgPart]));
+}
+
+function parseCipherPEM(pem) {
+  const data = stripPEM(pem);
+  let off = 0;
+  const modo = data[off++];         // 0=e, 1=d
+  const tieneClaves = data[off++];  // 0=sin claves, 1=con claves
+  let n = null, e = null;
+  if (tieneClaves) {
+    const nR = decodeMPI(data, off); off = nR.next; n = nR.value;
+    const eR = decodeMPI(data, off); off = eR.next; e = eR.value;
+  }
+  // seed
+  const tieneSeed = data[off++];
+  let seed = '';
+  if (tieneSeed) {
+    const seedLen = new DataView(data.buffer, data.byteOffset + off, 2).getUint16(0, false); off += 2;
+    const seedBytes = data.slice(off, off + seedLen); off += seedLen;
+    seed = new TextDecoder().decode(seedBytes);
+  }
+  // parse nums
+  const nums = [];
+  while (off < data.length) {
+    const sign = data[off++];
+    const len = new DataView(data.buffer, data.byteOffset + off, 4).getUint32(0, false); off += 4;
+    const nb = data.slice(off, off + len); off += len;
+    let val = 0n; for (const b of nb) val = (val << 8n) | BigInt(b);
+    nums.push(sign === 1 ? -val : val);
+  }
+  return { n, e, modo: modo === 1 ? 'd' : 'e', seed, nums };
+}
+
+// Detectar tipo de PEM por etiqueta
+function detectarTipoPEM(content) {
+  const labels = ['RSA PUBLIC KEY','RSA PRIVATE KEY','RSA CIPHER','RSA SIGN'];
+  for (const label of labels) {
+    if (content.includes(`-----BEGIN ${label}-----`)) return label;
+  }
+  return null;
+}
+
+function extraerPEM(content, label) {
+  const start = content.indexOf(`-----BEGIN ${label}-----`);
+  const endTag = `-----END ${label}-----`;
+  const end = content.indexOf(endTag);
+  if (start === -1 || end === -1) return null;
+  return content.slice(start, end + endTag.length);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SHA-256 (Web Crypto)
+// ═══════════════════════════════════════════════════════
+
+async function sha256BigInt(msg) {
+  const enc = new TextEncoder().encode(msg);
+  const hash = await crypto.subtle.digest('SHA-256', enc);
+  const arr = new Uint8Array(hash);
+  let n = 0n;
+  for (const b of arr) n = (n << 8n) | BigInt(b);
+  return n;
+}
+
+// ═══════════════════════════════════════════════════════
+//  FILE SYSTEM (in-memory)
+// ═══════════════════════════════════════════════════════
+
+let files = {}; // { name: content }
+let activeFile = null;
+let editorDirty = false;
+
+function renderFileList() {
+  const list = document.getElementById('file-list');
+  list.innerHTML = '';
+  const names = Object.keys(files).sort();
+  if (names.length === 0) {
+    list.innerHTML = '<div style="padding:12px;font-size:11px;color:var(--muted)">vacío</div>';
+    return;
+  }
+  for (const name of names) {
+    const div = document.createElement('div');
+    div.className = 'file-item' + (name === activeFile ? ' active' : '');
+    div.innerHTML = `<span class="fi-icon">▸</span><span class="fi-name" title="${name}">${name}</span><span class="fi-del" onclick="deleteFile('${name}',event)">✕</span>`;
+    div.onclick = (e) => { if (!e.target.classList.contains('fi-del')) openFile(name); };
+    list.appendChild(div);
+  }
+}
+
+function openFile(name) {
+  if (activeFile && editorDirty) saveCurrentFile();
+  activeFile = name;
+  editorDirty = false;
+  const area = document.getElementById('editor-area');
+  const ph = document.getElementById('editor-placeholder');
+  area.style.display = 'block';
+  ph.style.display = 'none';
+  area.value = files[name] || '';
+  document.getElementById('editor-filename').textContent = name;
+  renderFileList();
+}
+
+function onEditorInput() { editorDirty = true; }
+
+function saveCurrentFile() {
+  if (!activeFile) return;
+  files[activeFile] = document.getElementById('editor-area').value;
+  editorDirty = false;
+  print(`✓ guardado: ${activeFile}`, 'success');
+}
+
+function newFile() {
+  const name = prompt('Nombre del archivo (ej: claves.txt):');
+  if (!name) return;
+  const fname = name.endsWith('.txt') ? name : name + '.txt';
+  files[fname] = '';
+  renderFileList();
+  openFile(fname);
+}
+
+function deleteFile(name, e) {
+  e.stopPropagation();
+  if (!confirm(`¿Eliminar ${name}?`)) return;
+  delete files[name];
+  if (activeFile === name) {
+    activeFile = null;
+    document.getElementById('editor-area').style.display = 'none';
+    document.getElementById('editor-placeholder').style.display = 'flex';
+    document.getElementById('editor-filename').textContent = 'sin archivo';
+    editorDirty = false;
+  }
+  renderFileList();
+}
+
+function downloadCurrentFile() {
+  if (!activeFile) { print('no hay archivo seleccionado', 'error'); return; }
+  if (editorDirty) saveCurrentFile();
+  const blob = new Blob([files[activeFile]], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = activeFile; a.click();
+}
+
+function downloadAllFiles() {
+  const names = Object.keys(files);
+  if (names.length === 0) { print('no hay archivos', 'error'); return; }
+  for (const name of names) {
+    const blob = new Blob([files[name]], {type:'text/plain'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  }
+}
+
+function handleUpload(e) {
+  const fs = e.target.files;
+  for (const f of fs) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      files[f.name] = ev.target.result;
+      renderFileList();
+      print(`✓ importado: ${f.name}`, 'success');
+    };
+    reader.readAsText(f);
+  }
+  e.target.value = '';
+}
+
+function writeFile(name, content) {
+  files[name] = content;
+  renderFileList();
+  if (activeFile === name) document.getElementById('editor-area').value = content;
+}
+
+function readFile(name) {
+  return files[name] ?? null;
+}
+
+function listFiles() {
+  return Object.keys(files).sort();
+}
+
+// ═══════════════════════════════════════════════════════
+//  DETECT PEM IN TXT — nuevo sistema unificado
+// ═══════════════════════════════════════════════════════
+
+function parsearTxtUnificado(content) {
+  // Intenta detectar cualquiera de los 4 tipos de PEM
+  const resultado = { tipo: null };
+
+  // RSA CIPHER (prioridad: contiene claves + mensaje)
+  if (content.includes('-----BEGIN RSA CIPHER-----')) {
+    try {
+      const pem = extraerPEM(content, 'RSA CIPHER');
+      if (pem) {
+        const parsed = parseCipherPEM(pem);
+        return { tipo: 'RSA CIPHER', ...parsed, pem };
+      }
+    } catch(ex) {}
+  }
+  // RSA PRIVATE KEY
+  if (content.includes('-----BEGIN RSA PRIVATE KEY-----')) {
+    try {
+      const pem = extraerPEM(content, 'RSA PRIVATE KEY');
+      if (pem) {
+        const { n, e, d, p, q } = parsePrivKeyPEM(pem);
+        return { tipo: 'RSA PRIVATE KEY', n, e, d, p, q, pem };
+      }
+    } catch(ex) {}
+  }
+  // RSA PUBLIC KEY
+  if (content.includes('-----BEGIN RSA PUBLIC KEY-----')) {
+    try {
+      const pem = extraerPEM(content, 'RSA PUBLIC KEY');
+      if (pem) {
+        const { n, e } = parsePubKeyPEM(pem);
+        return { tipo: 'RSA PUBLIC KEY', n, e, pem };
+      }
+    } catch(ex) {}
+  }
+  // RSA SIGN
+  if (content.includes('-----BEGIN RSA SIGN-----')) {
+    try {
+      const pem = extraerPEM(content, 'RSA SIGN');
+      if (pem) {
+        const { firma, n, e } = parseSignPEM(pem);
+        return { tipo: 'RSA SIGN', firma, n, e, pem };
+      }
+    } catch(ex) {}
+  }
+  // seed en texto plano (legacy)
+  const mSeed = content.match(/Seed\s*:\s*(.+)/);
+  if (mSeed) resultado.seed = mSeed[1].trim();
+  return resultado;
+}
+
+// Alias legacy para compatibilidad con descifrarDesdeTxt
+function detectKeysInTxt(content) { return parsearTxtUnificado(content); }
+function detectMessageInTxt(content) {
+  const r = parsearTxtUnificado(content);
+  if (r.tipo === 'RSA CIPHER') return { tipo: 'pem_cipher', datos: r };
+  return { tipo: null, datos: null };
+}
+
+// ── VIEW ROUTING ──
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('view-' + id);
+  if (el) { el.classList.add('active'); window.scrollTo(0,0); }
+  // nav active
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (id === 'advanced' || id.startsWith('adv-')) document.getElementById('nav-adv').classList.add('active');
+  else document.getElementById('nav-home').classList.add('active');
+}
+function goHome() { showView('home'); }
+
+// ── STATE ──
+let _genPubPEM = null, _genPrivPEM = null;
+let _advGenPubPEM = null, _advGenPrivPEM = null;
+let _encPubKey = null;   // {n, e}
+let _decPrivKey = null;  // {n, e, d}
+let _signPrivKey = null; // {n, e, d}
+let _signPubKey = null;  // {n, e} from sign file
+let _cipherData = null;  // parsed RSA CIPHER
+let _verifySignData = null; // {firma, n, e}
+let _customSeedABC = null;
+let _customSwaps = [];
+let _keySize = 512;
+let _advGenN = null, _advGenE = null, _advGenD = null;
+
+// ── HELPERS ──
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'alert alert-' + type + ' show';
+  el.innerHTML = (type==='success'?'<span>✓</span>':type==='error'?'<span>✗</span>':'<span>ℹ</span>') + '<span>' + msg + '</span>';
+}
+function hideAlert(id) {
+  const el = document.getElementById(id);
+  if (el) el.className = 'alert';
+}
+function showResult(id, text) {
+  const box = document.getElementById(id);
+  const txt = document.getElementById(id + '-text');
+  if (box) box.classList.add('show');
+  if (txt) txt.textContent = text;
+}
+function hideResult(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+}
+function copyResult(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.closest('.result-box')?.querySelector('.btn');
+    if (btn) { const old = btn.textContent; btn.textContent = '✓ Copiado'; setTimeout(()=>btn.textContent=old, 1500); }
+  });
+}
+function dlResult(id, fname) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const blob = new Blob([el.textContent], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; a.click();
+}
+function dlText(text, fname) {
+  const blob = new Blob([text], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; a.click();
+}
+function readFile(input) {
+  return new Promise(res => {
+    const f = input.files[0]; if (!f) return res(null);
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.readAsText(f);
+  });
+}
+function setDropName(id, name) {
+  const el = document.getElementById(id); if (!el) return;
+  el.textContent = name; el.classList.add('show');
+}
+function setBusy(btnId, progressId, msgId, busy) {
+  const btn = document.getElementById(btnId);
+  const bar = document.getElementById(progressId);
+  const msg = document.getElementById(msgId);
+  if (btn) btn.disabled = busy;
+  if (bar) bar.classList.toggle('show', busy);
+  if (msg) msg.classList.toggle('show', busy);
+}
+
+// ── SIZE SELECTOR ──
+function selectSize(el) {
+  document.querySelectorAll('.size-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  _keySize = parseInt(el.dataset.bits);
+}
+
+// ── LOAD KEY FILES ──
+async function loadPubKey(input, prefix) {
+  const text = await readFile(input); if (!text) return;
+  const fname = input.files[0].name;
+  try {
+    const tipo = detectarTipoPEM(text);
+    let n, e;
+    if (tipo === 'RSA PUBLIC KEY') { const r = parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); n=r.n; e=r.e; }
+    else if (tipo === 'RSA PRIVATE KEY') { const r = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); n=r.n; e=r.e; }
+    else throw new Error('no se reconoció el archivo');
+    if (prefix === 'enc') { _encPubKey = {n,e}; setDropName('enc-pub-name', fname); hideAlert('enc-err'); }
+  } catch(ex) { showAlert(prefix+'-err', 'Error leyendo clave: '+ex.message, 'error'); }
+}
+
+async function loadPrivKey(input, prefix) {
+  const text = await readFile(input); if (!text) return;
+  const fname = input.files[0].name;
+  try {
+    const tipo = detectarTipoPEM(text);
+    if (tipo !== 'RSA PRIVATE KEY') throw new Error('se necesita una clave privada');
+    const r = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+    if (prefix === 'dec') { _decPrivKey = r; setDropName('dec-priv-name', fname); hideAlert('dec-err'); }
+    else if (prefix === 'sign') { _signPrivKey = r; setDropName('sign-priv-name', fname); hideAlert('sign-err'); }
+  } catch(ex) { showAlert(prefix+'-err', 'Error leyendo clave privada: '+ex.message, 'error'); }
+}
+
+async function loadCipherFile(input) {
+  const text = await readFile(input); if (!text) return;
+  const fname = input.files[0].name;
+  try {
+    const pem = extraerPEM(text,'RSA CIPHER');
+    if (!pem) throw new Error('no se encontró RSA CIPHER en el archivo');
+    _cipherData = parseCipherPEM(pem);
+    setDropName('dec-cipher-name', fname);
+    hideAlert('dec-err');
+  } catch(ex) { showAlert('dec-err', 'Error leyendo mensaje cifrado: '+ex.message, 'error'); }
+}
+
+async function loadSignFile(input) {
+  const text = await readFile(input); if (!text) return;
+  const fname = input.files[0].name;
+  try {
+    const pem = extraerPEM(text,'RSA SIGN');
+    if (!pem) throw new Error('no se encontró RSA SIGN en el archivo');
+    const r = parseSignPEM(pem);
+    _verifySignData = r;
+    setDropName('verify-sign-name', fname);
+    hideAlert('verify-err');
+  } catch(ex) { showAlert('verify-err', 'Error leyendo firma: '+ex.message, 'error'); }
+}
+
+async function loadPEMFile(input) {
+  const text = await readFile(input); if (!text) return;
+  document.getElementById('pem-decode-input').value = text;
+  setDropName('pem-decode-name', input.files[0].name);
+}
+
+// ── PASTE HANDLERS ──
+function onEncPubPaste() {
+  const text = document.getElementById('enc-pub-paste').value;
+  try {
+    const tipo = detectarTipoPEM(text);
+    if (tipo === 'RSA PUBLIC KEY') { const r = parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); _encPubKey={n:r.n,e:r.e}; }
+    else if (tipo === 'RSA PRIVATE KEY') { const r = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); _encPubKey={n:r.n,e:r.e}; }
+  } catch(ex) { _encPubKey = null; }
+}
+function onDecPrivPaste() {
+  const text = document.getElementById('dec-priv-paste').value;
+  try {
+    if (text.includes('-----BEGIN RSA PRIVATE KEY-----')) {
+      _decPrivKey = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+    }
+  } catch(ex) { _decPrivKey = null; }
+}
+function onDecCipherPaste() {
+  const text = document.getElementById('dec-cipher-paste').value;
+  try {
+    if (text.includes('-----BEGIN RSA CIPHER-----')) {
+      _cipherData = parseCipherPEM(extraerPEM(text,'RSA CIPHER'));
+    }
+  } catch(ex) { _cipherData = null; }
+}
+function onSignPrivPaste() {
+  const text = document.getElementById('sign-priv-paste').value;
+  try {
+    if (text.includes('-----BEGIN RSA PRIVATE KEY-----')) {
+      _signPrivKey = parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+    }
+  } catch(ex) { _signPrivKey = null; }
+}
+function onVerifySignPaste() {
+  const text = document.getElementById('verify-sign-paste').value;
+  try {
+    if (text.includes('-----BEGIN RSA SIGN-----')) {
+      _verifySignData = parseSignPEM(extraerPEM(text,'RSA SIGN'));
+    }
+  } catch(ex) { _verifySignData = null; }
+}
+
+// ── GENKEYS (EASY) ──
+async function doGenKeys() {
+  hideAlert('gen-ok'); hideResult('gen-result');
+  document.getElementById('btn-dl-pub').style.display='none';
+  document.getElementById('btn-dl-priv').style.display='none';
+  setBusy('btn-gen','gen-progress','gen-msg',true);
+  document.getElementById('gen-msg').textContent = 'Generando primos aleatorios...';
+  await new Promise(r=>setTimeout(r,30));
+  try {
+    const bitsN = _keySize;
+    const bitsPrimo = Math.max(bitsN/2, 8);
+    let p = randomPrime(bitsPrimo);
+    let q = randomPrime(bitsPrimo);
+    while (q===p) q = randomPrime(bitsPrimo);
+    const n = p*q, phi=(p-1n)*(q-1n);
+    let e=65537n; if(gcd(e,phi)!==1n){e=3n;while(gcd(e,phi)!==1n)e+=2n;}
+    const d = modInverse(e,phi);
+    _genPubPEM = genPubKeyPEM(n,e);
+    _genPrivPEM = genPrivKeyPEM(n,e,d,p,q);
+    setBusy('btn-gen','gen-progress','gen-msg',false);
+    showAlert('gen-ok','Claves generadas. Descarga ambos archivos.','success');
+    document.getElementById('btn-dl-pub').style.display='';
+    document.getElementById('btn-dl-priv').style.display='';
+  } catch(ex) {
+    setBusy('btn-gen','gen-progress','gen-msg',false);
+    showAlert('gen-ok','Error: '+ex.message,'error');
+  }
+}
+function dlPub() { if(_genPubPEM) dlText(_genPubPEM,'clave_publica.txt'); }
+function dlPriv() { if(_genPrivPEM) dlText(_genPrivPEM,'clave_privada.txt'); }
+
+// ── ENCRYPT (EASY) ──
+async function doEncrypt() {
+  hideAlert('enc-err'); hideResult('enc-result');
+  // Try paste first, then stored key
+  const pasteText = document.getElementById('enc-pub-paste').value.trim();
+  if (pasteText && !_encPubKey) { onEncPubPaste(); }
+  if (!_encPubKey) { showAlert('enc-err','Carga o pega la clave pública del destinatario.','error'); return; }
+  const msg = document.getElementById('enc-msg').value.trim();
+  if (!msg) { showAlert('enc-err','Escribe el mensaje a cifrar.','error'); return; }
+  try {
+    const {n,e} = _encPubKey;
+    const nums = textoANumeros(msg);
+    const cifrados = nums.map(v => {
+      if (v===MARCADOR_DIGITO) return -modPow(BigInt(Math.abs(MARCADOR_DIGITO)),e,n);
+      if (v===0) return 0n;
+      return modPow(BigInt(v),e,n);
+    });
+    const pem = genCipherPEM(cifrados, n, e, null, 'e', '', true, false);
+    showResult('enc-result', pem);
+  } catch(ex) { showAlert('enc-err','Error al cifrar: '+ex.message,'error'); }
+}
+
+// ── DECRYPT (EASY) ──
+async function doDecrypt() {
+  hideAlert('dec-err'); hideResult('dec-result');
+  const privPaste = document.getElementById('dec-priv-paste').value.trim();
+  if (privPaste && !_decPrivKey) onDecPrivPaste();
+  const cipherPaste = document.getElementById('dec-cipher-paste').value.trim();
+  if (cipherPaste && !_cipherData) onDecCipherPaste();
+  if (!_decPrivKey) { showAlert('dec-err','Carga o pega tu clave privada.','error'); return; }
+  if (!_cipherData) { showAlert('dec-err','Carga o pega el mensaje cifrado.','error'); return; }
+  try {
+    const {d, n: nPriv} = _decPrivKey;
+    const {n: nCipher, modo, nums, seed} = _cipherData;
+    const n = nCipher ?? nPriv;
+    let exp;
+    if (modo==='e') exp = d;
+    else exp = _decPrivKey.e;
+    if (seed) { applyAbc(genAbcWithSeed(seed)); }
+    const descifrados = nums.map(c => {
+      if (c<0n) return MARCADOR_DIGITO;
+      if (c===0n) return 0;
+      return Number(modPow(c,exp,n));
+    });
+    const texto = numerosATexto(descifrados);
+    resetAbc();
+    showResult('dec-result', texto);
+  } catch(ex) { resetAbc(); showAlert('dec-err','Error al descifrar: '+ex.message,'error'); }
+}
+
+// ── SIGN ──
+async function doSign() {
+  hideAlert('sign-err'); hideResult('sign-result');
+  const privPaste = document.getElementById('sign-priv-paste').value.trim();
+  if (privPaste && !_signPrivKey) onSignPrivPaste();
+  if (!_signPrivKey) { showAlert('sign-err','Carga o pega tu clave privada.','error'); return; }
+  const msg = document.getElementById('sign-msg').value;
+  if (!msg.trim()) { showAlert('sign-err','Escribe el mensaje a firmar.','error'); return; }
+  try {
+    const {n,e,d} = _signPrivKey;
+    const hashBig = await sha256BigInt(msg);
+    const firma = modPow(hashBig, d, n);
+    const pem = genSignPEM(firma, n, e);
+    showResult('sign-result', pem);
+  } catch(ex) { showAlert('sign-err','Error al firmar: '+ex.message,'error'); }
+}
+
+// ── VERIFY ──
+async function doVerify() {
+  hideAlert('verify-err');
+  document.getElementById('verify-result').className='alert';
+  const signPaste = document.getElementById('verify-sign-paste').value.trim();
+  if (signPaste && !_verifySignData) onVerifySignPaste();
+  if (!_verifySignData) { showAlert('verify-err','Carga o pega el archivo de firma.','error'); return; }
+  const msg = document.getElementById('verify-msg').value;
+  if (!msg.trim()) { showAlert('verify-err','Escribe el mensaje original.','error'); return; }
+  try {
+    const {firma, n, e} = _verifySignData;
+    const hashBig = await sha256BigInt(msg);
+    const hashMod = hashBig % n;
+    const resultado = modPow(firma, e, n);
+    const el = document.getElementById('verify-result');
+    if (resultado === hashMod) {
+      el.className='alert alert-success show';
+      el.innerHTML='<span>✓</span><span>Firma válida. El mensaje es auténtico.</span>';
+    } else {
+      el.className='alert alert-error show';
+      el.innerHTML='<span>✗</span><span>Firma inválida. El mensaje puede haber sido alterado.</span>';
+    }
+  } catch(ex) { showAlert('verify-err','Error al verificar: '+ex.message,'error'); }
+}
+
+// ── ADV: NUM ──
+function doAdvNum() {
+  hideAlert('adv-num-err'); hideResult('adv-num-result');
+  try {
+    const mode = document.getElementById('adv-num-mode').value;
+    const num = BigInt(document.getElementById('adv-num-input').value.trim());
+    const n = BigInt(document.getElementById('adv-num-n').value.trim());
+    const exp = BigInt(document.getElementById('adv-num-exp').value.trim());
+    const res = modPow(num, exp, n);
+    showResult('adv-num-result', res.toString());
+  } catch(ex) { showAlert('adv-num-err', 'Error: '+ex.message, 'error'); }
+}
+
+// ── ADV: TEXT ──
+function doAdvText() {
+  hideAlert('adv-text-err'); hideResult('adv-text-result');
+  try {
+    const mode = document.getElementById('adv-text-mode').value;
+    const input = document.getElementById('adv-text-input').value;
+    const n = BigInt(document.getElementById('adv-text-n').value.trim());
+    const exp = BigInt(document.getElementById('adv-text-exp').value.trim());
+    const seed = document.getElementById('adv-text-seed').value.trim();
+    if (seed) applyAbc(genAbcWithSeed(seed));
+    let result;
+    if (mode.startsWith('enc')) {
+      const nums = textoANumeros(input);
+      const cifrados = nums.map(v => {
+        if (v===MARCADOR_DIGITO) return -modPow(BigInt(Math.abs(MARCADOR_DIGITO)),exp,n);
+        if (v===0) return 0n;
+        return modPow(BigInt(v),exp,n);
+      });
+      result = cifrados.map(x=>x.toString()).join(' ');
+    } else {
+      const cifrados = input.trim().split(/\s+/).map(s=>BigInt(s));
+      const descifrados = cifrados.map(c=>{
+        if(c<0n) return MARCADOR_DIGITO;
+        if(c===0n) return 0;
+        return Number(modPow(c,exp,n));
+      });
+      result = numerosATexto(descifrados);
+    }
+    resetAbc();
+    showResult('adv-text-result', result);
+  } catch(ex) { resetAbc(); showAlert('adv-text-err','Error: '+ex.message,'error'); }
+}
+
+// ── ADV: PEM DECODE ──
+function doDecoPEM() {
+  hideAlert('pem-decode-err'); hideResult('pem-decode-result');
+  const text = document.getElementById('pem-decode-input').value.trim();
+  if (!text) { showAlert('pem-decode-err','Pega o carga un bloque PEM.','error'); return; }
+  try {
+    const label = (text.match(/-----BEGIN ([A-Z0-9 ]+)-----/)||[])[1]?.trim();
+    if (!label) throw new Error('cabecera PEM inválida');
+    let out = `Tipo: ${label}\n${'─'.repeat(40)}\n`;
+    if (label==='RSA PUBLIC KEY') {
+      const {n,e}=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY'));
+      out+=`n = ${n}\ne = ${e}`;
+    } else if (label==='RSA PRIVATE KEY') {
+      const {n,e,d,p,q}=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY'));
+      out+=`n = ${n}\ne = ${e}\nd = ${d}\np = ${p}\nq = ${q}`;
+    } else if (label==='RSA CIPHER') {
+      const {n,e,modo,seed,nums}=parseCipherPEM(extraerPEM(text,'RSA CIPHER'));
+      out+=`Cifrado con: ${modo}\n`;
+      if(n) out+=`n = ${n}\ne = ${e}\n`;
+      else out+=`Claves: no incluidas\n`;
+      out+=`Seed: ${seed||'no incluida'}\n${nums.length} valores cifrados:\n${nums.map(x=>x.toString()).join(' ')}`;
+    } else if (label==='RSA SIGN') {
+      const {firma,n,e}=parseSignPEM(extraerPEM(text,'RSA SIGN'));
+      out+=`firma = ${firma}\nn = ${n}\ne = ${e}`;
+    } else throw new Error(`tipo no reconocido: ${label}`);
+    showResult('pem-decode-result', out);
+  } catch(ex) { showAlert('pem-decode-err','Error: '+ex.message,'error'); }
+}
+
+// ── ADV: PEM ENCODE ──
+function updatePEMEncFields() {
+  const type = document.getElementById('pem-enc-type').value;
+  const c = document.getElementById('pem-enc-fields');
+  const f = (label, id, ph) => `<div class="field"><label class="field-label">${label}</label><input type="text" id="${id}" placeholder="${ph}"></div>`;
+  const t = (label, id, ph) => `<div class="field"><label class="field-label">${label}</label><textarea class="mono" id="${id}" placeholder="${ph}" style="min-height:80px"></textarea></div>`;
+  if (type==='pub') c.innerHTML = f('n','pem-enc-n','módulo') + f('e','pem-enc-e','exponente público');
+  else if (type==='priv') c.innerHTML = f('n','pem-enc-n','') + f('e','pem-enc-e','') + f('d','pem-enc-d','') + f('p','pem-enc-p','') + f('q','pem-enc-q','');
+  else if (type==='cipher') c.innerHTML =
+    t('Números cifrados (separados por espacios)','pem-enc-nums','12345 67890 ...') +
+    f('n (opcional)','pem-enc-n','dejar vacío = no incluir') +
+    f('e (opcional)','pem-enc-e','') +
+    `<div class="field"><label class="field-label">Modo de cifrado</label><select id="pem-enc-modo"><option value="e">Cifrado con e</option><option value="d">Cifrado con d</option></select></div>` +
+    f('Seed (opcional)','pem-enc-seed','') +
+    `<div class="field"><label class="field-label">¿Incluir seed en el PEM?</label><select id="pem-enc-inclseed"><option value="n">No</option><option value="y">Sí</option></select></div>`;
+  else if (type==='sign') c.innerHTML = f('Firma (entero)','pem-enc-firma','') + f('n','pem-enc-n','') + f('e','pem-enc-e','');
+  hideResult('pem-enc-result');
+}
+
+function doEncodePEM() {
+  hideAlert('pem-enc-err'); hideResult('pem-enc-result');
+  const type = document.getElementById('pem-enc-type').value;
+  const g = id => (document.getElementById(id)||{}).value?.trim()||'';
+  try {
+    let pem;
+    if (type==='pub') {
+      pem = genPubKeyPEM(BigInt(g('pem-enc-n')), BigInt(g('pem-enc-e')));
+    } else if (type==='priv') {
+      pem = genPrivKeyPEM(BigInt(g('pem-enc-n')),BigInt(g('pem-enc-e')),BigInt(g('pem-enc-d')),BigInt(g('pem-enc-p')),BigInt(g('pem-enc-q')));
+    } else if (type==='cipher') {
+      const nums = g('pem-enc-nums').split(/\s+/).filter(Boolean).map(s=>BigInt(s));
+      const nStr=g('pem-enc-n'), eStr=g('pem-enc-e');
+      const inclClaves = !!(nStr && eStr);
+      const n = inclClaves?BigInt(nStr):null;
+      const e = inclClaves?BigInt(eStr):null;
+      const modo = g('pem-enc-modo')||'e';
+      const seed = g('pem-enc-seed');
+      const inclSeed = g('pem-enc-inclseed')==='y' && !!seed;
+      pem = genCipherPEM(nums, n, e, null, modo, seed, inclClaves, inclSeed);
+    } else if (type==='sign') {
+      pem = genSignPEM(BigInt(g('pem-enc-firma')),BigInt(g('pem-enc-n')),BigInt(g('pem-enc-e')));
+    }
+    showResult('pem-enc-result', pem);
+  } catch(ex) { showAlert('pem-enc-err','Error: '+ex.message,'error'); }
+}
+
+// ── ADV: GENKEYS ──
+async function doAdvGenKeys() {
+  hideAlert('adv-gen-err'); hideResult('adv-gen-result');
+  setBusy('btn-adv-gen','adv-gen-progress','adv-gen-msg',true);
+  document.getElementById('adv-gen-msg').textContent='Generando primos...';
+  await new Promise(r=>setTimeout(r,30));
+  try {
+    const cifrasNStr = document.getElementById('adv-gen-digits-n').value.trim();
+    const cifrasEStr = document.getElementById('adv-gen-digits-e').value.trim();
+    let bitsN, bitsE;
+    if (!cifrasNStr) { const c=Math.floor(Math.random()*21)+10; bitsN=Math.ceil(c*3.32193); }
+    else bitsN = Math.ceil(parseInt(cifrasNStr)*3.32193);
+    const bitsPrimo = Math.max(Math.floor(bitsN/2),8);
+    let p=randomPrime(bitsPrimo), q=randomPrime(bitsPrimo);
+    while(q===p) q=randomPrime(bitsPrimo);
+    const n=p*q, phi=(p-1n)*(q-1n);
+    let e;
+    if (!cifrasEStr) { e=65537n; if(gcd(e,phi)!==1n){e=3n;while(gcd(e,phi)!==1n)e+=2n;} }
+    else {
+      bitsE=Math.ceil(parseInt(cifrasEStr)*3.32193);
+      let tries=0; e=null;
+      while(tries++<1000){const c=randomPrime(bitsE);if(gcd(c,phi)===1n){e=c;break;}}
+      if(!e){e=65537n; if(gcd(e,phi)!==1n){e=3n;while(gcd(e,phi)!==1n)e+=2n;}}
+    }
+    const d=modInverse(e,phi);
+    _advGenPubPEM=genPubKeyPEM(n,e);
+    _advGenPrivPEM=genPrivKeyPEM(n,e,d,p,q);
+    _advGenN=n; _advGenE=e; _advGenD=d;
+    setBusy('btn-adv-gen','adv-gen-progress','adv-gen-msg',false);
+    showResult('adv-gen-result', `${_advGenPubPEM}\n\n${_advGenPrivPEM}`);
+  } catch(ex) {
+    setBusy('btn-adv-gen','adv-gen-progress','adv-gen-msg',false);
+    showAlert('adv-gen-err','Error: '+ex.message,'error');
+  }
+}
+function dlAdvPub() { if(_advGenPubPEM) dlText(_advGenPubPEM,'clave_publica.txt'); }
+function dlAdvPriv() { if(_advGenPrivPEM) dlText(_advGenPrivPEM,'clave_privada.txt'); }
+
+// ── ADV: SEEDS ──
+function genRandomSeedUI() {
+  const s = randomSeed(8);
+  document.getElementById('seed-input').value = s;
+}
+function showSeedABC() {
+  const seed = document.getElementById('seed-input').value.trim();
+  const abc = seed ? genAbcWithSeed(seed) : {...DEFAULT_ABC};
+  const lines = Object.entries(abc).map(([l,n])=>`${l} = ${n}`).join('\n');
+  const box = document.getElementById('seed-result');
+  document.getElementById('seed-result-text').textContent = lines;
+  box.classList.add('show');
+  // store seed for copy
+  document.querySelector('#seed-result .btn').onclick = ()=>navigator.clipboard.writeText(seed||'');
+}
+
+let _swapABC = Array.from({length:26},(_,i)=>i+1);
+function resetCustomSeed() {
+  _customSwaps = [];
+  _swapABC = Array.from({length:26},(_,i)=>i+1);
+  renderSwaps();
+  hideResult('custom-seed-result');
+}
+function renderSwaps() {
+  const c = document.getElementById('custom-seed-swaps');
+  if (!_customSwaps.length) { c.innerHTML=''; return; }
+  c.innerHTML = _customSwaps.map((sw,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px">
+      <code style="font-family:var(--mono);background:var(--bg2);padding:3px 8px;border-radius:4px">${sw[0]} ↔ ${sw[1]}</code>
+      <button onclick="removeSwap(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px">✕</button>
+    </div>`).join('');
+}
+function addSwap() {
+  const val = document.getElementById('custom-seed-input').value.trim().toLowerCase();
+  document.getElementById('custom-seed-input').value='';
+  const parts = val.split(/\s+/);
+  if (parts.length!==2) return;
+  const [l1,l2]=parts;
+  if (!/^[a-z]$/.test(l1)||!/^[a-z]$/.test(l2)) return;
+  const i1=l1.charCodeAt(0)-97, i2=l2.charCodeAt(0)-97;
+  [_swapABC[i1],_swapABC[i2]]=[_swapABC[i2],_swapABC[i1]];
+  _customSwaps.push([l1,l2]);
+  renderSwaps();
+}
+function removeSwap(idx) {
+  _swapABC = Array.from({length:26},(_,i)=>i+1);
+  _customSwaps.splice(idx,1);
+  _customSwaps.forEach(([l1,l2])=>{
+    const i1=l1.charCodeAt(0)-97,i2=l2.charCodeAt(0)-97;
+    [_swapABC[i1],_swapABC[i2]]=[_swapABC[i2],_swapABC[i1]];
+  });
+  renderSwaps();
+}
+function buildCustomSeed() {
+  const seed = _swapABC.join('-');
+  const box = document.getElementById('custom-seed-result');
+  document.getElementById('custom-seed-result-text').textContent = seed;
+  box.classList.add('show');
+}
+
+// ── DRAG & DROP ──
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.file-drop').forEach(drop => {
+    drop.addEventListener('dragover', e=>{e.preventDefault();drop.classList.add('drag');});
+    drop.addEventListener('dragleave', ()=>drop.classList.remove('drag'));
+    drop.addEventListener('drop', e=>{
+      e.preventDefault(); drop.classList.remove('drag');
+      const input=drop.querySelector('input[type=file]');
+      if(input&&e.dataTransfer.files.length){
+        const dt=new DataTransfer(); dt.items.add(e.dataTransfer.files[0]);
+        input.files=dt.files; input.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+  updatePEMEncFields();
+  document.getElementById('seed-input').addEventListener('keydown',e=>{if(e.key==='Enter')showSeedABC();});
+});
+
+</script>
+</body>
+</html>
