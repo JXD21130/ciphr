@@ -462,7 +462,27 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <div id="app">
 
 <header>
-  <a class="logo" href="#" onclick="goHome()"><span>ciphr</span></a>
+  <a class="logo" href="#" onclick="goHome();return false;" style="display:inline-flex;align-items:center;line-height:1;">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 52" width="90" height="24" style="display:block;">
+    <defs>
+      <style>@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@500&amp;display=swap');</style>
+    </defs>
+    <!-- ciphr completo -->
+    <text x="0" y="42"
+      font-family="'DM Mono', monospace"
+      font-size="44" font-weight="500"
+      fill="currentColor"
+      letter-spacing="-1">ciphr</text>
+    <!-- suprimir punto de la i — la i empieza en ~57px -->
+    <rect x="56" y="0" width="20" height="16" fill="white"/>
+    <!-- arco del candado: de la c a la i -->
+    <path d="M 9 22 Q 9 4 20 4 Q 31 4 31 13"
+      stroke="currentColor" stroke-width="3.8"
+      fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- punto final del arco -->
+    <circle cx="31" cy="13" r="2.2" fill="currentColor"/>
+  </svg>
+</a>
   <nav class="header-nav">
     <button class="nav-btn active" id="nav-home" onclick="goHome()">inicio</button>
     <button class="nav-btn" id="nav-adv" onclick="showView('advanced')">avanzado</button>
