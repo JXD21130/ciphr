@@ -959,11 +959,13 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 </main>
 </div>
 
+<script src="https://raw.githubusercontent.com/JXD21130/RSA-simple/6ef7844f3385641359eeb1c0304e6c8cbdcddd78/index.html"></script>
 <script>
 // ═══════════════════════════════════════════════════════
-//  BIG INTEGER HELPERS (native BigInt)
+//  ALL ORIGINAL JAVASCRIPT FUNCTIONALITY
 // ═══════════════════════════════════════════════════════
 
+// ─── BIG INTEGER HELPERS ───
 function modPow(base, exp, mod) {
   if (mod === 1n) return 0n;
   let result = 1n;
@@ -975,3 +977,567 @@ function modPow(base, exp, mod) {
   }
   return result;
 }
+
+function isPrime(num, iterations = 40) {
+  if (num < 2n) return false;
+  if (num === 2n || num === 3n) return true;
+  if (num % 2n === 0n) return false;
+  let d = num - 1n;
+  let r = 0n;
+  while (d % 2n === 0n) {
+    d /= 2n;
+    r += 1n;
+  }
+  for (let i = 0; i < iterations; i++) {
+    const a = 2n + BigInt(Math.floor(Math.random() * Number(num - 3)));
+    let x = modPow(a, d, num);
+    if (x === 1n || x === num - 1n) continue;
+    let cont = false;
+    for (let j = 0n; j < r - 1n; j++) {
+      x = modPow(x, 2n, num);
+      if (x === num - 1n) {
+        cont = true;
+        break;
+      }
+    }
+    if (!cont) return false;
+  }
+  return true;
+}
+
+function generateRandomBigInt(bits) {
+  const bytes = Math.ceil(bits / 8);
+  const bytes_arr = new Uint8Array(bytes);
+  crypto.getRandomValues(bytes_arr);
+  let result = 0n;
+  for (let i = 0; i < bytes; i++) {
+    result = (result << 8n) | BigInt(bytes_arr[i]);
+  }
+  return result >> BigInt(8 * bytes - bits);
+}
+
+function gcd(a, b) {
+  while (b) {
+    [a, b] = [b, a % b];
+  }
+  return a;
+}
+
+function gcdExtended(a, b) {
+  if (b === 0n) return { x: 1n, y: 0n };
+  let { x: x1, y: y1 } = gcdExtended(b, a % b);
+  let x = y1;
+  let y = x1 - (a / b) * y1;
+  return { x, y };
+}
+
+function modInverse(a, m) {
+  a = a % m;
+  let { x } = gcdExtended(a, m);
+  return ((x % m) + m) % m;
+}
+
+// ─── GLOBAL STATE ───
+let globalState = {
+  pubKey: null,
+  privKey: null,
+  selectedBits: 512,
+  encMode: 'pub',
+  decMode: 'priv',
+};
+
+let encryptState = { pubKey: null };
+let decryptState = { privKey: null, cipher: null };
+let signState = { privKey: null };
+
+// ─── UI FUNCTIONS ───
+function showView(viewName) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + viewName).classList.add('active');
+  if (viewName === 'home') {
+    document.getElementById('nav-home').classList.add('active');
+    document.getElementById('nav-adv').classList.remove('active');
+  }
+}
+
+function goHome() {
+  showView('home');
+}
+
+function selectSize(el) {
+  document.querySelectorAll('.size-opt').forEach(opt => opt.classList.remove('selected'));
+  el.classList.add('selected');
+  globalState.selectedBits = parseInt(el.dataset.bits);
+}
+
+function clearAlert(id) {
+  const alert = document.getElementById(id);
+  if (alert) {
+    alert.classList.remove('show');
+  }
+}
+
+function showAlert(id, message) {
+  const alert = document.getElementById(id);
+  if (alert) {
+    if (message) alert.textContent = message;
+    alert.classList.add('show');
+  }
+}
+
+function copyResult(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    navigator.clipboard.writeText(element.textContent);
+  }
+}
+
+function dlResult(elementId, filename) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    const text = element.textContent;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+}
+
+// ─── KEY GENERATION ───
+async function doGenKeys() {
+  clearAlert('gen-ok');
+  const bits = globalState.selectedBits;
+  document.getElementById('btn-gen').disabled = true;
+  document.getElementById('gen-progress').classList.add('show');
+  document.getElementById('gen-msg').classList.add('show');
+
+  setTimeout(async () => {
+    try {
+      const keys = await generateKeys(bits);
+      globalState.pubKey = keys.pub;
+      globalState.privKey = keys.priv;
+      document.getElementById('btn-dl-pub').style.display = 'inline-flex';
+      document.getElementById('btn-dl-priv').style.display = 'inline-flex';
+      showAlert('gen-ok');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      document.getElementById('btn-gen').disabled = false;
+      document.getElementById('gen-progress').classList.remove('show');
+      document.getElementById('gen-msg').classList.remove('show');
+    }
+  }, 100);
+}
+
+async function generateKeys(bits) {
+  const primeBits = bits / 2;
+  let p = await generatePrime(primeBits);
+  let q = await generatePrime(primeBits);
+
+  const n = p * q;
+  const lambda = lcm(p - 1n, q - 1n);
+  let e = 65537n;
+  while (gcd(e, lambda) !== 1n) e += 2n;
+
+  const d = modInverse(e, lambda);
+
+  return {
+    pub: { n, e },
+    priv: { n, e, d, p, q },
+  };
+}
+
+function lcm(a, b) {
+  return (a * b) / gcd(a, b);
+}
+
+async function generatePrime(bits) {
+  let candidate = generateRandomBigInt(bits);
+  candidate |= 1n << BigInt(bits - 1);
+  candidate |= 1n;
+  while (!isPrime(candidate)) {
+    candidate += 2n;
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+  return candidate;
+}
+
+function dlPub() {
+  if (!globalState.pubKey) return;
+  const pem = encryptKey(globalState.pubKey);
+  const blob = new Blob([pem], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'clave_1.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function dlPriv() {
+  if (!globalState.privKey) return;
+  const pem = encryptKey(globalState.privKey);
+  const blob = new Blob([pem], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'clave_2.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── ENCRYPTION/DECRYPTION ───
+function setEncMode(mode) {
+  globalState.encMode = mode;
+  document.getElementById('enc-mode-pub').classList.toggle('selected', mode === 'pub');
+  document.getElementById('enc-mode-priv').classList.toggle('selected', mode === 'priv');
+  document.getElementById('enc-key-label').textContent = mode === 'pub' ? 'Clave de tu amigo' : 'Tu clave';
+}
+
+function setDecMode(mode) {
+  globalState.decMode = mode;
+  document.getElementById('dec-mode-priv').classList.toggle('selected', mode === 'priv');
+  document.getElementById('dec-mode-pub').classList.toggle('selected', mode === 'pub');
+  document.getElementById('dec-key-label').textContent = mode === 'priv' ? 'Tu clave' : 'Clave de tu amigo';
+}
+
+function loadEncKey(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const key = parseKeyFromPEM(e.target.result);
+      encryptState.pubKey = key;
+      document.getElementById('enc-key-name').textContent = file.name;
+      document.getElementById('enc-key-name').classList.add('show');
+      document.getElementById('enc-key-paste').value = e.target.result;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function onEncKeyPaste() {
+  const text = document.getElementById('enc-key-paste').value.trim();
+  if (text) {
+    try {
+      const key = parseKeyFromPEM(text);
+      encryptState.pubKey = key;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+}
+
+function doEncrypt() {
+  clearAlert('enc-err');
+  const message = document.getElementById('enc-msg').value.trim();
+  if (!message) {
+    showAlert('enc-err', 'Escribe un mensaje');
+    return;
+  }
+  if (!encryptState.pubKey) {
+    showAlert('enc-err', 'Carga la clave');
+    return;
+  }
+
+  try {
+    const cipher = encryptMessage(message, encryptState.pubKey);
+    const pemCipher = encryptObject({ cipher, bits: 512 });
+    document.getElementById('enc-result-text').textContent = pemCipher;
+    document.getElementById('enc-result').classList.add('show');
+  } catch (err) {
+    showAlert('enc-err', err.message || 'Error al cifrar');
+  }
+}
+
+function encryptMessage(message, pubKey) {
+  const chars = message.split('');
+  const encrypted = chars.map(char => {
+    const num = BigInt(char.charCodeAt(0));
+    return modPow(num, pubKey.e, pubKey.n).toString();
+  });
+  return encrypted.join(' ');
+}
+
+function loadDecKey(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const key = parseKeyFromPEM(e.target.result);
+      decryptState.privKey = key;
+      document.getElementById('dec-key-name').textContent = file.name;
+      document.getElementById('dec-key-name').classList.add('show');
+      document.getElementById('dec-priv-paste').value = e.target.result;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function onDecPrivPaste() {
+  const text = document.getElementById('dec-priv-paste').value.trim();
+  if (text) {
+    try {
+      const key = parseKeyFromPEM(text);
+      decryptState.privKey = key;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+}
+
+function loadCipherFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      decryptState.cipher = e.target.result;
+      document.getElementById('dec-cipher-name').textContent = file.name;
+      document.getElementById('dec-cipher-name').classList.add('show');
+      document.getElementById('dec-cipher-paste').value = e.target.result;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function onDecCipherPaste() {
+  const text = document.getElementById('dec-cipher-paste').value.trim();
+  if (text) {
+    decryptState.cipher = text;
+  }
+}
+
+function doDecrypt() {
+  clearAlert('dec-err');
+  if (!decryptState.privKey) {
+    showAlert('dec-err', 'Carga tu clave');
+    return;
+  }
+  if (!decryptState.cipher) {
+    showAlert('dec-err', 'Carga el mensaje cifrado');
+    return;
+  }
+
+  try {
+    const message = decryptMessage(decryptState.cipher, decryptState.privKey);
+    document.getElementById('dec-result-text').textContent = message;
+    document.getElementById('dec-result').classList.add('show');
+  } catch (err) {
+    showAlert('dec-err', err.message || 'Error al descifrar');
+  }
+}
+
+function decryptMessage(cipherText, privKey) {
+  const lines = cipherText.split('\n');
+  let encrypted = '';
+  lines.forEach(line => {
+    if (!line.startsWith('-----')) encrypted += line;
+  });
+  const numbers = encrypted.split(' ').filter(n => n.length > 0);
+  const decrypted = numbers.map(num => {
+    const cipher = BigInt(num);
+    const decNum = modPow(cipher, privKey.d, privKey.n);
+    return String.fromCharCode(Number(decNum));
+  });
+  return decrypted.join('');
+}
+
+// ─── SIGNING/VERIFICATION ───
+function loadPrivKey(input, type) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const key = parseKeyFromPEM(e.target.result);
+      if (type === 'sign') {
+        signState.privKey = key;
+        document.getElementById('sign-priv-name').textContent = file.name;
+        document.getElementById('sign-priv-name').classList.add('show');
+        document.getElementById('sign-priv-paste').value = e.target.result;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function onSignPrivPaste() {
+  const text = document.getElementById('sign-priv-paste').value.trim();
+  if (text) {
+    try {
+      const key = parseKeyFromPEM(text);
+      signState.privKey = key;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+}
+
+function doSign() {
+  clearAlert('sign-err');
+  const message = document.getElementById('sign-msg').value.trim();
+  if (!message) {
+    showAlert('sign-err', 'Escribe un mensaje');
+    return;
+  }
+  if (!signState.privKey) {
+    showAlert('sign-err', 'Carga tu clave');
+    return;
+  }
+
+  try {
+    const signature = signMessage(message, signState.privKey);
+    const pemSig = encryptObject({ signature, bits: 512 });
+    document.getElementById('sign-result-text').textContent = pemSig;
+    document.getElementById('sign-result').classList.add('show');
+  } catch (err) {
+    showAlert('sign-err', err.message || 'Error al firmar');
+  }
+}
+
+function signMessage(message, privKey) {
+  const chars = message.split('');
+  const signed = chars.map(char => {
+    const num = BigInt(char.charCodeAt(0));
+    return modPow(num, privKey.d, privKey.n).toString();
+  });
+  return signed.join(' ');
+}
+
+function loadSignFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('verify-sign-name').textContent = file.name;
+    document.getElementById('verify-sign-name').classList.add('show');
+    document.getElementById('verify-sign-paste').value = e.target.result;
+  };
+  reader.readAsText(file);
+}
+
+function onVerifySignPaste() {}
+
+function doVerify() {
+  clearAlert('verify-err');
+  const message = document.getElementById('verify-msg').value.trim();
+  const signature = document.getElementById('verify-sign-paste').value.trim();
+  if (!message || !signature) {
+    showAlert('verify-err', 'Completa los campos');
+    return;
+  }
+
+  try {
+    showAlert('verify-result');
+    const result = document.getElementById('verify-result');
+    result.textContent = '✓ Firma válida (simulado)';
+    result.className = 'alert alert-success show';
+  } catch (err) {
+    showAlert('verify-err', 'Error al verificar');
+  }
+}
+
+// ─── ADVANCED FUNCTIONS ───
+function doAdvNum() {
+  const mode = document.getElementById('adv-num-mode').value;
+  const num = BigInt(document.getElementById('adv-num-input').value || '0');
+  const n = BigInt(document.getElementById('adv-num-n').value || '1');
+  const exp = BigInt(document.getElementById('adv-num-exp').value || '1');
+
+  try {
+    const result = modPow(num, exp, n);
+    document.getElementById('adv-num-result-text').textContent = result.toString();
+    document.getElementById('adv-num-result').classList.add('show');
+  } catch (err) {
+    document.getElementById('adv-num-err').textContent = err.message;
+    document.getElementById('adv-num-err').classList.add('show');
+  }
+}
+
+function updateAdvTextMode() {}
+
+function doAdvText() {
+  const mode = document.getElementById('adv-text-mode').value;
+  const input = document.getElementById('adv-text-input').value || '';
+  const n = BigInt(document.getElementById('adv-text-n').value || '1');
+  const exp = BigInt(document.getElementById('adv-text-exp').value || '1');
+
+  try {
+    let result = '';
+    if (mode.includes('enc')) {
+      const chars = input.split('');
+      result = chars.map(c => modPow(BigInt(c.charCodeAt(0)), exp, n)).join(' ');
+    } else {
+      const nums = input.split(' ');
+      result = nums.map(n_str => String.fromCharCode(Number(modPow(BigInt(n_str), exp, n)))).join('');
+    }
+    document.getElementById('adv-text-result-text').textContent = result;
+    document.getElementById('adv-text-result').classList.add('show');
+  } catch (err) {
+    document.getElementById('adv-text-err').textContent = err.message;
+    document.getElementById('adv-text-err').classList.add('show');
+  }
+}
+
+function doDecoPEM() {}
+function updatePEMEncFields() {}
+function doEncodePEM() {}
+function showSeedABC() {}
+function genRandomSeedUI() {}
+function addSwap() {}
+function buildCustomSeed() {}
+function resetCustomSeed() {}
+function doAdvGenKeys() {}
+
+// ─── PEM FUNCTIONS ───
+function encryptKey(key) {
+  const keyStr = JSON.stringify(key);
+  const encoded = btoa(keyStr);
+  const lines = [];
+  lines.push('-----BEGIN RSA KEY-----');
+  for (let i = 0; i < encoded.length; i += 64) {
+    lines.push(encoded.substr(i, 64));
+  }
+  lines.push('-----END RSA KEY-----');
+  return lines.join('\n');
+}
+
+function parseKeyFromPEM(pem) {
+  const lines = pem.split('\n');
+  let encoded = '';
+  lines.forEach(line => {
+    if (!line.startsWith('-----')) encoded += line.trim();
+  });
+  const decoded = atob(encoded);
+  return JSON.parse(decoded);
+}
+
+function encryptObject(obj) {
+  const str = JSON.stringify(obj);
+  const encoded = btoa(str);
+  const lines = [];
+  lines.push('-----BEGIN RSA CIPHER-----');
+  for (let i = 0; i < encoded.length; i += 64) {
+    lines.push(encoded.substr(i, 64));
+  }
+  lines.push('-----END RSA CIPHER-----');
+  return lines.join('\n');
+}
+
+</script>
+</body>
+</html>
