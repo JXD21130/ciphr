@@ -1723,7 +1723,7 @@ function setEncMode(mode) {
   document.getElementById('enc-mode-priv').classList.toggle('selected', mode==='priv');
   const lbl = document.getElementById('enc-key-label');
   if (mode==='pub') {
-    lbl.textContent='Clave pública del destinatario';
+    lbl.textContent='Tu clave pública';
     if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
   } else {
     lbl.textContent='Tu clave privada';
@@ -1745,7 +1745,7 @@ function setDecMode(mode) {
     lbl.textContent='Tu clave privada';
     if(ta) ta.placeholder='-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
   } else {
-    lbl.textContent='Clave pública del emisor';
+    lbl.textContent='Clave pública';
     if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
   }
 }
@@ -1932,7 +1932,7 @@ async function doEncrypt() {
   try {
     let n, e, exp, modo;
     if (_encMode==='pub') {
-      if (!_encPubKey) { showAlert('enc-err','Carga o pega la clave pública del destinatario.','error'); return; }
+      if (!_encPubKey) { showAlert('enc-err','Carga o pega tu clave pública.','error'); return; }
       n=_encPubKey.n; e=_encPubKey.e; exp=e; modo='e';
     } else {
       if (!_encPrivKey) { showAlert('enc-err','Carga o pega tu clave privada.','error'); return; }
@@ -1965,7 +1965,7 @@ async function doDecrypt() {
       n = nCipher ?? _decPrivKey.n;
       exp = _decPrivKey.d;
     } else {
-      if (!_decPubKey && !_decPrivKey) { showAlert('dec-err','Carga o pega la clave pública del emisor.','error'); return; }
+      if (!_decPubKey && !_decPrivKey) { showAlert('dec-err','Carga o pega la clave pública.','error'); return; }
       const key = _decPubKey || {n:_decPrivKey.n, e:_decPrivKey.e};
       n = nCipher ?? key.n;
       exp = eCipher ?? key.e;
