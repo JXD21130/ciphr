@@ -1252,7 +1252,7 @@ function decodeDERInt(bytes) {
 
 // RSA Public Key PEM (formato propio)
 function genPubKeyPEM(n, e) {
-  const seq = concat([encodeDERInt(n), encodeDERInt(e)]);
+  const seq = concat([encodeDERTLVInt(n), encodeDERInt(e)]);
   return wrapPEM('RSA PUBLIC KEY', encodeDERSeq(seq));
 }
 
