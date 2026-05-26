@@ -1,11 +1,11 @@
-<!DOCTYPE HTML>
-<html lang="es"><head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ciphr</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>cipher</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -445,6 +445,50 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
+/* ── SEED TOGGLE ── */
+.seed-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.seed-toggle-row:hover { border-color: var(--border2); }
+.seed-toggle-label { font-size: 13px; color: var(--text2); user-select: none; }
+.seed-toggle-label strong { color: var(--text); font-weight: 500; }
+.sw {
+  width: 36px; height: 20px;
+  background: var(--border2);
+  border-radius: 10px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.sw.on { background: var(--text); }
+.sw::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  background: white;
+  border-radius: 50%;
+  top: 3px; left: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.sw.on::after { transform: translateX(16px); }
+.seed-input-field {
+  display: none;
+  margin-bottom: 10px;
+  animation: fadein 0.15s ease;
+}
+.seed-input-field.show { display: block; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
   header { padding: 16px 20px; }
@@ -462,9 +506,9 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <div id="app">
 
 <header>
-  <a class="logo" href="#" onclick="goHome()"><span>ciphr</span></a>
+  <a class="logo" href="#" onclick="goHome();return false;">ciphr</a>
   <nav class="header-nav">
-    <button class="nav-btn active" id="nav-home" onclick="goHome()">inicio</button>
+    <button class="nav-btn" id="nav-home" onclick="goHome()">inicio</button>
     <button class="nav-btn" id="nav-adv" onclick="showView('advanced')">avanzado</button>
   </nav>
 </header>
@@ -473,23 +517,23 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ HOME ══════════ -->
 <div class="view active" id="view-home">
-  <div class="home-title">Encripta mensajes<br>sin complicaciones.</div>
-  <p class="home-sub">Comparte una clave con quien quieras comunicarte. Quédate la otra para ti.</p>
+  <div class="home-title">Cifra mensajes.<br>Sin complicaciones.</div>
+  <p class="home-sub">Comparte tu clave pública con quien quiera escribirte. Solo tú podrás leer los mensajes con tu clave privada.</p>
   <div class="home-cards">
     <button class="card" onclick="showView('genkeys')">
       <div class="card-icon">🔑</div>
       <div class="card-title">Generar claves</div>
-      <div class="card-desc">Genera tus propias claves públicas y privadas.</div>
+      <div class="card-desc">Primera vez aquí. Genera tu par de claves pública y privada.</div>
     </button>
     <button class="card" onclick="showView('encrypt')">
       <div class="card-icon">🔒</div>
       <div class="card-title">Cifrar</div>
-      <div class="card-desc">Envia un mensaje cifrado con tu clave.</div>
+      <div class="card-desc">Tienes la clave pública de alguien y quieres enviarle un mensaje.</div>
     </button>
     <button class="card" onclick="showView('decrypt')">
       <div class="card-icon">🔓</div>
       <div class="card-title">Descifrar</div>
-      <div class="card-desc">Descifra el mensaje recibido con tu clave.</div>
+      <div class="card-desc">Alguien te ha enviado un mensaje cifrado con tu clave pública.</div>
     </button>
     <button class="card" onclick="showView('sign')">
       <div class="card-icon">✍️</div>
@@ -511,7 +555,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Generar claves</div>
-    <div class="section-sub">Crea tu par de claves. Guárdalas en un lugar seguro.</div>
+    <div class="section-sub">Crea tu par de claves. Guarda la privada en un lugar seguro, nunca la compartas.</div>
   </div>
 
   <div class="field">
@@ -560,17 +604,17 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="size-group">
       <div class="size-opt selected" id="enc-mode-pub" onclick="setEncMode('pub')">
         <div class="size-opt-name">Con clave pública</div>
-        <div class="size-opt-sub">El receptor debe descifrar con la privada</div>
+        <div class="size-opt-sub">Solo el receptor puede descifrar</div>
       </div>
       <div class="size-opt" id="enc-mode-priv" onclick="setEncMode('priv')">
         <div class="size-opt-name">Con clave privada</div>
-        <div class="size-opt-sub">El receptor debe descifrar con la pública</div>
+        <div class="size-opt-sub">Cualquiera con tu clave pública puede verificar</div>
       </div>
     </div>
   </div>
 
   <div class="field">
-    <label class="field-label" id="enc-key-label">Tu clave pública</label>
+    <label class="field-label" id="enc-key-label">Clave pública del destinatario</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadEncKey(this)">
       <div class="file-drop-icon">📄</div>
@@ -578,14 +622,20 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="enc-key-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="enc-key-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----
-...
------END RSA PUBLIC KEY-----" oninput="onEncKeyPaste()"></textarea>
+    <textarea class="mono" id="enc-key-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----" oninput="onEncKeyPaste()"></textarea>
   </div>
 
   <div class="field">
     <label class="field-label">Mensaje</label>
     <textarea id="enc-msg" placeholder="Escribe el mensaje a cifrar..."></textarea>
+  </div>
+
+  <div class="seed-toggle-row" onclick="toggleEncSeed()">
+    <div class="seed-toggle-label"><strong>Seed</strong> — abecedario personalizado</div>
+    <div class="sw" id="enc-seed-sw"></div>
+  </div>
+  <div class="seed-input-field" id="enc-seed-field">
+    <input type="text" id="enc-seed-val" placeholder="escribe tu seed...">
   </div>
 
   <div class="alert alert-error" id="enc-err"></div>
@@ -612,19 +662,19 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <div class="field">
     <label class="field-label">Modo</label>
     <div class="size-group">
-      <div class="size-opt" id="dec-mode-priv" onclick="setDecMode('priv')">
+      <div class="size-opt selected" id="dec-mode-priv" onclick="setDecMode('priv')">
         <div class="size-opt-name">Con clave privada</div>
-        <div class="size-opt-sub">Mensaje cifrado con clave pública</div>
+        <div class="size-opt-sub">Mensaje cifrado con tu clave pública</div>
       </div>
-      <div class="size-opt selected" id="dec-mode-pub" onclick="setDecMode('pub')">
+      <div class="size-opt" id="dec-mode-pub" onclick="setDecMode('pub')">
         <div class="size-opt-name">Con clave pública</div>
-        <div class="size-opt-sub">Mensaje cifrado con clave privada</div>
+        <div class="size-opt-sub">Mensaje cifrado con clave privada del emisor</div>
       </div>
     </div>
   </div>
 
   <div class="field">
-    <label class="field-label" id="dec-key-label">Tu clave publica</label>
+    <label class="field-label" id="dec-key-label">Tu clave privada</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadDecKey(this)">
       <div class="file-drop-icon">🔐</div>
@@ -632,9 +682,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="dec-key-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="dec-priv-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----
-...
------END RSA PUBLIC KEY-----" oninput="onDecPrivPaste()"></textarea>
+    <textarea class="mono" id="dec-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----" oninput="onDecPrivPaste()"></textarea>
   </div>
 
   <div class="field">
@@ -646,9 +694,15 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="dec-cipher-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="dec-cipher-paste" placeholder="-----BEGIN RSA CIPHER-----
-...
------END RSA CIPHER-----" oninput="onDecCipherPaste()"></textarea>
+    <textarea class="mono" id="dec-cipher-paste" placeholder="-----BEGIN RSA CIPHER-----&#10;...&#10;-----END RSA CIPHER-----" oninput="onDecCipherPaste()"></textarea>
+  </div>
+
+  <div class="seed-toggle-row" onclick="toggleDecSeed()">
+    <div class="seed-toggle-label"><strong>Seed</strong> — abecedario personalizado</div>
+    <div class="sw" id="dec-seed-sw"></div>
+  </div>
+  <div class="seed-input-field" id="dec-seed-field">
+    <input type="text" id="dec-seed-val" placeholder="escribe tu seed...">
   </div>
 
   <div class="alert alert-error" id="dec-err"></div>
@@ -703,9 +757,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="sign-priv-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="sign-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----
-...
------END RSA PRIVATE KEY-----" oninput="onSignPrivPaste()"></textarea>
+    <textarea class="mono" id="sign-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----" oninput="onSignPrivPaste()"></textarea>
   </div>
   <div class="field">
     <label class="field-label">Mensaje a firmar</label>
@@ -742,9 +794,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="verify-sign-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="verify-sign-paste" placeholder="-----BEGIN RSA SIGN-----
-...
------END RSA SIGN-----" oninput="onVerifySignPaste()"></textarea>
+    <textarea class="mono" id="verify-sign-paste" placeholder="-----BEGIN RSA SIGN-----&#10;...&#10;-----END RSA SIGN-----" oninput="onVerifySignPaste()"></textarea>
   </div>
   <div class="alert alert-error" id="verify-err"></div>
   <button class="btn btn-primary btn-full" onclick="doVerify()">Verificar</button>
@@ -756,11 +806,17 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Modo avanzado</div>
-    <div class="section-sub">Funciones complejas con el cifrado RSA.</div>
+    <div class="section-sub">Operaciones RSA manuales con control total.</div>
   </div>
   <div class="adv-grid">
-    
-    
+    <button class="adv-card" onclick="showView('adv-nums')">
+      <div class="adv-card-icon">🔢</div>
+      <div class="adv-card-text"><div class="adv-title">Cifrar/Descifrar número</div><div class="adv-sub">Operación RSA directa sobre un entero</div></div>
+    </button>
+    <button class="adv-card" onclick="showView('adv-text')">
+      <div class="adv-card-icon">🔤</div>
+      <div class="adv-card-text"><div class="adv-title">Cifrar/Descifrar texto</div><div class="adv-sub">Con abecedario numérico y seeds</div></div>
+    </button>
     <button class="adv-card" onclick="showView('adv-pem')">
       <div class="adv-card-icon">📜</div>
       <div class="adv-card-text"><div class="adv-title">PEM universal</div><div class="adv-sub">Codificar y decodificar cualquier PEM</div></div>
@@ -771,9 +827,12 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     </button>
     <button class="adv-card" onclick="showView('adv-genkeys')">
       <div class="adv-card-icon">⚙️</div>
-      <div class="adv-card-text"><div class="adv-title">Generar claves avanzadas</div><div class="adv-sub">Con control de cifras y parámetros</div></div>
+      <div class="adv-card-text"><div class="adv-title">Generar claves</div><div class="adv-sub">Con control de cifras y parámetros</div></div>
     </button>
-    
+    <button class="adv-card" onclick="showView('adv-sign')">
+      <div class="adv-card-icon">✍️</div>
+      <div class="adv-card-text"><div class="adv-title">Firma digital</div><div class="adv-sub">Firmar y verificar con claves manuales</div></div>
+    </button>
   </div>
 </div>
 
@@ -863,9 +922,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="pem-decode-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="pem-decode-input" placeholder="-----BEGIN ...-----
-...
------END ...-----"></textarea>
+    <textarea class="mono" id="pem-decode-input" placeholder="-----BEGIN ...-----&#10;...&#10;-----END ...-----"></textarea>
   </div>
   <div class="alert alert-error" id="pem-decode-err"></div>
   <button class="btn btn-primary" onclick="doDecoPEM()">Decodificar</button>
@@ -889,7 +946,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <option value="sign">RSA SIGN (firma)</option>
     </select>
   </div>
-  <div id="pem-enc-fields"><div class="field"><label class="field-label">n</label><input type="text" id="pem-enc-n" placeholder="módulo"></div><div class="field"><label class="field-label">e</label><input type="text" id="pem-enc-e" placeholder="exponente público"></div></div>
+  <div id="pem-enc-fields"></div>
   <div class="alert alert-error" id="pem-enc-err"></div>
   <button class="btn btn-primary" onclick="doEncodePEM()">Generar PEM</button>
   <div class="result-box" id="pem-enc-result">
@@ -1252,7 +1309,7 @@ function decodeDERInt(bytes) {
 
 // RSA Public Key PEM (formato propio)
 function genPubKeyPEM(n, e) {
-  const seq = concat([encodeDERTLVInt(n), encodeDERInt(e)]);
+  const seq = concat([encodeDERInt(n), encodeDERInt(e)]);
   return wrapPEM('RSA PUBLIC KEY', encodeDERSeq(seq));
 }
 
@@ -1724,7 +1781,7 @@ function setEncMode(mode) {
   document.getElementById('enc-mode-priv').classList.toggle('selected', mode==='priv');
   const lbl = document.getElementById('enc-key-label');
   if (mode==='pub') {
-    lbl.textContent='Tu clave pública';
+    lbl.textContent='Clave pública del destinatario';
     if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
   } else {
     lbl.textContent='Tu clave privada';
@@ -1746,7 +1803,7 @@ function setDecMode(mode) {
     lbl.textContent='Tu clave privada';
     if(ta) ta.placeholder='-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
   } else {
-    lbl.textContent='Clave pública';
+    lbl.textContent='Clave pública del emisor';
     if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
   }
 }
@@ -1924,6 +1981,21 @@ function dlPub() { if(_genPubPEM) dlText(_genPubPEM,'clave_publica.txt'); }
 function dlPriv() { if(_genPrivPEM) dlText(_genPrivPEM,'clave_privada.txt'); }
 
 // ── ENCRYPT (EASY) ──
+// ── SEED TOGGLES ──
+let _encSeedOn = false, _decSeedOn = false;
+
+function toggleEncSeed() {
+  _encSeedOn = !_encSeedOn;
+  document.getElementById('enc-seed-sw').classList.toggle('on', _encSeedOn);
+  document.getElementById('enc-seed-field').classList.toggle('show', _encSeedOn);
+}
+
+function toggleDecSeed() {
+  _decSeedOn = !_decSeedOn;
+  document.getElementById('dec-seed-sw').classList.toggle('on', _decSeedOn);
+  document.getElementById('dec-seed-field').classList.toggle('show', _decSeedOn);
+}
+
 async function doEncrypt() {
   hideAlert('enc-err'); hideResult('enc-result');
   const pasteText = document.getElementById('enc-key-paste').value.trim();
@@ -1933,11 +2005,20 @@ async function doEncrypt() {
   try {
     let n, e, exp, modo;
     if (_encMode==='pub') {
-      if (!_encPubKey) { showAlert('enc-err','Carga o pega tu clave pública.','error'); return; }
+      if (!_encPubKey) { showAlert('enc-err','Carga o pega la clave pública del destinatario.','error'); return; }
       n=_encPubKey.n; e=_encPubKey.e; exp=e; modo='e';
     } else {
       if (!_encPrivKey) { showAlert('enc-err','Carga o pega tu clave privada.','error'); return; }
       n=_encPrivKey.n; e=_encPrivKey.e; exp=_encPrivKey.d; modo='d';
+    }
+    // Seed
+    let seed = '';
+    let inclSeed = false;
+    if (_encSeedOn) {
+      seed = document.getElementById('enc-seed-val').value.trim();
+      if (!seed) { showAlert('enc-err','Introduce una seed o desactiva la opción.','error'); return; }
+      inclSeed = true;
+      applyAbc(genAbcWithSeed(seed));
     }
     const nums = textoANumeros(msg);
     const cifrados = nums.map(v => {
@@ -1945,9 +2026,11 @@ async function doEncrypt() {
       if (v===0) return 0n;
       return modPow(BigInt(v),exp,n);
     });
-    const pem = genCipherPEM(cifrados, n, e, null, modo, '', true, false);
+    resetAbc();
+    // Sin claves públicas en el PEM — solo el mensaje cifrado
+    const pem = genCipherPEM(cifrados, null, null, null, modo, seed, false, inclSeed);
     showResult('enc-result', pem);
-  } catch(ex) { showAlert('enc-err','Error al cifrar: '+ex.message,'error'); }
+  } catch(ex) { resetAbc(); showAlert('enc-err','Error al cifrar: '+ex.message,'error'); }
 }
 
 // ── DECRYPT (EASY) ──
@@ -1966,12 +2049,19 @@ async function doDecrypt() {
       n = nCipher ?? _decPrivKey.n;
       exp = _decPrivKey.d;
     } else {
-      if (!_decPubKey && !_decPrivKey) { showAlert('dec-err','Carga o pega la clave pública.','error'); return; }
+      if (!_decPubKey && !_decPrivKey) { showAlert('dec-err','Carga o pega la clave pública del emisor.','error'); return; }
       const key = _decPubKey || {n:_decPrivKey.n, e:_decPrivKey.e};
       n = nCipher ?? key.n;
       exp = eCipher ?? key.e;
     }
-    if (seed) applyAbc(genAbcWithSeed(seed));
+    // Seed: prioridad → seed del PEM si existe, luego toggle manual
+    let seedUsada = seed || '';
+    if (_decSeedOn) {
+      const manualSeed = document.getElementById('dec-seed-val').value.trim();
+      if (!manualSeed) { showAlert('dec-err','Introduce una seed o desactiva la opción.','error'); return; }
+      seedUsada = manualSeed;
+    }
+    if (seedUsada) applyAbc(genAbcWithSeed(seedUsada));
     const descifrados = nums.map(c => {
       if (c<0n) return MARCADOR_DIGITO;
       if (c===0n) return 0;
@@ -2263,5 +2353,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
-
-</body></html>
+</body>
+</html>
