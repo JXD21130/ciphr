@@ -517,35 +517,35 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ HOME ══════════ -->
 <div class="view active" id="view-home">
-  <div class="home-title">Cifra mensajes.<br>Sin complicaciones.</div>
-  <p class="home-sub">Comparte tu clave pública con quien quiera escribirte. Solo tú podrás leer los mensajes con tu clave privada.</p>
+  <div class="home-title">Tu canal privado.<br><em>Solo vosotros dos.</em></div>
+  <p class="home-sub">Tú guardas tu clave. Tu contacto guarda la suya. Nadie más sabe ninguna de las dos.</p>
   <div class="home-cards">
     <button class="card" onclick="showView('genkeys')">
       <div class="card-icon">🔑</div>
       <div class="card-title">Generar claves</div>
-      <div class="card-desc">Primera vez aquí. Genera tu par de claves pública y privada.</div>
+      <div class="card-desc">Genera las dos claves. Cada uno se queda con la suya, sin compartirla con nadie más.</div>
     </button>
     <button class="card" onclick="showView('encrypt')">
       <div class="card-icon">🔒</div>
       <div class="card-title">Cifrar</div>
-      <div class="card-desc">Tienes la clave pública de alguien y quieres enviarle un mensaje.</div>
+      <div class="card-desc">Cifra un mensaje con tu clave. Solo tu contacto podrá leerlo con la suya.</div>
     </button>
     <button class="card" onclick="showView('decrypt')">
       <div class="card-icon">🔓</div>
       <div class="card-title">Descifrar</div>
-      <div class="card-desc">Alguien te ha enviado un mensaje cifrado con tu clave pública.</div>
+      <div class="card-desc">Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.</div>
     </button>
     <button class="card" onclick="showView('sign')">
       <div class="card-icon">✍️</div>
-      <div class="card-title">Firmar</div>
-      <div class="card-desc">Firma un mensaje para demostrar que es tuyo, o verifica una firma.</div>
+      <div class="card-title">Verificar identidad</div>
+      <div class="card-desc">Demuestra que un mensaje es tuyo, o confirma que es de tu contacto.</div>
     </button>
   </div>
   <button class="card-full" onclick="showView('advanced')">
     <div class="card-icon">⚙️</div>
     <div class="card-full-text">
-      <div class="card-title">Modo avanzado</div>
-      <div class="card-desc">Control total sobre claves, PEM, seeds y operaciones RSA manuales.</div>
+      <div class="card-title">Avanzado</div>
+      <div class="card-desc">Control total: claves, PEM, seeds y operaciones manuales.</div>
     </div>
   </button>
 </div>
@@ -555,7 +555,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Generar claves</div>
-    <div class="section-sub">Crea tu par de claves. Guarda la privada en un lugar seguro, nunca la compartas.</div>
+    <div class="section-sub">Genera las dos claves. Tú te quedas con una, tu contacto con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.</div>
   </div>
 
   <div class="field">
@@ -574,7 +574,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
         <div class="size-opt-sub">~2min</div>
       </div>
     </div>
-    <div class="field-sub">Para uso personal, "Normal" es más que suficiente.</div>
+    <div class="field-sub">Normal es más que suficiente para la mayoría de usos.</div>
   </div>
 
   <div class="progress-bar" id="gen-progress"><div class="progress-fill"></div></div>
@@ -582,13 +582,13 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
   <div class="alert alert-success" id="gen-ok">
     <span>✓</span>
-    <span>Claves generadas. Descarga ambos archivos y guárdalos bien.</span>
+    <span>Listo. Descarga las dos claves — cada uno guarda la suya.</span>
   </div>
 
   <div class="btn-row">
     <button class="btn btn-primary" id="btn-gen" onclick="doGenKeys()">Generar</button>
-    <button class="btn btn-secondary" id="btn-dl-pub" style="display:none" onclick="dlPub()">↓ Clave pública</button>
-    <button class="btn btn-secondary" id="btn-dl-priv" style="display:none" onclick="dlPriv()">↓ Clave privada</button>
+    <button class="btn btn-secondary" id="btn-dl-pub" style="display:none" onclick="dlPub()">↓ Clave del contacto</button>
+    <button class="btn btn-secondary" id="btn-dl-priv" style="display:none" onclick="dlPriv()">↓ Tu clave</button>
   </div>
 </div>
 
@@ -604,17 +604,17 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="size-group">
       <div class="size-opt selected" id="enc-mode-pub" onclick="setEncMode('pub')">
         <div class="size-opt-name">Con clave pública</div>
-        <div class="size-opt-sub">Solo el receptor puede descifrar</div>
+        <div class="size-opt-sub">Cifro con mi clave, él descifra con la suya</div>
       </div>
       <div class="size-opt" id="enc-mode-priv" onclick="setEncMode('priv')">
         <div class="size-opt-name">Con clave privada</div>
-        <div class="size-opt-sub">Cualquiera con tu clave pública puede verificar</div>
+        <div class="size-opt-sub">Cifro con mi clave, él descifra con la suya</div>
       </div>
     </div>
   </div>
 
   <div class="field">
-    <label class="field-label" id="enc-key-label">Clave pública del destinatario</label>
+    <label class="field-label" id="enc-key-label">Tu clave</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadEncKey(this)">
       <div class="file-drop-icon">📄</div>
@@ -664,17 +664,17 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="size-group">
       <div class="size-opt selected" id="dec-mode-priv" onclick="setDecMode('priv')">
         <div class="size-opt-name">Con clave privada</div>
-        <div class="size-opt-sub">Mensaje cifrado con tu clave pública</div>
+        <div class="size-opt-sub">Descifro con mi clave</div>
       </div>
       <div class="size-opt" id="dec-mode-pub" onclick="setDecMode('pub')">
         <div class="size-opt-name">Con clave pública</div>
-        <div class="size-opt-sub">Mensaje cifrado con clave privada del emisor</div>
+        <div class="size-opt-sub">Descifro con mi clave</div>
       </div>
     </div>
   </div>
 
   <div class="field">
-    <label class="field-label" id="dec-key-label">Tu clave privada</label>
+    <label class="field-label" id="dec-key-label">Tu clave</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadDecKey(this)">
       <div class="file-drop-icon">🔐</div>
@@ -722,21 +722,21 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <div class="view" id="view-sign">
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title">Firma digital</div>
+    <div class="section-title">Verificar identidad</div>
   </div>
   <div class="adv-grid" style="margin-bottom:0">
     <button class="adv-card" onclick="showView('sign-create')">
       <div class="adv-card-icon">✍️</div>
       <div class="adv-card-text">
         <div class="adv-title">Firmar mensaje</div>
-        <div class="adv-sub">Demuestra que un mensaje es tuyo</div>
+        <div class="adv-sub">Demuestra con tu clave que el mensaje es tuyo</div>
       </div>
     </button>
     <button class="adv-card" onclick="showView('sign-verify')">
       <div class="adv-card-icon">🔍</div>
       <div class="adv-card-text">
         <div class="adv-title">Verificar firma</div>
-        <div class="adv-sub">Comprueba que una firma es auténtica</div>
+        <div class="adv-sub">Confirma que un mensaje es de tu contacto</div>
       </div>
     </button>
   </div>
@@ -747,9 +747,10 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="showView('sign')">← volver</button>
   <div class="section-header">
     <div class="section-title">Firmar mensaje</div>
+    <div class="section-sub">Usa tu clave para firmar. Tu contacto podrá comprobar que eres tú.</div>
   </div>
   <div class="field">
-    <label class="field-label">Tu clave privada</label>
+    <label class="field-label">Tu clave</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadPrivKey(this,'sign')">
       <div class="file-drop-icon">🔐</div>
@@ -780,10 +781,11 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="showView('sign')">← volver</button>
   <div class="section-header">
     <div class="section-title">Verificar firma</div>
+    <div class="section-sub">Comprueba que el mensaje es realmente de tu contacto.</div>
   </div>
   <div class="field">
-    <label class="field-label">Mensaje original</label>
-    <textarea id="verify-msg" placeholder="El mensaje que se firmó..."></textarea>
+    <label class="field-label">Mensaje</label>
+    <textarea id="verify-msg" placeholder="El mensaje que recibiste..."></textarea>
   </div>
   <div class="field">
     <label class="field-label">Firma</label>
@@ -805,8 +807,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <div class="view" id="view-advanced">
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title">Modo avanzado</div>
-    <div class="section-sub">Operaciones RSA manuales con control total.</div>
+    <div class="section-title">Avanzado</div>
+    <div class="section-sub">Operaciones manuales con control total.</div>
   </div>
   <div class="adv-grid">
     <button class="adv-card" onclick="showView('adv-nums')">
@@ -1017,8 +1019,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="result-label">Claves generadas</div>
     <div class="result-text mono" id="adv-gen-result-text"></div>
     <div class="result-actions">
-      <button class="btn btn-secondary" onclick="dlAdvPub()">↓ Clave pública</button>
-      <button class="btn btn-secondary" onclick="dlAdvPriv()">↓ Clave privada</button>
+      <button class="btn btn-secondary" onclick="dlAdvPub()">↓ Clave del contacto</button>
+      <button class="btn btn-secondary" onclick="dlAdvPriv()">↓ Tu clave</button>
     </div>
   </div>
 </div>
@@ -1781,10 +1783,10 @@ function setEncMode(mode) {
   document.getElementById('enc-mode-priv').classList.toggle('selected', mode==='priv');
   const lbl = document.getElementById('enc-key-label');
   if (mode==='pub') {
-    lbl.textContent='Clave pública del destinatario';
+    lbl.textContent='Tu clave';
     if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
   } else {
-    lbl.textContent='Tu clave privada';
+    lbl.textContent='Tu clave';
     if(ta) ta.placeholder='-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
   }
 }
@@ -1800,7 +1802,7 @@ function setDecMode(mode) {
   document.getElementById('dec-mode-pub').classList.toggle('selected', mode==='pub');
   const lbl = document.getElementById('dec-key-label');
   if (mode==='priv') {
-    lbl.textContent='Tu clave privada';
+    lbl.textContent='Tu clave';
     if(ta) ta.placeholder='-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
   } else {
     lbl.textContent='Clave pública del emisor';
