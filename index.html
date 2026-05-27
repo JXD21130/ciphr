@@ -2,7 +2,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>cipher</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <style>
@@ -507,15 +506,15 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <header>
   <a class="logo" href="#" onclick="goHome();return false;">ciphr</a>
   <nav class="header-nav">
-    <button class="nav-btn active" id="nav-home" onclick="goHome()">inicio</button>
-    <button class="nav-btn" id="nav-adv" onclick="showView('advanced')">avanzado</button>
+    <button class="nav-btn" id="nav-home" onclick="goHome()">inicio</button>
+    <button class="nav-btn active" id="nav-adv" onclick="showView('advanced')">avanzado</button>
   </nav>
 </header>
 
 <main>
 
 <!-- ══════════ HOME ══════════ -->
-<div class="view active" id="view-home">
+<div class="view" id="view-home">
   <div class="home-title">Cifra mensajes.<br><em>Sin complicaciones.</em></div>
   <p class="home-sub">Cada uno guarda una clave. Nadie más sabe ninguna de las dos.</p>
   <div class="home-cards">
@@ -586,8 +585,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
   <div class="btn-row">
     <button class="btn btn-primary" id="btn-gen" onclick="doGenKeys()">Generar</button>
-    <button class="btn btn-secondary" id="btn-dl-pub" style="display:none" onclick="dlPub()">↓ Clave del contacto</button>
-    <button class="btn btn-secondary" id="btn-dl-priv" style="display:none" onclick="dlPriv()">↓ Tu clave</button>
+    <button class="btn btn-secondary" id="btn-dl-pub" style="display:none" onclick="dlPub()">↓ Clave pública</button>
+    <button class="btn btn-secondary" id="btn-dl-priv" style="display:none" onclick="dlPriv()">↓ Clave privada</button>
   </div>
 </div>
 
@@ -752,7 +751,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="showView('sign')">← volver</button>
   <div class="section-header">
     <div class="section-title">Firmar mensaje</div>
-    <div class="section-sub">Usa tu clave para firmar. Tu contacto podrá comprobar que eres tú.</div>
+    <div class="section-sub">Usa tu clave privada para firmar. Los demás podrán comprobar que eres tú.</div>
   </div>
   <div class="field">
     <label class="field-label">Tu clave</label>
@@ -788,7 +787,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="showView('sign')">← volver</button>
   <div class="section-header">
     <div class="section-title">Verificar firma</div>
-    <div class="section-sub">Comprueba que el mensaje es realmente de tu contacto.</div>
+    <div class="section-sub">Comprueba que el mensaje es realmente del que tiene la clave privada.</div>
   </div>
   <div class="field">
     <label class="field-label">Mensaje</label>
@@ -1001,7 +1000,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 </div>
 
 <!-- ══════════ ADV: GENKEYS ══════════ -->
-<div class="view" id="view-adv-genkeys">
+<div class="view active" id="view-adv-genkeys">
   <button class="section-back" onclick="showView('advanced')">← volver</button>
   <div class="section-header"><div class="section-title">Generar claves (avanzado)</div></div>
   <div class="field">
@@ -1015,14 +1014,67 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   </div>
   <div class="progress-bar" id="adv-gen-progress"><div class="progress-fill"></div></div>
   <div class="generating-msg" id="adv-gen-msg">Generando primos...</div>
-  <div class="alert alert-error" id="adv-gen-err"></div>
+  <div class="alert" id="adv-gen-err"></div>
   <button class="btn btn-primary" id="btn-adv-gen" onclick="doAdvGenKeys()">Generar</button>
-  <div class="result-box" id="adv-gen-result">
+  <div class="result-box show" id="adv-gen-result">
     <div class="result-label">Claves generadas</div>
-    <div class="result-text mono" id="adv-gen-result-text"></div>
+    <div class="result-text mono" id="adv-gen-result-text">-----BEGIN RSA PUBLIC KEY-----
+MIIB3AKCAX0A0UCHjF016u3Bgm9AfZ9H4Z4F9Hd/4VaqLB6Gx98AsJ01tGV+ISXo
+20iEyr+hgX7Mizgl9T2Ys/MmZsu0MxZwhXY4tpCLv4U6VUU4Wq3uIWBzJKOziSD+
+MVBU8fhH5S/XFOAaRb7yktNH7nVcIAZBjqQ36be74sUxYXQHKGb7PKJylNe/nJlk
+G93m7iw/FwetyVSpEIy1mjXBT41msazCbRMDTOkREblm29/yeBFDvRPmPlQjQgNJ
+SEGaTVHohtKG8HKnK0X3g8lk14dB5G46VBODmkTFfDhV7U8sjmRTaGrvaPdBrR60
+lX83qIsz75d/XuiXdM8K64mQyUp/Gcz6hKBEk/WgPkGUgFV94qYf800bSUG4f0oX
+wELTy/i0jnMACfEEVQ0M8nvtPNYJ68QkG/IX/wMQZtvjYGQFYHzVtv6VPuGQ8Auu
+wH8XhgMOlQ8xduyQQQGlBBH7Utdq8NJXY94uadQtQg5OV1sbbohLTwMVktYgSETW
+5xc0lLUCWQCuxHOasy86+sR3Ok2PymZ42Ood/9LqjGC4EYuF6QYr7cL3ZuXLYqaD
+rQwpJZm7qf2MTJrhFgkDD1FS9yFdvBDppDqgNQRSkuXJwLBNzCxtgqJYZyQ+bRVF
+-----END RSA PUBLIC KEY-----
+
+-----BEGIN RSA PRIVATE KEY-----
+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
+z50jPFsWIBylX4w1
+-----END RSA PRIVATE KEY-----</div>
     <div class="result-actions">
-      <button class="btn btn-secondary" onclick="dlAdvPub()">↓ Clave del contacto</button>
-      <button class="btn btn-secondary" onclick="dlAdvPriv()">↓ Tu clave</button>
+      <button class="btn btn-secondary" onclick="dlAdvPub()">↓ Clave pública</button>
+      <button class="btn btn-secondary" onclick="dlAdvPriv()">↓ Clave Privada</button>
     </div>
   </div>
 </div>
@@ -2357,6 +2409,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+
 
 
 </body></html>
