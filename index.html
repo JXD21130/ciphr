@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
+<html lang="es"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>cipher</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -509,16 +507,16 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <a class="logo" href="#" onclick="goHome();return false;">ciphr</a>
   <nav class="header-nav">
     <button class="nav-btn" id="nav-home" onclick="goHome()">inicio</button>
-    <button class="nav-btn" id="nav-adv" onclick="showView('advanced')">avanzado</button>
+    <button class="nav-btn active" id="nav-adv" onclick="showView('advanced')">avanzado</button>
   </nav>
 </header>
 
 <main>
 
 <!-- ══════════ HOME ══════════ -->
-<div class="view active" id="view-home">
-  <div class="home-title">Tu canal privado.<br><em>Solo vosotros dos.</em></div>
-  <p class="home-sub">Tú guardas tu clave. Tu contacto guarda la suya. Nadie más sabe ninguna de las dos.</p>
+<div class="view" id="view-home">
+  <div class="home-title">Cifra mensajes.<br><em>Sin complicaciones.</em></div>
+  <p class="home-sub">Cada uno guarda una clave. Nadie más sabe ninguna de las dos.</p>
   <div class="home-cards">
     <button class="card" onclick="showView('genkeys')">
       <div class="card-icon">🔑</div>
@@ -528,7 +526,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <button class="card" onclick="showView('encrypt')">
       <div class="card-icon">🔒</div>
       <div class="card-title">Cifrar</div>
-      <div class="card-desc">Cifra un mensaje con tu clave. Solo tu contacto podrá leerlo con la suya.</div>
+      <div class="card-desc">Cifra un mensaje con tu clave. Solo el receptor podrá leerlo con su clave.</div>
     </button>
     <button class="card" onclick="showView('decrypt')">
       <div class="card-icon">🔓</div>
@@ -537,8 +535,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     </button>
     <button class="card" onclick="showView('sign')">
       <div class="card-icon">✍️</div>
-      <div class="card-title">Verificar identidad</div>
-      <div class="card-desc">Demuestra que un mensaje es tuyo, o confirma que es de tu contacto.</div>
+      <div class="card-title">Firmar</div>
+      <div class="card-desc">Demuestra que un mensaje es tuyo, o verifica si es de alguien.</div>
     </button>
   </div>
   <button class="card-full" onclick="showView('advanced')">
@@ -555,7 +553,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Generar claves</div>
-    <div class="section-sub">Genera las dos claves. Tú te quedas con una, tu contacto con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.</div>
+    <div class="section-sub">Genera las dos claves. Tú te quedas con una, tu receptor con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.</div>
   </div>
 
   <div class="field">
@@ -604,11 +602,11 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="size-group">
       <div class="size-opt selected" id="enc-mode-pub" onclick="setEncMode('pub')">
         <div class="size-opt-name">Con clave pública</div>
-        <div class="size-opt-sub">Cifro con mi clave, él descifra con la suya</div>
+        <div class="size-opt-sub">Cifras con la pública, el receptor descifra con la privada</div>
       </div>
       <div class="size-opt" id="enc-mode-priv" onclick="setEncMode('priv')">
         <div class="size-opt-name">Con clave privada</div>
-        <div class="size-opt-sub">Cifro con mi clave, él descifra con la suya</div>
+        <div class="size-opt-sub">Cifras con la privada, el receptor descifra con la pública</div>
       </div>
     </div>
   </div>
@@ -622,7 +620,9 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="enc-key-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="enc-key-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----" oninput="onEncKeyPaste()"></textarea>
+    <textarea class="mono" id="enc-key-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----
+...
+-----END RSA PUBLIC KEY-----" oninput="onEncKeyPaste()"></textarea>
   </div>
 
   <div class="field">
@@ -664,11 +664,11 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="size-group">
       <div class="size-opt selected" id="dec-mode-priv" onclick="setDecMode('priv')">
         <div class="size-opt-name">Con clave privada</div>
-        <div class="size-opt-sub">Descifro con mi clave</div>
+        <div class="size-opt-sub">Descifro con mi clave privada</div>
       </div>
       <div class="size-opt" id="dec-mode-pub" onclick="setDecMode('pub')">
         <div class="size-opt-name">Con clave pública</div>
-        <div class="size-opt-sub">Descifro con mi clave</div>
+        <div class="size-opt-sub">Descifro con mi clave publica</div>
       </div>
     </div>
   </div>
@@ -682,7 +682,9 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="dec-key-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="dec-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----" oninput="onDecPrivPaste()"></textarea>
+    <textarea class="mono" id="dec-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----
+...
+-----END RSA PRIVATE KEY-----" oninput="onDecPrivPaste()"></textarea>
   </div>
 
   <div class="field">
@@ -694,7 +696,9 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="dec-cipher-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="dec-cipher-paste" placeholder="-----BEGIN RSA CIPHER-----&#10;...&#10;-----END RSA CIPHER-----" oninput="onDecCipherPaste()"></textarea>
+    <textarea class="mono" id="dec-cipher-paste" placeholder="-----BEGIN RSA CIPHER-----
+...
+-----END RSA CIPHER-----" oninput="onDecCipherPaste()"></textarea>
   </div>
 
   <div class="seed-toggle-row" onclick="toggleDecSeed()">
@@ -758,7 +762,9 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="sign-priv-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="sign-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----" oninput="onSignPrivPaste()"></textarea>
+    <textarea class="mono" id="sign-priv-paste" placeholder="-----BEGIN RSA PRIVATE KEY-----
+...
+-----END RSA PRIVATE KEY-----" oninput="onSignPrivPaste()"></textarea>
   </div>
   <div class="field">
     <label class="field-label">Mensaje a firmar</label>
@@ -796,7 +802,9 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="verify-sign-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="verify-sign-paste" placeholder="-----BEGIN RSA SIGN-----&#10;...&#10;-----END RSA SIGN-----" oninput="onVerifySignPaste()"></textarea>
+    <textarea class="mono" id="verify-sign-paste" placeholder="-----BEGIN RSA SIGN-----
+...
+-----END RSA SIGN-----" oninput="onVerifySignPaste()"></textarea>
   </div>
   <div class="alert alert-error" id="verify-err"></div>
   <button class="btn btn-primary btn-full" onclick="doVerify()">Verificar</button>
@@ -804,21 +812,15 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 </div>
 
 <!-- ══════════ ADVANCED ══════════ -->
-<div class="view" id="view-advanced">
+<div class="view active" id="view-advanced">
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Avanzado</div>
     <div class="section-sub">Operaciones manuales con control total.</div>
   </div>
   <div class="adv-grid">
-    <button class="adv-card" onclick="showView('adv-nums')">
-      <div class="adv-card-icon">🔢</div>
-      <div class="adv-card-text"><div class="adv-title">Cifrar/Descifrar número</div><div class="adv-sub">Operación RSA directa sobre un entero</div></div>
-    </button>
-    <button class="adv-card" onclick="showView('adv-text')">
-      <div class="adv-card-icon">🔤</div>
-      <div class="adv-card-text"><div class="adv-title">Cifrar/Descifrar texto</div><div class="adv-sub">Con abecedario numérico y seeds</div></div>
-    </button>
+    
+    
     <button class="adv-card" onclick="showView('adv-pem')">
       <div class="adv-card-icon">📜</div>
       <div class="adv-card-text"><div class="adv-title">PEM universal</div><div class="adv-sub">Codificar y decodificar cualquier PEM</div></div>
@@ -831,10 +833,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="adv-card-icon">⚙️</div>
       <div class="adv-card-text"><div class="adv-title">Generar claves</div><div class="adv-sub">Con control de cifras y parámetros</div></div>
     </button>
-    <button class="adv-card" onclick="showView('adv-sign')">
-      <div class="adv-card-icon">✍️</div>
-      <div class="adv-card-text"><div class="adv-title">Firma digital</div><div class="adv-sub">Firmar y verificar con claves manuales</div></div>
-    </button>
+    
   </div>
 </div>
 
@@ -924,7 +923,9 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="file-drop-name" id="pem-decode-name"></div>
     </div>
     <div class="or-divider">o pega el contenido</div>
-    <textarea class="mono" id="pem-decode-input" placeholder="-----BEGIN ...-----&#10;...&#10;-----END ...-----"></textarea>
+    <textarea class="mono" id="pem-decode-input" placeholder="-----BEGIN ...-----
+...
+-----END ...-----"></textarea>
   </div>
   <div class="alert alert-error" id="pem-decode-err"></div>
   <button class="btn btn-primary" onclick="doDecoPEM()">Decodificar</button>
@@ -948,7 +949,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <option value="sign">RSA SIGN (firma)</option>
     </select>
   </div>
-  <div id="pem-enc-fields"></div>
+  <div id="pem-enc-fields"><div class="field"><label class="field-label">n</label><input type="text" id="pem-enc-n" placeholder="módulo"></div><div class="field"><label class="field-label">e</label><input type="text" id="pem-enc-e" placeholder="exponente público"></div></div>
   <div class="alert alert-error" id="pem-enc-err"></div>
   <button class="btn btn-primary" onclick="doEncodePEM()">Generar PEM</button>
   <div class="result-box" id="pem-enc-result">
@@ -2355,5 +2356,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
-</body>
-</html>
+
+
+</body></html>
