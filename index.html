@@ -506,15 +506,15 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <header>
   <a class="logo" href="#" onclick="goHome();return false;">ciphr</a>
   <nav class="header-nav">
-    <button class="nav-btn" id="nav-home" onclick="goHome()">inicio</button>
-    <button class="nav-btn active" id="nav-adv" onclick="showView('advanced')">avanzado</button>
+    <button class="nav-btn active" id="nav-home" onclick="goHome()">inicio</button>
+    <button class="nav-btn" id="nav-adv" onclick="showView('advanced')">avanzado</button>
   </nav>
 </header>
 
 <main>
 
 <!-- ══════════ HOME ══════════ -->
-<div class="view" id="view-home">
+<div class="view active" id="view-home">
   <div class="home-title">Cifra mensajes.<br><em>Sin complicaciones.</em></div>
   <p class="home-sub">Cada uno guarda una clave. Nadie más sabe ninguna de las dos.</p>
   <div class="home-cards">
@@ -812,7 +812,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 </div>
 
 <!-- ══════════ ADVANCED ══════════ -->
-<div class="view active" id="view-advanced">
+<div class="view" id="view-advanced">
   <button class="section-back" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Avanzado</div>
