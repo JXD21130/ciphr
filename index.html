@@ -2486,14 +2486,207 @@ const i18n = {
 };
 
 // 2. Función que hace la magia de cambiar todo al instante
+<script type="text/javascript">
+// 1. Diccionario de traducción (Español -> Inglés)
+const i18n = {
+  "en": {
+    "Cifra mensajes.<br><em>Sin complicaciones.</em>": "Encrypt messages.<br><em>Completely hassle-free.</em>",
+    "Cada uno guarda una clave. Nadie más sabe ninguna de las dos.": "Each person keeps one key. No one else knows either of them.",
+    "Generar claves": "Generate keys",
+    "Genera las dos claves. Cada uno se queda con la suya, sin compartirla con nadie más.": "Generate both keys. Each person keeps their own, without sharing it with anyone else.",
+    "Cifrar": "Encrypt",
+    "Cifra un mensaje con tu clave. Solo el receptor podrá leerlo con su clave.": "Encrypt a message with your key. Only the recipient can read it with theirs.",
+    "Descifrar": "Decrypt",
+    "Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.": "Read a message sent to you. Use your own key to decrypt it.",
+    "Firmar": "Sign",
+    "Demuestra que un mensaje es tuyo, o verifica si es de alguien.": "Prove a message is yours, or verify if it belongs to someone.",
+    "Avanzado": "Advanced",
+    "Control total: claves, PEM, seeds y operaciones manuales.": "Full control: keys, PEM, seeds, and manual operations.",
+    "← volver": "← back",
+    "Genera las dos claves. Tú te quedas con una, tu receptor con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.": "Generate both keys. You keep one, your recipient keeps the other. Neither shares it with anyone else — not even each other.",
+    "Tamaño de clave": "Key size",
+    "Rápido": "Fast",
+    "Normal": "Normal",
+    "Seguro": "Secure",
+    "Normal es más que suficiente para la mayoría de usos.": "Normal is more than enough for most use cases.",
+    "Generando primos aleatorios...": "Generating random primes...",
+    "Listo. Descarga las dos claves — cada uno guarda la suya.": "Done. Download both keys — each person keeps their own.",
+    "Generar": "Generate",
+    "↓ Clave pública": "↓ Public key",
+    "↓ Clave privada": "↓ Private key",
+    "Cifrar mensaje": "Encrypt message",
+    "Modo": "Mode",
+    "Con clave pública": "With public key",
+    "Cifras con la pública, el receptor descifra con la privada": "You encrypt with the public key, the recipient decrypts with the private key",
+    "Con clave privada": "With private key",
+    "Cifras con la privada, el receptor descifra con la pública": "You encrypt with the private key, the recipient decrypts with the public key",
+    "Tu clave": "Your key",
+    "Arrastra el archivo o haz clic para seleccionar": "Drag file here or click to select",
+    "o pega el contenido": "or paste content",
+    "Mensaje": "Message",
+    "<strong>Seed</strong> — abecedario personalizado": "<strong>Seed</strong> — custom alphabet",
+    "Mensaje cifrado": "Encrypted message",
+    "Copiar": "Copy",
+    "↓ Descargar": "↓ Download",
+    "Descifrar mensaje": "Decrypt message",
+    "Descifro con mi clave privada": "I decrypt with my private key",
+    "Con clave pública": "With public key",
+    "Descifro con mi clave publica": "I decrypt with my public key",
+    "Mensaje descifrado": "Decrypted message",
+    "Verificar identidad": "Verify identity",
+    "Firmar mensaje": "Sign message",
+    "Demuestra con tu clave que el mensaje es tuyo": "Prove with your key that the message is yours",
+    "Verificar firma": "Verify signature",
+    "Verifica si una firma es real": "Verify if a signature is genuine",
+    "Firma": "Signature",
+    "Arrastra el archivo de firma o haz clic": "Drag signature file here or click",
+    "Verificar": "Verify",
+    "Operaciones manuales con control total.": "Manual operations with full control.",
+    "PEM universal": "Universal PEM",
+    "Codificar y decodificar cualquier PEM": "Encode and decode any PEM",
+    "Seeds": "Seeds",
+    "Crear y explorar abecedarios personalizados": "Create and explore custom alphabets",
+    "Decodificar": "Decode",
+    "PEM → valores": "PEM → values",
+    "Codificar": "Encode",
+    "Valores → PEM": "Values → PEM",
+    "Decodificar PEM": "Decode PEM",
+    "Archivo PEM": "PEM file",
+    "Arrastra el archivo o haz clic": "Drag file here or click",
+    "escribe tu seed...": "type your seed..."
+  }
+};
+
+// 2. FUNCIÓN DE TRADUCCIÓN CORREGIDA Y MEJORADA
 function setLanguage(lang) {
-  // Traducir textos normales (divs, spans, botones)
+  // Traduce el contenido interno respetando etiquetas HTML
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (i18n[lang] && i18n[lang][key]) {
-      el.innerHTML = i18n[lang][key]; 
+    if (lang === 'es') {
+      el.innerHTML = key; // Si es español, vuelve al texto original guardado en la clave
+    } else if (i18n[lang] && i18n[lang][key]) {
+      el.innerHTML = i18n[lang][key]; // Si es inglés, busca la traducción
     }
   });
+
+  // Traduce las sugerencias internas (placeholders) de las cajas de texto
+  document.querySelectorAll('[data-i18n-place]').forEach(el => {
+    const key = el.getAttribute('data-i18n-place');
+    if (lang === 'es') {
+      el.setAttribute('placeholder', key);
+    } else if (i18n[lang] && i18n[lang][key]) {
+      el.setAttribute('placeholder', i18n[lang][key]);
+    }
+  });
+
+  localStorage.setItem('user-selected-lang', lang);
+}
+
+// Enlace para que tus botones HTML actuales que usan onclick="translateTo(...)" sigan funcionando
+function translateTo(lang) {
+  setLanguage(lang);
+}
+
+// 3. Escáner automático al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+  const textosTraducibles = [
+    "Cifra mensajes.<br><em>Sin complicaciones.</em>",
+    "Cada uno guarda una clave. Nadie más sabe ninguna de las dos.",
+    "Generar claves",
+    "Genera las dos claves. Cada uno se queda con la suya, sin compartirla con nadie más.",
+    "Cifrar",
+    "Cifra un mensaje con tu clave. Solo el receptor podrá leerlo con su clave.",
+    "Descifrar",
+    "Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.",
+    "Firmar",
+    "Demuestra que un mensaje es tuyo, o verifica si es de alguien.",
+    "Avanzado",
+    "Control total: claves, PEM, seeds y operaciones manuales.",
+    "← volver",
+    "Genera las dos claves. Tú te quedas con una, tu receptor con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.",
+    "Tamaño de clave",
+    "Rápido",
+    "Normal",
+    "Seguro",
+    "Normal es más que suficiente para la mayoría de usos.",
+    "Generando primos aleatorios...",
+    "Listo. Descarga las dos claves — cada uno guarda la suya.",
+    "Generar",
+    "↓ Clave pública",
+    "↓ Clave privada",
+    "Cifrar mensaje",
+    "Modo",
+    "Con clave pública",
+    "Cifras con la pública, el receptor descifra con la privada",
+    "Con clave privada",
+    "Cifras con la privada, el receptor descifra con la pública",
+    "Tu clave",
+    "Arrastra el archivo o haz clic para seleccionar",
+    "o pega el contenido",
+    "Mensaje",
+    "<strong>Seed</strong> — abecedario personalizado",
+    "Mensaje cifrado",
+    "Copiar",
+    "↓ Descargar",
+    "Descifrar mensaje",
+    "Descifro con mi clave privada",
+    "Descifro con mi clave publica",
+    "Mensaje descifrado",
+    "Verificar identidad",
+    "Firmar mensaje",
+    "Demuestra con tu clave que el mensaje es tuyo",
+    "Verificar firma",
+    "Verifica si una firma es real",
+    "Firma",
+    "Arrastra el archivo de firma o haz clic",
+    "Verificar",
+    "Operaciones manuales con control total.",
+    "PEM universal",
+    "Codificar y decodificar cualquier PEM",
+    "Seeds",
+    "Crear y explorar abecedarios personalizados",
+    "Decodificar",
+    "PEM → valores",
+    "Codificar",
+    "Valores → PEM",
+    "Decodificar PEM",
+    "Archivo PEM",
+    "Arrastra el archivo o haz clic"
+  ];
+
+  // Vincula dinámicamente las etiquetas de texto
+  document.querySelectorAll('div, p, button, label, span, a').forEach(el => {
+    const htmlContent = el.innerHTML.trim();
+    const textContent = el.textContent.trim();
+    
+    if (textosTraducibles.includes(htmlContent)) {
+      el.setAttribute('data-i18n', htmlContent);
+    } else if (textosTraducibles.includes(textContent) && el.children.length === 0) {
+      el.setAttribute('data-i18n', textContent);
+    }
+  });
+
+  // Vincula automáticamente las cajas de texto que tengan placeholders específicos
+  document.querySelectorAll('textarea, input').forEach(el => {
+    const ph = el.getAttribute('placeholder');
+    if (ph) {
+      if (ph.includes('-----BEGIN RSA CIPHER-----')) {
+        el.setAttribute('data-i18n-place', "-----BEGIN RSA CIPHER----- ... -----END RSA CIPHER-----");
+        i18n["en"]["-----BEGIN RSA CIPHER----- ... -----END RSA CIPHER-----"] = "-----BEGIN RSA CIPHER----- ... -----END RSA CIPHER-----";
+      } else if (ph.includes('-----BEGIN RSA SIGN-----')) {
+        el.setAttribute('data-i18n-place', "-----BEGIN RSA SIGN----- ... -----END RSA SIGN-----");
+        i18n["en"]["-----BEGIN RSA SIGN----- ... -----END RSA SIGN-----"] = "-----BEGIN RSA SIGN----- ... -----END RSA SIGN-----";
+      } else if (ph.trim() === "escribe tu seed...") {
+        el.setAttribute('data-i18n-place', "escribe tu seed...");
+      }
+    }
+  });
+
+  // Carga el idioma que guardó el navegador previamente (o español por defecto)
+  const langPreferido = localStorage.getItem('user-selected-lang') || 'es';
+  setLanguage(langPreferido);
+});
+</script>
 
   // Traducir los placeholders (los textos grises dentro de los inputs/textareas)
   document.querySelectorAll('[data-i18n-place]').forEach(el => {
