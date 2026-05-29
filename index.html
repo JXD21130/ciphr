@@ -581,9 +581,9 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <div class="generating-msg" id="gen-msg">Generando primos aleatorios...</div>
 
   <div class="alert alert-success" id="gen-ok">
-    <span>✓</span>
-    <span>Listo. Descarga las dos claves — cada uno guarda la suya.</span>
-  </div>
+  <span>✓</span>
+  <span id="gen-ok-text">Listo. Descarga las dos claves — cada uno guarda la suya.</span>
+</div>
 
   <div class="btn-row">
     <button class="btn btn-primary" id="btn-gen" onclick="doGenKeys()">Generar</button>
@@ -2624,6 +2624,106 @@ function setLang(lang) {
   se('sign-file-lbl', L.sign_file_lbl); sp('verify-sign-paste', L.sign_file_ph);
   se('sign-pub-lbl', L.sign_pub_lbl); sp('verify-pub-paste', L.sign_pub_ph);
   se('btn-verify', L.sign_verify_btn);
+}
+// Función para actualizar el texto de un elemento por su ID
+function actualizarTextoPorId(id, texto) {
+  const elemento = document.getElementById(id);
+  if (elemento) {
+    elemento.textContent = texto;
+  }
+}
+
+// Función para actualizar el placeholder de un input por su ID
+function actualizarPlaceholderPorId(id, textoPlaceholder) {
+  const elemento = document.getElementById(id);
+  if (elemento) {
+    elemento.placeholder = textoPlaceholder;
+  }
+}
+
+// Función principal encargada de cambiar el idioma de la aplicación
+function setLang(idiomaSeleccionado) {
+  // 1. Activar o desactivar las clases visuales de los botones de banderas
+  document.getElementById('lang-es').classList.toggle('active', idiomaSeleccionado === 'es');
+  document.getElementById('lang-en').classList.toggle('active', idiomaSeleccionado === 'en');
+  
+  // 2. Cambiar el atributo de idioma global en el HTML
+  document.documentElement.lang = idiomaSeleccionado;
+
+  // 3. Obtener el diccionario de palabras (TR debe estar definido globalmente)
+  const diccionario = TR[idiomaSeleccionado];
+  if (!diccionario) return;
+
+  // 4. Traducir automáticamente todos los botones de "volver"
+  document.querySelectorAll('.section-back').forEach(botonVolver => {
+    botonVolver.textContent = idiomaSeleccionado === 'es' ? '← volver' : '← back';
+  });
+
+  // 5. Traducciones de la sección: GENERAR CLAVES
+  actualizarTextoPorId('gen-title', diccionario.gen_title); 
+  actualizarTextoPorId('gen-size-lbl', diccionario.gen_size);
+  actualizarTextoPorId('gen-fast', diccionario.gen_fast); 
+  actualizarTextoPorId('gen-fast-s', diccionario.gen_fast_s);
+  actualizarTextoPorId('gen-normal', diccionario.gen_normal); 
+  actualizarTextoPorId('gen-normal-s', diccionario.gen_normal_s);
+  actualizarTextoPorId('gen-secure', diccionario.gen_secure); 
+  actualizarTextoPorId('gen-secure-s', diccionario.gen_secure_s);
+  actualizarTextoPorId('btn-gen', diccionario.gen_btn); 
+  actualizarTextoPorId('btn-dl-pub', diccionario.gen_dl_pub); 
+  actualizarTextoPorId('btn-dl-priv', diccionario.gen_dl_priv);
+  actualizarTextoPorId('gen-ok-text', diccionario.gen_ok);
+
+  // 6. Traducciones de la sección: CIFRAR
+  actualizarTextoPorId('enc-title', diccionario.enc_title); 
+  actualizarTextoPorId('enc-mode-lbl', diccionario.enc_mode);
+  actualizarTextoPorId('enc-pub-name', diccionario.enc_pub_name); 
+  actualizarTextoPorId('enc-pub-sub', diccionario.enc_pub_sub);
+  actualizarTextoPorId('enc-priv-name', diccionario.enc_priv_name); 
+  actualizarTextoPorId('enc-priv-sub', diccionario.enc_priv_sub);
+  actualizarTextoPorId('enc-key-label', diccionario.enc_key_lbl); 
+  actualizarTextoPorId('enc-msg-lbl', diccionario.enc_msg_lbl);
+  actualizarPlaceholderPorId('enc-msg', diccionario.enc_msg_ph); 
+  actualizarTextoPorId('enc-seed-lbl', diccionario.enc_seed_lbl);
+  actualizarTextoPorId('btn-enc', diccionario.enc_btn);
+  actualizarTextoPorId('enc-result-lbl', diccionario.enc_result_lbl);
+
+  // 7. Traducciones de la sección: DESCIFRAR
+  actualizarTextoPorId('dec-title', diccionario.dec_title);
+  actualizarTextoPorId('dec-priv-name', diccionario.dec_priv_name); 
+  actualizarTextoPorId('dec-priv-sub', diccionario.dec_priv_sub);
+  actualizarTextoPorId('dec-pub-name', diccionario.dec_pub_name); 
+  actualizarTextoPorId('dec-pub-sub', diccionario.dec_pub_sub);
+  actualizarTextoPorId('dec-key-label', diccionario.dec_key_lbl); 
+  actualizarTextoPorId('dec-cipher-lbl', diccionario.dec_cipher_lbl);
+  actualizarTextoPorId('btn-dec', diccionario.dec_btn); 
+  actualizarTextoPorId('dec-result-lbl', diccionario.dec_result_lbl);
+
+  // 8. Traducciones de la sección: FIRMAR / VERIFICAR
+  actualizarTextoPorId('sign-title', diccionario.sign_title);
+  actualizarTextoPorId('sign-create-card-title', diccionario.sign_create_card_title); 
+  actualizarTextoPorId('sign-create-card-sub', diccionario.sign_create_card_sub);
+  actualizarTextoPorId('sign-verify-card-title', diccionario.sign_verify_card_title); 
+  actualizarTextoPorId('sign-verify-card-sub', diccionario.sign_verify_card_sub);
+
+  // Subsección: Crear Firma
+  actualizarTextoPorId('sign-create-title', diccionario.sign_create_title); 
+  actualizarTextoPorId('sign-create-sub', diccionario.sign_create_sub);
+  actualizarTextoPorId('sign-key-lbl', diccionario.sign_key_lbl); 
+  actualizarTextoPorId('sign-msg-lbl', diccionario.sign_msg_lbl);
+  actualizarPlaceholderPorId('sign-msg', diccionario.sign_msg_ph); 
+  actualizarTextoPorId('btn-sign', diccionario.sign_btn);
+  actualizarTextoPorId('sign-result-lbl', diccionario.sign_result_lbl);
+
+  // Subsección: Verificar Firma
+  actualizarTextoPorId('sign-verify-title', diccionario.sign_verify_title); 
+  actualizarTextoPorId('sign-verify-sub', diccionario.sign_verify_sub);
+  actualizarTextoPorId('sign-msg-v-lbl', diccionario.sign_msg_v_lbl); 
+  actualizarPlaceholderPorId('verify-msg', diccionario.sign_msg_v_ph);
+  actualizarTextoPorId('sign-file-lbl', diccionario.sign_file_lbl); 
+  actualizarPlaceholderPorId('verify-sign-paste', diccionario.sign_file_ph);
+  actualizarTextoPorId('sign-pub-lbl', diccionario.sign_pub_lbl); 
+  actualizarPlaceholderPorId('verify-pub-paste', diccionario.sign_pub_ph);
+  actualizarTextoPorId('btn-verify', diccionario.sign_verify_btn);
 }
 
 </script>
