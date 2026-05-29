@@ -508,8 +508,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <header>
   <a class="logo" href="#" onclick="goHome();return false;">ciphr</a>
   <nav class="header-nav">
-    <button class="nav-btn" onclick="translateTo('es')" title="Español">🇪🇸</button>
-    <button class="nav-btn" onclick="translateTo('en')" title="English">🇺🇸</button>
+    <button onclick="setLanguage('es')">🇪🇸</button>
+    <button onclick="setLanguage('en')">🇺🇸</button>
   </nav>
   <div id="google_translate_element" style="display:none;"></div>
 </header>
@@ -2463,6 +2463,46 @@ document.addEventListener('DOMContentLoaded', () => {
   updatePEMEncFields();
   document.getElementById('seed-input').addEventListener('keydown',e=>{if(e.key==='Enter')showSeedABC();});
 });
+// 1. Diccionario con tus traducciones
+const i18n = {
+  es: {
+    "nav-home": "inicio",
+    "nav-adv": "avanzado",
+    "home-title": "Cifra mensajes.<br><em>Sin complicaciones.</em>",
+    "home-sub": "Cada uno guarda una clave. Nadie más sabe ninguna de las dos.",
+    "card-gen-title": "Generar claves",
+    "card-gen-desc": "Genera las dos claves. Cada uno se queda con la suya, sin compartirla con nadie más.",
+    // Añade aquí el resto de tus textos...
+  },
+  en: {
+    "nav-home": "home",
+    "nav-adv": "advanced",
+    "home-title": "Encrypt messages.<br><em>No hassle.</em>",
+    "home-sub": "Each person keeps a key. No one else knows either of them.",
+    "card-gen-title": "Generate keys",
+    "card-gen-desc": "It generates two keys. Each person keeps their own, without sharing it with anyone else.",
+    // Añade aquí el resto de tus textos...
+  }
+};
+
+// 2. Función que hace la magia de cambiar todo al instante
+function setLanguage(lang) {
+  // Traducir textos normales (divs, spans, botones)
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang] && i18n[lang][key]) {
+      el.innerHTML = i18n[lang][key]; 
+    }
+  });
+
+  // Traducir los placeholders (los textos grises dentro de los inputs/textareas)
+  document.querySelectorAll('[data-i18n-place]').forEach(el => {
+    const key = el.getAttribute('data-i18n-place');
+    if (i18n[lang] && i18n[lang][key]) {
+      el.setAttribute('placeholder', i18n[lang][key]);
+    }
+  });
+}
 
 </script>
 
