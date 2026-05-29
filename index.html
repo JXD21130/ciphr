@@ -1,8 +1,8 @@
 <html lang="es"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ciphr</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>cipher</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M11 30 L11 18 Q11 4 24 4 Q37 4 37 18 L37 30' stroke='%231a1916' stroke-width='5.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='3' y='30' width='42' height='16' rx='5' fill='%231a1916'/%3E%3Ctext x='24' y='45' text-anchor='middle' font-family='monospace' font-size='19' font-weight='bold' fill='%23f5f4f0'%3Ec%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <style>
@@ -64,21 +64,22 @@ header {
   text-decoration: none;
 }
 .logo span { color: var(--text); }
-.header-nav { display: flex; gap: 6px; }
-.nav-btn {
-  background: none;
+.lang-sw {
+  display: flex;
+  gap: 3px;
+  background: var(--bg2);
   border: 1px solid var(--border);
-  color: var(--text2);
-  font-family: var(--sans);
-  font-size: 13px;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-weight: 400;
+  border-radius: 8px;
+  padding: 3px;
 }
-.nav-btn:hover { border-color: var(--border2); color: var(--text); background: var(--bg2); }
-.nav-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+.lang-btn {
+  background: none; border: none; border-radius: 5px;
+  width: 34px; height: 30px; cursor: pointer; font-size: 18px;
+  opacity: 0.35; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.lang-btn:hover { opacity: 0.7; }
+.lang-btn.active { background: var(--surface); opacity: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
 main { flex: 1; padding: 48px 32px; max-width: 680px; margin: 0 auto; width: 100%; }
 
@@ -506,10 +507,10 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <header>
   <a class="logo" href="#" onclick="goHome();return false;">ciphr</a>
-  <nav class="header-nav">
-    <button class="nav-btn active" id="nav-home" onclick="goHome()">inicio</button>
-    <button class="nav-btn" id="nav-adv" onclick="showView('advanced')">avanzado</button>
-  </nav>
+  <div class="lang-sw">
+    <button class="lang-btn active" id="lang-es" onclick="setLang('es')" title="Español">🇪🇸</button>
+    <button class="lang-btn" id="lang-en" onclick="setLang('en')" title="English">🇺🇸</button>
+  </div>
 </header>
 
 <main>
@@ -551,26 +552,26 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ GENKEYS ══════════ -->
 <div class="view" id="view-genkeys">
-  <button class="section-back" onclick="goHome()">← volver</button>
+  <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title">Generar claves</div>
+    <div class="section-title" id="gen-title">Generar claves</div>
     <div class="section-sub">Genera las dos claves. Tú te quedas con una, tu receptor con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.</div>
   </div>
 
   <div class="field">
-    <label class="field-label">Tamaño de clave</label>
+    <label class="field-label" id="gen-size-lbl">Tamaño de clave</label>
     <div class="size-group">
       <div class="size-opt selected" data-bits="512" onclick="selectSize(this)">
-        <div class="size-opt-name">Rápido</div>
-        <div class="size-opt-sub">~2s</div>
+        <div class="size-opt-name" id="gen-fast">Rápido</div>
+        <div class="size-opt-sub" id="gen-fast-s">~2s</div>
       </div>
       <div class="size-opt" data-bits="1024" onclick="selectSize(this)">
-        <div class="size-opt-name">Normal</div>
-        <div class="size-opt-sub">~15s</div>
+        <div class="size-opt-name" id="gen-normal">Normal</div>
+        <div class="size-opt-sub" id="gen-normal-s">~15s</div>
       </div>
       <div class="size-opt" data-bits="2048" onclick="selectSize(this)">
-        <div class="size-opt-name">Seguro</div>
-        <div class="size-opt-sub">~2min</div>
+        <div class="size-opt-name" id="gen-secure">Seguro</div>
+        <div class="size-opt-sub" id="gen-secure-s">~2min</div>
       </div>
     </div>
     <div class="field-sub">Normal es más que suficiente para la mayoría de usos.</div>
@@ -593,21 +594,21 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ ENCRYPT ══════════ -->
 <div class="view" id="view-encrypt">
-  <button class="section-back" onclick="goHome()">← volver</button>
+  <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title">Cifrar mensaje</div>
+    <div class="section-title" id="enc-title">Cifrar mensaje</div>
   </div>
 
   <div class="field">
-    <label class="field-label">Modo</label>
+    <label class="field-label" id="enc-mode-lbl">Modo</label>
     <div class="size-group">
       <div class="size-opt selected" id="enc-mode-pub" onclick="setEncMode('pub')">
-        <div class="size-opt-name">Con clave pública</div>
-        <div class="size-opt-sub">Cifras con la pública, el receptor descifra con la privada</div>
+        <div class="size-opt-name" id="enc-pub-name">Con clave pública</div>
+        <div class="size-opt-sub" id="enc-pub-sub">Cifras con la pública, el receptor descifra con la privada</div>
       </div>
       <div class="size-opt" id="enc-mode-priv" onclick="setEncMode('priv')">
-        <div class="size-opt-name">Con clave privada</div>
-        <div class="size-opt-sub">Cifras con la privada, el receptor descifra con la pública</div>
+        <div class="size-opt-name" id="enc-priv-name">Con clave privada</div>
+        <div class="size-opt-sub" id="enc-priv-sub">Cifras con la privada, el receptor descifra con la pública</div>
       </div>
     </div>
   </div>
@@ -627,7 +628,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   </div>
 
   <div class="field">
-    <label class="field-label">Mensaje</label>
+    <label class="field-label" id="enc-msg-lbl">Mensaje</label>
     <textarea id="enc-msg" placeholder="Escribe el mensaje a cifrar..."></textarea>
   </div>
 
@@ -655,21 +656,21 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ DECRYPT ══════════ -->
 <div class="view" id="view-decrypt">
-  <button class="section-back" onclick="goHome()">← volver</button>
+  <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title">Descifrar mensaje</div>
+    <div class="section-title" id="dec-title">Descifrar mensaje</div>
   </div>
 
   <div class="field">
     <label class="field-label">Modo</label>
     <div class="size-group">
       <div class="size-opt selected" id="dec-mode-priv" onclick="setDecMode('priv')">
-        <div class="size-opt-name">Con clave privada</div>
-        <div class="size-opt-sub">Descifro con mi clave privada</div>
+        <div class="size-opt-name" id="dec-priv-name">Con clave privada</div>
+        <div class="size-opt-sub" id="dec-priv-sub">Descifro con mi clave privada</div>
       </div>
       <div class="size-opt" id="dec-mode-pub" onclick="setDecMode('pub')">
-        <div class="size-opt-name">Con clave pública</div>
-        <div class="size-opt-sub">Descifro con mi clave publica</div>
+        <div class="size-opt-name" id="dec-pub-name">Con clave pública</div>
+        <div class="size-opt-sub" id="dec-pub-sub">Descifro con mi clave publica</div>
       </div>
     </div>
   </div>
@@ -689,7 +690,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   </div>
 
   <div class="field">
-    <label class="field-label">Mensaje cifrado</label>
+    <label class="field-label" id="dec-cipher-lbl">Mensaje cifrado</label>
     <div class="file-drop" id="dec-cipher-drop">
       <input type="file" accept=".txt,.pem" onchange="loadCipherFile(this)">
       <div class="file-drop-icon">📨</div>
@@ -715,7 +716,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="btn btn-primary btn-full" onclick="doDecrypt()">Descifrar</button>
 
   <div class="result-box" id="dec-result">
-    <div class="result-label">Mensaje descifrado</div>
+    <div class="result-label" id="dec-result-lbl">Mensaje descifrado</div>
     <div class="result-text" id="dec-result-text"></div>
     <div class="result-actions">
       <button class="btn btn-secondary" onclick="copyResult('dec-result-text')">Copiar</button>
@@ -725,16 +726,16 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ SIGN ══════════ -->
 <div class="view" id="view-sign">
-  <button class="section-back" onclick="goHome()">← volver</button>
+  <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title">Verificar identidad</div>
+    <div class="section-title" id="sign-title">Verificar identidad</div>
   </div>
   <div class="adv-grid" style="margin-bottom:0">
     <button class="adv-card" onclick="showView('sign-create')">
       <div class="adv-card-icon">✍️</div>
       <div class="adv-card-text">
-        <div class="adv-title">Firmar mensaje</div>
-        <div class="adv-sub">Demuestra con tu clave que el mensaje es tuyo</div>
+        <div class="adv-title" id="sign-create-card-title">Firmar mensaje</div>
+        <div class="adv-sub" id="sign-create-card-sub">Demuestra con tu clave que el mensaje es tuyo</div>
       </div>
     </button>
     <button class="adv-card" onclick="showView('sign-verify')">
@@ -749,13 +750,13 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ SIGN CREATE ══════════ -->
 <div class="view" id="view-sign-create">
-  <button class="section-back" onclick="showView('sign')">← volver</button>
+  <button class="section-back" data-back onclick="showView('sign')">← volver</button>
   <div class="section-header">
-    <div class="section-title">Firmar mensaje</div>
-    <div class="section-sub">Usa tu clave privada para firmar. Los demás podrán comprobar que eres tú.</div>
+    <div class="section-title" id="sign-create-title">Firmar mensaje</div>
+    <div class="section-sub" id="sign-create-sub">Usa tu clave privada para firmar. Los demás podrán comprobar que eres tú.</div>
   </div>
   <div class="field">
-    <label class="field-label">Tu clave</label>
+    <label class="field-label" id="sign-key-lbl">Tu clave</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadPrivKey(this,'sign')">
       <div class="file-drop-icon">🔐</div>
@@ -768,13 +769,13 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 -----END RSA PRIVATE KEY-----" oninput="onSignPrivPaste()"></textarea>
   </div>
   <div class="field">
-    <label class="field-label">Mensaje a firmar</label>
+    <label class="field-label" id="sign-msg-lbl">Mensaje a firmar</label>
     <textarea id="sign-msg" placeholder="Escribe el mensaje..."></textarea>
   </div>
   <div class="alert alert-error" id="sign-err"></div>
   <button class="btn btn-primary btn-full" onclick="doSign()">Firmar</button>
   <div class="result-box" id="sign-result">
-    <div class="result-label">Firma digital</div>
+    <div class="result-label" id="sign-result-lbl">Firma digital</div>
     <div class="result-text mono" id="sign-result-text"></div>
     <div class="result-actions">
       <button class="btn btn-secondary" onclick="copyResult('sign-result-text')">Copiar</button>
@@ -785,17 +786,17 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ SIGN VERIFY ══════════ -->
 <div class="view" id="view-sign-verify">
-  <button class="section-back" onclick="showView('sign')">← volver</button>
+  <button class="section-back" data-back onclick="showView('sign')">← volver</button>
   <div class="section-header">
-    <div class="section-title">Verificar firma</div>
-    <div class="section-sub">Comprueba que el mensaje es realmente del que tiene la clave privada.</div>
+    <div class="section-title" id="sign-verify-title">Verificar firma</div>
+    <div class="section-sub" id="sign-verify-sub">Comprueba que el mensaje es realmente del que tiene la clave privada.</div>
   </div>
   <div class="field">
-    <label class="field-label">Mensaje</label>
+    <label class="field-label" id="sign-msg-v-lbl">Mensaje</label>
     <textarea id="verify-msg" placeholder="El mensaje que recibiste..."></textarea>
   </div>
   <div class="field">
-    <label class="field-label">Firma</label>
+    <label class="field-label" id="sign-file-lbl">Firma</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadSignFile(this)">
       <div class="file-drop-icon">📋</div>
@@ -807,14 +808,27 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 ...
 -----END RSA SIGN-----" oninput="onVerifySignPaste()"></textarea>
   </div>
+  <div class="field">
+    <label class="field-label" id="sign-pub-lbl">Clave pública del firmante</label>
+    <div class="file-drop">
+      <input type="file" accept=".txt,.pem" onchange="loadVerifyPubKey(this)">
+      <div class="file-drop-icon">🔑</div>
+      <div>Arrastra el archivo o haz clic</div>
+      <div class="file-drop-name" id="verify-pub-name"></div>
+    </div>
+    <div class="or-divider">o pega el contenido</div>
+    <textarea class="mono" id="verify-pub-paste" placeholder="-----BEGIN RSA PUBLIC KEY-----
+...
+-----END RSA PUBLIC KEY-----" oninput="onVerifyPubPaste()"></textarea>
+  </div>
   <div class="alert alert-error" id="verify-err"></div>
-  <button class="btn btn-primary btn-full" onclick="doVerify()">Verificar</button>
+  <button class="btn btn-primary btn-full" id="btn-verify" onclick="doVerify()">Verificar</button>
   <div class="alert" id="verify-result" style="margin-top:16px"></div>
 </div>
 
 <!-- ══════════ ADVANCED ══════════ -->
 <div class="view" id="view-advanced">
-  <button class="section-back" onclick="goHome()">← volver</button>
+  <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title">Avanzado</div>
     <div class="section-sub">Operaciones manuales con control total.</div>
@@ -1448,15 +1462,13 @@ function decodeMPI(data, off) {
 }
 
 // RSA SIGN: MPI(firma) + MPI(n) + MPI(e)
-function genSignPEM(firma, n, e) {
-  return wrapPEM('RSA SIGN', concat([encodeMPI(firma), encodeMPI(n), encodeMPI(e)]));
+function genSignPEM(firma) {
+  return wrapPEM('RSA SIGN', encodeMPI(firma));
 }
 function parseSignPEM(pem) {
   const data = stripPEM(pem);
   const fR = decodeMPI(data, 0);
-  const nR = decodeMPI(data, fR.next);
-  const eR = decodeMPI(data, nR.next);
-  return { firma: fR.value, n: nR.value, e: eR.value };
+  return { firma: fR.value };
 }
 
 // RSA CIPHER: 1 byte modo (0=e,1=d) + MPI(n) + MPI(e) [+ MPI(d) si modo=1] + raw_mensaje
@@ -1753,7 +1765,8 @@ let _decMode = 'priv';
 let _signPrivKey = null; // {n, e, d}
 let _signPubKey = null;  // {n, e} from sign file
 let _cipherData = null;  // parsed RSA CIPHER
-let _verifySignData = null; // {firma, n, e}
+let _verifySignData = null; // {firma}
+let _verifyPubKey = null;
 let _customSeedABC = null;
 let _customSwaps = [];
 let _keySize = 512;
@@ -1942,11 +1955,21 @@ async function loadSignFile(input) {
   try {
     const pem = extraerPEM(text,'RSA SIGN');
     if (!pem) throw new Error('no se encontró RSA SIGN en el archivo');
-    const r = parseSignPEM(pem);
-    _verifySignData = r;
+    _verifySignData = parseSignPEM(pem);
     setDropName('verify-sign-name', fname);
     hideAlert('verify-err');
-  } catch(ex) { showAlert('verify-err', 'Error leyendo firma: '+ex.message, 'error'); }
+  } catch(ex) { showAlert('verify-err','Error: '+ex.message,'error'); }
+}
+async function loadVerifyPubKey(input) {
+  const text = await readFile(input); if (!text) return;
+  const fname = input.files[0].name;
+  try {
+    const tipo = detectarTipoPEM(text);
+    if (tipo==='RSA PUBLIC KEY') { const r=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); _verifyPubKey={n:r.n,e:r.e}; }
+    else if (tipo==='RSA PRIVATE KEY') { const r=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); _verifyPubKey={n:r.n,e:r.e}; }
+    else throw new Error('se necesita una clave pública');
+    setDropName('verify-pub-name', fname); hideAlert('verify-err');
+  } catch(ex) { showAlert('verify-err','Error: '+ex.message,'error'); }
 }
 
 async function loadPEMFile(input) {
@@ -2004,6 +2027,14 @@ function onVerifySignPaste() {
       _verifySignData = parseSignPEM(extraerPEM(text,'RSA SIGN'));
     }
   } catch(ex) { _verifySignData = null; }
+}
+function onVerifyPubPaste() {
+  const text = document.getElementById('verify-pub-paste').value;
+  try {
+    const tipo = detectarTipoPEM(text);
+    if (tipo==='RSA PUBLIC KEY') { const r=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY')); _verifyPubKey={n:r.n,e:r.e}; }
+    else if (tipo==='RSA PRIVATE KEY') { const r=parsePrivKeyPEM(extraerPEM(text,'RSA PRIVATE KEY')); _verifyPubKey={n:r.n,e:r.e}; }
+  } catch(ex) { _verifyPubKey=null; }
 }
 
 // ── GENKEYS (EASY) ──
@@ -2142,7 +2173,7 @@ async function doSign() {
     const {n,e,d} = _signPrivKey;
     const hashBig = await sha256BigInt(msg);
     const firma = modPow(hashBig, d, n);
-    const pem = genSignPEM(firma, n, e);
+    const pem = genSignPEM(firma);
     showResult('sign-result', pem);
   } catch(ex) { showAlert('sign-err','Error al firmar: '+ex.message,'error'); }
 }
@@ -2153,21 +2184,25 @@ async function doVerify() {
   document.getElementById('verify-result').className='alert';
   const signPaste = document.getElementById('verify-sign-paste').value.trim();
   if (signPaste && !_verifySignData) onVerifySignPaste();
+  const pubPaste = document.getElementById('verify-pub-paste').value.trim();
+  if (pubPaste && !_verifyPubKey) onVerifyPubPaste();
   if (!_verifySignData) { showAlert('verify-err','Carga o pega el archivo de firma.','error'); return; }
+  if (!_verifyPubKey) { showAlert('verify-err','Carga o pega la clave pública del firmante.','error'); return; }
   const msg = document.getElementById('verify-msg').value;
-  if (!msg.trim()) { showAlert('verify-err','Escribe el mensaje original.','error'); return; }
+  if (!msg.trim()) { showAlert('verify-err','Escribe el mensaje.','error'); return; }
   try {
-    const {firma, n, e} = _verifySignData;
+    const {firma} = _verifySignData;
+    const {n, e} = _verifyPubKey;
     const hashBig = await sha256BigInt(msg);
     const hashMod = hashBig % n;
     const resultado = modPow(firma, e, n);
     const el = document.getElementById('verify-result');
     if (resultado === hashMod) {
       el.className='alert alert-success show';
-      el.innerHTML='<span>✓</span><span>Firma válida. El mensaje es auténtico.</span>';
+      el.innerHTML='<span>✓</span><span>'+t('valid')+'</span>';
     } else {
       el.className='alert alert-error show';
-      el.innerHTML='<span>✗</span><span>Firma inválida. El mensaje puede haber sido alterado.</span>';
+      el.innerHTML='<span>✗</span><span>'+t('invalid')+'</span>';
     }
   } catch(ex) { showAlert('verify-err','Error al verificar: '+ex.message,'error'); }
 }
@@ -2409,9 +2444,72 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('seed-input').addEventListener('keydown',e=>{if(e.key==='Enter')showSeedABC();});
 });
 
-</script>
 
-
-
-
-</body></html>
+// ══════════════════════════════════
+//  i18n ES / EN
+// ══════════════════════════════════
+const TR = {
+  es: {
+    back:'← volver', gen_title:'Generar claves', gen_size:'Tamaño de clave',
+    gen_fast:'Rápido', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
+    gen_secure:'Seguro', gen_secure_s:'~2min',
+    gen_hint:'Para uso personal, "Normal" es más que suficiente.',
+    gen_btn:'Generar', gen_dl_pub:'↓ Clave pública', gen_dl_priv:'↓ Clave privada',
+    gen_ok:'Claves generadas. Descarga ambos archivos y guárdalos bien.',
+    enc_title:'Cifrar mensaje', enc_mode:'Modo',
+    enc_pub_name:'Con clave pública', enc_pub_sub:'Cifras con la pública, el receptor descifra con la privada',
+    enc_priv_name:'Con clave privada', enc_priv_sub:'Cifras con la privada, el receptor descifra con la pública',
+    enc_key_lbl:'Tu clave', enc_msg_lbl:'Mensaje', enc_msg_ph:'Escribe el mensaje a cifrar...',
+    enc_seed_lbl:'Seed — abecedario personalizado', enc_btn:'Cifrar',
+    enc_result_lbl:'Mensaje cifrado — compártelo con tu contacto',
+    dec_title:'Descifrar mensaje',
+    dec_priv_name:'Con clave privada', dec_priv_sub:'Descifro con mi clave privada',
+    dec_pub_name:'Con clave pública', dec_pub_sub:'Descifro con mi clave pública',
+    dec_key_lbl:'Tu clave', dec_cipher_lbl:'Mensaje cifrado',
+    dec_btn:'Descifrar', dec_result_lbl:'Mensaje descifrado',
+    sign_title:'Verificar identidad',
+    sign_create_card_title:'Firmar mensaje', sign_create_card_sub:'Demuestra con tu clave que el mensaje es tuyo',
+    sign_verify_card_title:'Verificar firma', sign_verify_card_sub:'Confirma que un mensaje es de tu contacto',
+    sign_create_title:'Firmar mensaje',
+    sign_create_sub:'Usa tu clave privada para firmar. Los demás podrán comprobar que eres tú.',
+    sign_key_lbl:'Tu clave', sign_msg_lbl:'Mensaje a firmar', sign_msg_ph:'Escribe el mensaje...',
+    sign_btn:'Firmar', sign_result_lbl:'Firma digital',
+    sign_verify_title:'Verificar firma',
+    sign_verify_sub:'Comprueba que el mensaje es realmente del que tiene la clave privada.',
+    sign_msg_v_lbl:'Mensaje', sign_msg_v_ph:'El mensaje que recibiste...',
+    sign_file_lbl:'Firma', sign_pub_lbl:'Clave pública del firmante',
+    sign_verify_btn:'Verificar',
+    adv_title:'Modo avanzado', adv_sub:'Funciones avanzadas de cifrado RSA.',
+    or:'o pega el contenido',
+    valid:'Firma válida. El mensaje es auténtico.',
+    invalid:'Firma inválida. El mensaje puede haber sido alterado.',
+    generating:'Generando primos aleatorios...',
+  },
+  en: {
+    back:'← back', gen_title:'Generate keys', gen_size:'Key size',
+    gen_fast:'Fast', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
+    gen_secure:'Secure', gen_secure_s:'~2min',
+    gen_hint:'For personal use, "Normal" is more than enough.',
+    gen_btn:'Generate', gen_dl_pub:'↓ Public key', gen_dl_priv:'↓ Private key',
+    gen_ok:'Keys generated. Download both files and keep them safe.',
+    enc_title:'Encrypt message', enc_mode:'Mode',
+    enc_pub_name:'With public key', enc_pub_sub:'Encrypt with public, recipient decrypts with private',
+    enc_priv_name:'With private key', enc_priv_sub:'Encrypt with private, recipient decrypts with public',
+    enc_key_lbl:'Your key', enc_msg_lbl:'Message', enc_msg_ph:'Write the message to encrypt...',
+    enc_seed_lbl:'Seed — custom alphabet', enc_btn:'Encrypt',
+    enc_result_lbl:'Encrypted message — share it with your contact',
+    dec_title:'Decrypt message',
+    dec_priv_name:'With private key', dec_priv_sub:'I decrypt with my private key',
+    dec_pub_name:'With public key', dec_pub_sub:'I decrypt with my public key',
+    dec_key_lbl:'Your key', dec_cipher_lbl:'Encrypted message',
+    dec_btn:'Decrypt', dec_result_lbl:'Decrypted message',
+    sign_title:'Verify identity',
+    sign_create_card_title:'Sign message', sign_create_card_sub:'Prove a message is yours with your key',
+    sign_verify_card_title:'Verify signature', sign_verify_card_sub:'Confirm a message is from your contact',
+    sign_create_title:'Sign message',
+    sign_create_sub:'Use your private key to sign. Others can verify it is you.',
+    sign_key_lbl:'Your key', sign_msg_lbl:'Message to sign', sign_msg_ph:'Write the message...',
+    sign_btn:'Sign', sign_result_lbl:'Digital signature',
+    sign_verify_title:'Verify signature',
+    sign_verify_sub:'Confirm the message really comes from the private key holder.',
+    sign_msg_v_lbl:'
