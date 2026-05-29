@@ -2576,6 +2576,55 @@ function applyLang(){
   se('btn-verify',L.sign_verify_btn);
   se('adv-title',L.adv_title); se('adv-sub',L.adv_sub);
 }
+// Función para cambiar de idioma (añadir al final de tus scripts)
+function setLang(lang) {
+  // 1. Alternar la clase activa en los botones de idioma
+  document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  
+  // 2. Cambiar el atributo lang de la página HTML
+  document.documentElement.lang = lang;
+
+  // 3. Obtener el diccionario de traducción correspondiente
+  const L = TR[lang];
+  if (!L) return;
+
+  // 4. Mapear y reemplazar los textos de la interfaz por ID
+  const se = (id, text) => { const el = document.getElementById(id); if(el) el.textContent = text; };
+  const sp = (id, ph) => { const el = document.getElementById(id); if(el) el.placeholder = ph; };
+
+  se('gen-title', L.gen_title); se('gen-size-lbl', L.gen_size);
+  se('gen-fast', L.gen_fast); se('gen-fast-s', L.gen_fast_s);
+  se('gen-normal', L.gen_normal); se('gen-normal-s', L.gen_normal_s);
+  se('gen-secure', L.gen_secure); se('gen-secure-s', L.gen_secure_s);
+  se('btn-gen', L.gen_btn); se('btn-dl-pub', L.gen_dl_pub); se('btn-dl-priv', L.gen_dl_priv);
+  
+  se('enc-title', L.enc_title); se('enc-mode-lbl', L.enc_mode);
+  se('enc-pub-name', L.enc_pub_name); se('enc-pub-sub', L.enc_pub_sub);
+  se('enc-priv-name', L.enc_priv_name); se('enc-priv-sub', L.enc_priv_sub);
+  se('enc-key-label', L.enc_key_lbl); se('enc-msg-lbl', L.enc_msg_lbl);
+  sp('enc-msg', L.enc_msg_ph); se('btn-enc', L.enc_btn);
+  
+  se('dec-title', L.dec_title);
+  se('dec-priv-name', L.dec_priv_name); se('dec-priv-sub', L.dec_priv_sub);
+  se('dec-pub-name', L.dec_pub_name); se('dec-pub-sub', L.dec_pub_sub);
+  se('dec-key-label', L.dec_key_lbl); se('dec-cipher-lbl', L.dec_cipher_lbl);
+  se('btn-dec', L.dec_btn);
+  
+  se('sign-title', L.sign_title);
+  se('sign-create-card-title', L.sign_create_card_title); se('sign-create-card-sub', L.sign_create_card_sub);
+  se('sign-verify-card-title', L.sign_verify_card_title); se('sign-verify-card-sub', L.sign_verify_card_sub);
+  
+  se('sign-create-title', L.sign_create_title); se('sign-create-sub', L.sign_create_sub);
+  se('sign-key-lbl', L.sign_key_lbl); se('sign-msg-lbl', L.sign_msg_lbl);
+  sp('sign-msg', L.sign_msg_ph); se('btn-sign', L.sign_btn);
+  
+  se('sign-verify-title', L.sign_verify_title); se('sign-verify-sub', L.sign_verify_sub);
+  se('sign-msg-v-lbl', L.sign_msg_v_lbl); sp('verify-msg', L.sign_msg_v_ph);
+  se('sign-file-lbl', L.sign_file_lbl); sp('verify-sign-paste', L.sign_file_ph);
+  se('sign-pub-lbl', L.sign_pub_lbl); sp('verify-pub-paste', L.sign_pub_ph);
+  se('btn-verify', L.sign_verify_btn);
+}
 
 </script>
 
