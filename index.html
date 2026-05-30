@@ -74,12 +74,25 @@ header {
 }
 .lang-btn {
   background: none; border: none; border-radius: 5px;
-  width: 34px; height: 30px; cursor: pointer; font-size: 18px;
-  opacity: 0.35; display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+  width: 44px; height: 30px; cursor: pointer; font-size: 13px;
+  font-family: var(--sans); font-weight: 500;
+  opacity: 0.35; display: flex; align-items: center; justify-content: center; gap: 4px;
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent; color: var(--text);
 }
 .lang-btn:hover { opacity: 0.7; }
 .lang-btn.active { background: var(--surface); opacity: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.lang-flag { width: 20px; height: 14px; border-radius: 2px; display: inline-block; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.08); }
+.flag-es {
+  background: linear-gradient(to bottom, #c60b1e 25%, #f1bf00 25% 75%, #c60b1e 75%);
+}
+.flag-us {
+  background: repeating-linear-gradient(to bottom, #B22234 0px, #B22234 3.7%, #fff 3.7%, #fff 7.4%);
+  position: relative; overflow: hidden;
+}
+.flag-us::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 45%; height: 52%; background: #3C3B6E;
+}
 
 main { flex: 1; padding: 48px 32px; max-width: 680px; margin: 0 auto; width: 100%; }
 
@@ -508,8 +521,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <header>
   <a class="logo" href="#" onclick="goHome();return false;">ciphr</a>
   <div class="lang-sw">
-    <button class="lang-btn active" id="lang-es" onclick="setLang('es')" title="Español">🇪🇸</button>
-    <button class="lang-btn" id="lang-en" onclick="setLang('en')" title="English">🇺🇸</button>
+    <button class="lang-btn active" id="lang-es" onclick="setLang('es')" title="Español"><span class="lang-flag flag-es"></span>ES</button>
+    <button class="lang-btn" id="lang-en" onclick="setLang('en')" title="English"><span class="lang-flag flag-us"></span>EN</button>
   </div>
 </header>
 
@@ -830,23 +843,23 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <div class="view" id="view-advanced">
   <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title">Avanzado</div>
-    <div class="section-sub">Operaciones manuales con control total.</div>
+    <div class="section-title" id="adv-title">Avanzado</div>
+    <div class="section-sub" id="adv-sub">Operaciones manuales con control total.</div>
   </div>
   <div class="adv-grid">
     
     
     <button class="adv-card" onclick="showView('adv-pem')">
       <div class="adv-card-icon">📜</div>
-      <div class="adv-card-text"><div class="adv-title">PEM universal</div><div class="adv-sub">Codificar y decodificar cualquier PEM</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-pem-title">PEM universal</div><div class="adv-sub" id="adv-pem-sub">Codificar y decodificar cualquier PEM</div></div>
     </button>
     <button class="adv-card" onclick="showView('adv-seeds')">
       <div class="adv-card-icon">🌱</div>
-      <div class="adv-card-text"><div class="adv-title">Seeds</div><div class="adv-sub">Crear y explorar abecedarios personalizados</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-seeds-title">Seeds</div><div class="adv-sub" id="adv-seeds-sub">Crear y explorar abecedarios personalizados</div></div>
     </button>
     <button class="adv-card" onclick="showView('adv-genkeys')">
       <div class="adv-card-icon">⚙️</div>
-      <div class="adv-card-text"><div class="adv-title">Generar claves</div><div class="adv-sub">Con control de cifras y parámetros</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-genkeys-title">Generar claves</div><div class="adv-sub" id="adv-genkeys-sub">Con control de cifras y parámetros</div></div>
     </button>
     
   </div>
@@ -857,71 +870,71 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <div class="view" id="view-adv-nums">
   <button class="section-back" onclick="showView('advanced')">← volver</button>
   <div class="section-header">
-    <div class="section-title">Cifrar / Descifrar número</div>
+    <div class="section-title" id="adv-nums-title">Cifrar / Descifrar número</div>
   </div>
   <div class="field">
-    <label class="field-label">Modo</label>
+    <label class="field-label" id="adv-nums-mode-lbl">Modo</label>
     <select id="adv-num-mode">
-      <option value="enc-e">Cifrar con e</option>
-      <option value="enc-d">Cifrar con d</option>
-      <option value="dec-e">Descifrar con e</option>
-      <option value="dec-d">Descifrar con d</option>
+      <option value="enc-e" id="adv-num-opt-enc-e">Cifrar con e</option>
+      <option value="enc-d" id="adv-num-opt-enc-d">Cifrar con d</option>
+      <option value="dec-e" id="adv-num-opt-dec-e">Descifrar con e</option>
+      <option value="dec-d" id="adv-num-opt-dec-d">Descifrar con d</option>
     </select>
   </div>
-  <div class="field"><label class="field-label">Número</label><input type="text" id="adv-num-input" placeholder="12345"></div>
+  <div class="field"><label class="field-label" id="adv-nums-num-lbl">Número</label><input type="text" id="adv-num-input" placeholder="12345"></div>
   <div class="field"><label class="field-label">n</label><input type="text" id="adv-num-n" placeholder="módulo"></div>
-  <div class="field"><label class="field-label">Exponente (e o d)</label><input type="text" id="adv-num-exp" placeholder="exponente"></div>
+  <div class="field"><label class="field-label" id="adv-nums-exp-lbl">Exponente (e o d)</label><input type="text" id="adv-num-exp" placeholder="exponente"></div>
   <div class="alert alert-error" id="adv-num-err"></div>
-  <button class="btn btn-primary" onclick="doAdvNum()">Calcular</button>
+  <button class="btn btn-primary" id="adv-nums-btn" onclick="doAdvNum()">Calcular</button>
   <div class="result-box" id="adv-num-result">
-    <div class="result-label">Resultado</div>
+    <div class="result-label" id="adv-nums-result-lbl">Resultado</div>
     <div class="result-text mono" id="adv-num-result-text"></div>
-    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('adv-num-result-text')">Copiar</button></div>
+    <div class="result-actions"><button class="btn btn-secondary" id="adv-nums-copy-btn" onclick="copyResult('adv-num-result-text')">Copiar</button></div>
   </div>
 </div>
 
 <!-- ══════════ ADV: TEXT ══════════ -->
 <div class="view" id="view-adv-text">
   <button class="section-back" onclick="showView('advanced')">← volver</button>
-  <div class="section-header"><div class="section-title">Cifrar / Descifrar texto</div></div>
+  <div class="section-header"><div class="section-title" id="adv-text-title">Cifrar / Descifrar texto</div></div>
   <div class="field">
-    <label class="field-label">Modo</label>
+    <label class="field-label" id="adv-text-mode-lbl">Modo</label>
     <select id="adv-text-mode" onchange="updateAdvTextMode()">
-      <option value="enc-e">Cifrar con e</option>
-      <option value="enc-d">Cifrar con d</option>
-      <option value="dec-e">Descifrar con e</option>
-      <option value="dec-d">Descifrar con d</option>
+      <option value="enc-e" id="adv-text-opt-enc-e">Cifrar con e</option>
+      <option value="enc-d" id="adv-text-opt-enc-d">Cifrar con d</option>
+      <option value="dec-e" id="adv-text-opt-dec-e">Descifrar con e</option>
+      <option value="dec-d" id="adv-text-opt-dec-d">Descifrar con d</option>
     </select>
   </div>
-  <div class="field"><label class="field-label">Texto / Números cifrados</label><textarea id="adv-text-input" placeholder="Texto a cifrar o números separados por espacios..."></textarea></div>
+  <div class="field"><label class="field-label" id="adv-text-input-lbl">Texto / Números cifrados</label><textarea id="adv-text-input" placeholder="Texto a cifrar o números separados por espacios..."></textarea></div>
   <div class="field"><label class="field-label">n</label><input type="text" id="adv-text-n" placeholder="módulo"></div>
-  <div class="field"><label class="field-label">Exponente (e o d)</label><input type="text" id="adv-text-exp" placeholder="exponente"></div>
+  <div class="field"><label class="field-label" id="adv-text-exp-lbl">Exponente (e o d)</label><input type="text" id="adv-text-exp" placeholder="exponente"></div>
   <div class="field">
-    <label class="field-label">Seed (opcional)</label>
+    <label class="field-label" id="adv-text-seed-lbl">Seed (opcional)</label>
     <input type="text" id="adv-text-seed" placeholder="vacío = abecedario normal">
-    <div class="field-sub">Genera un abecedario personalizado para mayor ofuscación.</div>
+    <div class="field-sub" id="adv-text-seed-sub">Genera un abecedario personalizado para mayor ofuscación.</div>
   </div>
   <div class="alert alert-error" id="adv-text-err"></div>
-  <button class="btn btn-primary" onclick="doAdvText()">Ejecutar</button>
+  <button class="btn btn-primary" id="adv-text-btn" onclick="doAdvText()">Ejecutar</button>
   <div class="result-box" id="adv-text-result">
-    <div class="result-label">Resultado</div>
+    <div class="result-label" id="adv-text-result-lbl">Resultado</div>
     <div class="result-text mono" id="adv-text-result-text"></div>
-    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('adv-text-result-text')">Copiar</button></div>
+    <div class="result-actions"><button class="btn btn-secondary" id="adv-text-copy-btn" onclick="copyResult('adv-text-result-text')">Copiar</button></div>
   </div>
 </div>
 
 <!-- ══════════ ADV: PEM ══════════ -->
 <div class="view" id="view-adv-pem">
   <button class="section-back" onclick="showView('advanced')">← volver</button>
-  <div class="section-header"><div class="section-title">PEM universal</div></div>
+  <div class="section-header"><div class="section-title" id="adv-pem-page-title">PEM universal</div></div>
   <div class="adv-grid" style="margin-bottom:0">
     <button class="adv-card" onclick="showView('adv-pem-decode')">
       <div class="adv-card-icon">🔍</div>
-      <div class="adv-card-text"><div class="adv-title">Decodificar</div><div class="adv-sub">PEM → valores</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-pem-dec-title">Decodificar</div><div class="adv-sub">PEM → valores</div></div>
     </button>
     <button class="adv-card" onclick="showView('adv-pem-encode')">
       <div class="adv-card-icon">📝</div>
-      <div class="adv-card-text"><div class="adv-title">Codificar</div><div class="adv-sub">Valores → PEM</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-pem-enc-title">Codificar</div><div class="adv-sub">Valores → PEM</div></div>
     </button>
   </div>
 </div>
@@ -929,12 +942,12 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <!-- ══════════ ADV: PEM DECODE ══════════ -->
 <div class="view" id="view-adv-pem-decode">
   <button class="section-back" onclick="showView('adv-pem')">← volver</button>
-  <div class="section-header"><div class="section-title">Decodificar PEM</div></div>
+  <div class="section-header"><div class="section-title" id="adv-pem-decode-title">Decodificar PEM</div></div>
   <div class="field">
-    <label class="field-label">Archivo PEM</label>
+    <label class="field-label" id="adv-pem-file-lbl">Archivo PEM</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadPEMFile(this)">
-      <div class="file-drop-icon">📄</div><div>Arrastra el archivo o haz clic</div>
+      <div class="file-drop-icon">📄</div><div id="adv-pem-drop-text">Arrastra el archivo o haz clic</div>
       <div class="file-drop-name" id="pem-decode-name"></div>
     </div>
     <div class="or-divider" data-i18n="or_paste">o pega el contenido</div>
@@ -943,36 +956,36 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 -----END ...-----"></textarea>
   </div>
   <div class="alert alert-error" id="pem-decode-err"></div>
-  <button class="btn btn-primary" onclick="doDecoPEM()">Decodificar</button>
+  <button class="btn btn-primary" id="adv-pem-decode-btn" onclick="doDecoPEM()">Decodificar</button>
   <div class="result-box" id="pem-decode-result">
-    <div class="result-label">Contenido</div>
+    <div class="result-label" id="adv-pem-decode-result-lbl">Contenido</div>
     <div class="result-text mono" id="pem-decode-result-text"></div>
-    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('pem-decode-result-text')">Copiar</button></div>
+    <div class="result-actions"><button class="btn btn-secondary" id="adv-pem-decode-copy-btn" onclick="copyResult('pem-decode-result-text')">Copiar</button></div>
   </div>
 </div>
 
 <!-- ══════════ ADV: PEM ENCODE ══════════ -->
 <div class="view" id="view-adv-pem-encode">
   <button class="section-back" onclick="showView('adv-pem')">← volver</button>
-  <div class="section-header"><div class="section-title">Codificar PEM</div></div>
+  <div class="section-header"><div class="section-title" id="adv-pem-encode-title">Codificar PEM</div></div>
   <div class="field">
-    <label class="field-label">Tipo</label>
+    <label class="field-label" id="adv-pem-type-lbl">Tipo</label>
     <select id="pem-enc-type" onchange="updatePEMEncFields()">
       <option value="pub">RSA PUBLIC KEY (n, e)</option>
       <option value="priv">RSA PRIVATE KEY (n, e, d, p, q)</option>
-      <option value="cipher">RSA CIPHER (mensaje cifrado)</option>
+      <option value="cipher" id="adv-pem-type-cipher">RSA CIPHER (mensaje cifrado)</option>
       <option value="sign">RSA SIGN (firma)</option>
     </select>
   </div>
   <div id="pem-enc-fields"><div class="field"><label class="field-label">n</label><input type="text" id="pem-enc-n" placeholder="módulo"></div><div class="field"><label class="field-label">e</label><input type="text" id="pem-enc-e" placeholder="exponente público"></div></div>
   <div class="alert alert-error" id="pem-enc-err"></div>
-  <button class="btn btn-primary" onclick="doEncodePEM()">Generar PEM</button>
+  <button class="btn btn-primary" id="adv-pem-encode-btn" onclick="doEncodePEM()">Generar PEM</button>
   <div class="result-box" id="pem-enc-result">
-    <div class="result-label">PEM generado</div>
+    <div class="result-label" id="adv-pem-encode-result-lbl">PEM generado</div>
     <div class="result-text mono" id="pem-enc-result-text"></div>
     <div class="result-actions">
-      <button class="btn btn-secondary" onclick="copyResult('pem-enc-result-text')">Copiar</button>
-      <button class="btn btn-secondary" onclick="dlResult('pem-enc-result-text','output.txt')">↓ Descargar</button>
+      <button class="btn btn-secondary" id="adv-pem-encode-copy-btn" onclick="copyResult('pem-enc-result-text')">Copiar</button>
+      <button class="btn btn-secondary" id="adv-pem-encode-dl-btn" onclick="dlResult('pem-enc-result-text','output.txt')">↓ Descargar</button>
     </div>
   </div>
 </div>
@@ -980,51 +993,51 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <!-- ══════════ ADV: SEEDS ══════════ -->
 <div class="view" id="view-adv-seeds">
   <button class="section-back" onclick="showView('advanced')">← volver</button>
-  <div class="section-header"><div class="section-title">Seeds</div></div>
+  <div class="section-header"><div class="section-title" id="adv-seeds-page-title">Seeds</div></div>
   <div class="field">
-    <label class="field-label">Seed</label>
+    <label class="field-label" id="adv-seeds-lbl">Seed</label>
     <div style="display:flex;gap:8px">
       <input type="text" id="seed-input" placeholder="escribe una seed o genera aleatoria" style="flex:1">
-      <button class="btn btn-secondary" onclick="genRandomSeedUI()">Aleatoria</button>
+      <button class="btn btn-secondary" id="adv-seeds-random-btn" onclick="genRandomSeedUI()">Aleatoria</button>
     </div>
-    <div class="field-sub">Una seed personaliza el abecedario numérico. Compatible con el programa Python.</div>
+    <div class="field-sub" id="adv-seeds-sub-text">Una seed personaliza el abecedario numérico. Compatible con el programa Python.</div>
   </div>
-  <button class="btn btn-primary" onclick="showSeedABC()">Ver abecedario</button>
+  <button class="btn btn-primary" id="adv-seeds-view-btn" onclick="showSeedABC()">Ver abecedario</button>
   <div class="result-box" id="seed-result">
-    <div class="result-label">Abecedario</div>
+    <div class="result-label" id="adv-seeds-result-lbl">Abecedario</div>
     <div class="result-text mono" id="seed-result-text"></div>
-    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('seed-result-text')">Copiar seed</button></div>
+    <div class="result-actions"><button class="btn btn-secondary" id="adv-seeds-copy-btn" onclick="copyResult('seed-result-text')">Copiar seed</button></div>
   </div>
   <div class="divider"></div>
-  <div class="section-title" style="font-size:16px;margin-bottom:16px">Crear seed personalizada</div>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Intercambia letras manualmente. Introduce pares separados por espacio (ej: <code style="font-family:var(--mono);background:var(--bg2);padding:1px 5px;border-radius:3px">a z</code>).</p>
+  <div class="section-title" id="adv-seeds-custom-title" style="font-size:16px;margin-bottom:16px">Crear seed personalizada</div>
+  <p id="adv-seeds-custom-sub" style="font-size:13px;color:var(--text2);margin-bottom:16px">Intercambia letras manualmente. Introduce pares separados por espacio (ej: <code style="font-family:var(--mono);background:var(--bg2);padding:1px 5px;border-radius:3px">a z</code>).</p>
   <div id="custom-seed-swaps"></div>
   <div style="display:flex;gap:8px;margin-bottom:16px">
     <input type="text" id="custom-seed-input" placeholder="ej: a z" style="flex:1" onkeydown="if(event.key==='Enter')addSwap()">
-    <button class="btn btn-secondary" onclick="addSwap()">Añadir</button>
+    <button class="btn btn-secondary" id="adv-seeds-add-btn" onclick="addSwap()">Añadir</button>
   </div>
   <div style="display:flex;gap:8px">
-    <button class="btn btn-primary" onclick="buildCustomSeed()">Generar seed</button>
-    <button class="btn btn-ghost" onclick="resetCustomSeed()">Reiniciar</button>
+    <button class="btn btn-primary" id="adv-seeds-gen-btn" onclick="buildCustomSeed()">Generar seed</button>
+    <button class="btn btn-ghost" id="adv-seeds-reset-btn" onclick="resetCustomSeed()">Reiniciar</button>
   </div>
   <div class="result-box" id="custom-seed-result">
-    <div class="result-label">Seed generada</div>
+    <div class="result-label" id="adv-seeds-custom-result-lbl">Seed generada</div>
     <div class="result-text mono" id="custom-seed-result-text"></div>
-    <div class="result-actions"><button class="btn btn-secondary" onclick="copyResult('custom-seed-result-text')">Copiar</button></div>
+    <div class="result-actions"><button class="btn btn-secondary" id="adv-seeds-custom-copy-btn" onclick="copyResult('custom-seed-result-text')">Copiar</button></div>
   </div>
 </div>
 
 <!-- ══════════ ADV: GENKEYS ══════════ -->
 <div class="view" id="view-adv-genkeys">
   <button class="section-back" onclick="showView('advanced')">← volver</button>
-  <div class="section-header"><div class="section-title">Generar claves (avanzado)</div></div>
+  <div class="section-header"><div class="section-title" id="adv-genkeys-page-title">Generar claves (avanzado)</div></div>
   <div class="field">
-    <label class="field-label">Cifras de n</label>
+    <label class="field-label" id="adv-genkeys-digits-n-lbl">Cifras de n</label>
     <input type="number" id="adv-gen-digits-n" placeholder="ej: 200" min="10" max="5000">
-    <div class="field-sub">Deja vacío para aleatorio (10-30 cifras).</div>
+    <div class="field-sub" id="adv-genkeys-digits-n-sub">Deja vacío para aleatorio (10-30 cifras).</div>
   </div>
   <div class="field">
-    <label class="field-label">Cifras de e</label>
+    <label class="field-label" id="adv-genkeys-digits-e-lbl">Cifras de e</label>
     <input type="number" id="adv-gen-digits-e" placeholder="vacío = 65537" min="1" max="5000">
   </div>
   <div class="progress-bar" id="adv-gen-progress"><div class="progress-fill"></div></div>
@@ -1088,8 +1101,8 @@ oUERjBVfuHuy/EslhhnjRqED0+wk8I7E+qHVvRNUu85Y4IfmgkVOC617+C7rJR1G
 z50jPFsWIBylX4w1
 -----END RSA PRIVATE KEY-----</div>
     <div class="result-actions">
-      <button class="btn btn-secondary" onclick="dlAdvPub()">↓ Clave pública</button>
-      <button class="btn btn-secondary" onclick="dlAdvPriv()">↓ Clave Privada</button>
+      <button class="btn btn-secondary" id="adv-genkeys-dl-pub-btn" onclick="dlAdvPub()">↓ Clave pública</button>
+      <button class="btn btn-secondary" id="adv-genkeys-dl-priv-btn" onclick="dlAdvPriv()">↓ Clave Privada</button>
     </div>
   </div>
 </div>
@@ -1097,15 +1110,15 @@ z50jPFsWIBylX4w1
 <!-- ══════════ ADV: SIGN ══════════ -->
 <div class="view" id="view-adv-sign">
   <button class="section-back" onclick="showView('advanced')">← volver</button>
-  <div class="section-header"><div class="section-title">Firma digital (avanzado)</div></div>
+  <div class="section-header"><div class="section-title" id="adv-sign-title">Firma digital (avanzado)</div></div>
   <div class="adv-grid" style="margin-bottom:0">
     <button class="adv-card" onclick="showView('sign-create')">
       <div class="adv-card-icon">✍️</div>
-      <div class="adv-card-text"><div class="adv-title">Firmar</div><div class="adv-sub">Firma un mensaje</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-sign-create-title">Firmar</div><div class="adv-sub" id="adv-sign-create-sub">Firma un mensaje</div></div>
     </button>
     <button class="adv-card" onclick="showView('sign-verify')">
       <div class="adv-card-icon">🔍</div>
-      <div class="adv-card-text"><div class="adv-title">Verificar</div><div class="adv-sub">Comprueba una firma</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-sign-verify-title">Verificar</div><div class="adv-sub" id="adv-sign-verify-sub">Comprueba una firma</div></div>
     </button>
   </div>
 </div>
@@ -2487,7 +2500,41 @@ const TR = {
     sign_msg_v_lbl:'Mensaje', sign_msg_v_ph:'El mensaje que recibiste...',
     sign_file_lbl:'Firma', sign_pub_lbl:'Clave pública del firmante',
     sign_verify_btn:'Verificar',
-    adv_title:'Modo avanzado', adv_sub:'Funciones avanzadas de cifrado RSA.',
+    adv_title:'Avanzado', adv_sub:'Operaciones manuales con control total.',
+    adv_pem_title:'PEM universal', adv_pem_sub:'Codificar y decodificar cualquier PEM',
+    adv_seeds_title:'Seeds', adv_seeds_sub:'Crear y explorar abecedarios personalizados',
+    adv_genkeys_title:'Generar claves', adv_genkeys_sub:'Con control de cifras y parámetros',
+    adv_nums_title:'Cifrar / Descifrar número', adv_nums_mode_lbl:'Modo',
+    adv_num_opt_enc_e:'Cifrar con e', adv_num_opt_enc_d:'Cifrar con d',
+    adv_num_opt_dec_e:'Descifrar con e', adv_num_opt_dec_d:'Descifrar con d',
+    adv_nums_num_lbl:'Número', adv_nums_exp_lbl:'Exponente (e o d)',
+    adv_nums_btn:'Calcular', adv_nums_result_lbl:'Resultado', copy:'Copiar',
+    adv_text_title:'Cifrar / Descifrar texto', adv_text_mode_lbl:'Modo',
+    adv_text_input_lbl:'Texto / Números cifrados', adv_text_exp_lbl:'Exponente (e o d)',
+    adv_text_seed_lbl:'Seed (opcional)',
+    adv_text_seed_sub:'Genera un abecedario personalizado para mayor ofuscación.',
+    adv_text_btn:'Ejecutar', adv_text_result_lbl:'Resultado',
+    adv_pem_page_title:'PEM universal', adv_pem_dec_title:'Decodificar', adv_pem_enc_title:'Codificar',
+    adv_pem_decode_title:'Decodificar PEM', adv_pem_file_lbl:'Archivo PEM',
+    adv_pem_drop_text:'Arrastra el archivo o haz clic',
+    adv_pem_decode_btn:'Decodificar', adv_pem_decode_result_lbl:'Contenido',
+    adv_pem_encode_title:'Codificar PEM', adv_pem_type_lbl:'Tipo',
+    adv_pem_type_cipher:'RSA CIPHER (mensaje cifrado)',
+    adv_pem_encode_btn:'Generar PEM', adv_pem_encode_result_lbl:'PEM generado', download:'↓ Descargar',
+    adv_seeds_page_title:'Seeds', adv_seeds_lbl:'Seed',
+    adv_seeds_random_btn:'Aleatoria', adv_seeds_result_lbl:'Abecedario',
+    adv_seeds_copy_btn:'Copiar seed',
+    adv_seeds_sub_text:'Una seed personaliza el abecedario numérico. Compatible con el programa Python.',
+    adv_seeds_custom_title:'Crear seed personalizada',
+    adv_seeds_custom_sub:'Intercambia letras manualmente. Introduce pares separados por espacio (ej: a z).',
+    adv_seeds_add_btn:'Añadir', adv_seeds_gen_btn:'Generar seed', adv_seeds_reset_btn:'Reiniciar',
+    adv_seeds_view_btn:'Ver abecedario', adv_seeds_custom_result_lbl:'Seed generada',
+    adv_genkeys_page_title:'Generar claves (avanzado)',
+    adv_genkeys_digits_n_lbl:'Cifras de n', adv_genkeys_digits_n_sub:'Deja vacío para aleatorio (10-30 cifras).',
+    adv_genkeys_digits_e_lbl:'Cifras de e',
+    adv_genkeys_dl_pub_btn:'↓ Clave pública', adv_genkeys_dl_priv_btn:'↓ Clave privada',
+    adv_sign_title:'Firma digital (avanzado)', adv_sign_create_title:'Firmar', adv_sign_create_sub:'Firma un mensaje',
+    adv_sign_verify_title:'Verificar', adv_sign_verify_sub:'Comprueba una firma',
     or:'o pega el contenido',
     valid:'Firma válida. El mensaje es auténtico.',
     invalid:'Firma inválida. El mensaje puede haber sido alterado.',
@@ -2531,7 +2578,41 @@ const TR = {
     sign_msg_v_lbl:'Message', sign_msg_v_ph:'The message you received...',
     sign_file_lbl:'Signature', sign_pub_lbl:"Signer's public key",
     sign_verify_btn:'Verify',
-    adv_title:'Advanced', adv_sub:'Advanced RSA encryption functions.',
+    adv_title:'Advanced', adv_sub:'Manual operations with full control.',
+    adv_pem_title:'Universal PEM', adv_pem_sub:'Encode and decode any PEM',
+    adv_seeds_title:'Seeds', adv_seeds_sub:'Create and explore custom alphabets',
+    adv_genkeys_title:'Generate keys', adv_genkeys_sub:'With digit and parameter control',
+    adv_nums_title:'Encrypt / Decrypt number', adv_nums_mode_lbl:'Mode',
+    adv_num_opt_enc_e:'Encrypt with e', adv_num_opt_enc_d:'Encrypt with d',
+    adv_num_opt_dec_e:'Decrypt with e', adv_num_opt_dec_d:'Decrypt with d',
+    adv_nums_num_lbl:'Number', adv_nums_exp_lbl:'Exponent (e or d)',
+    adv_nums_btn:'Calculate', adv_nums_result_lbl:'Result', copy:'Copy',
+    adv_text_title:'Encrypt / Decrypt text', adv_text_mode_lbl:'Mode',
+    adv_text_input_lbl:'Text / Encrypted numbers', adv_text_exp_lbl:'Exponent (e or d)',
+    adv_text_seed_lbl:'Seed (optional)',
+    adv_text_seed_sub:'Generates a custom alphabet for extra obfuscation.',
+    adv_text_btn:'Run', adv_text_result_lbl:'Result',
+    adv_pem_page_title:'Universal PEM', adv_pem_dec_title:'Decode', adv_pem_enc_title:'Encode',
+    adv_pem_decode_title:'Decode PEM', adv_pem_file_lbl:'PEM file',
+    adv_pem_drop_text:'Drag the file or click',
+    adv_pem_decode_btn:'Decode', adv_pem_decode_result_lbl:'Content',
+    adv_pem_encode_title:'Encode PEM', adv_pem_type_lbl:'Type',
+    adv_pem_type_cipher:'RSA CIPHER (encrypted message)',
+    adv_pem_encode_btn:'Generate PEM', adv_pem_encode_result_lbl:'Generated PEM', download:'↓ Download',
+    adv_seeds_page_title:'Seeds', adv_seeds_lbl:'Seed',
+    adv_seeds_random_btn:'Random', adv_seeds_result_lbl:'Alphabet',
+    adv_seeds_copy_btn:'Copy seed',
+    adv_seeds_sub_text:'A seed customises the numeric alphabet. Compatible with the Python program.',
+    adv_seeds_custom_title:'Create custom seed',
+    adv_seeds_custom_sub:'Swap letters manually. Enter pairs separated by a space (e.g. a z).',
+    adv_seeds_add_btn:'Add', adv_seeds_gen_btn:'Generate seed', adv_seeds_reset_btn:'Reset',
+    adv_seeds_view_btn:'View alphabet', adv_seeds_custom_result_lbl:'Generated seed',
+    adv_genkeys_page_title:'Generate keys (advanced)',
+    adv_genkeys_digits_n_lbl:'Digits of n', adv_genkeys_digits_n_sub:'Leave empty for random (10-30 digits).',
+    adv_genkeys_digits_e_lbl:'Digits of e',
+    adv_genkeys_dl_pub_btn:'↓ Public key', adv_genkeys_dl_priv_btn:'↓ Private key',
+    adv_sign_title:'Digital signature (advanced)', adv_sign_create_title:'Sign', adv_sign_create_sub:'Sign a message',
+    adv_sign_verify_title:'Verify', adv_sign_verify_sub:'Check a signature',
     or:'or paste the content',
     valid:'Valid signature. The message is authentic.',
     invalid:'Invalid signature. The message may have been altered.',
@@ -2599,8 +2680,54 @@ function applyLang(){
   se('sign-file-lbl',L.sign_file_lbl); sp('verify-sign-paste',L.sign_file_ph);
   se('sign-pub-lbl',L.sign_pub_lbl); sp('verify-pub-paste',L.sign_pub_ph);
   se('btn-verify',L.sign_verify_btn);
-  // AVANZADO
+  // AVANZADO — menú principal
   se('adv-title',L.adv_title); se('adv-sub',L.adv_sub);
+  se('adv-pem-title',L.adv_pem_title); se('adv-pem-sub',L.adv_pem_sub);
+  se('adv-seeds-title',L.adv_seeds_title); se('adv-seeds-sub',L.adv_seeds_sub);
+  se('adv-genkeys-title',L.adv_genkeys_title); se('adv-genkeys-sub',L.adv_genkeys_sub);
+  // AVANZADO — cifrar/descifrar número
+  se('adv-nums-title',L.adv_nums_title); se('adv-nums-mode-lbl',L.adv_nums_mode_lbl);
+  se('adv-num-opt-enc-e',L.adv_num_opt_enc_e); se('adv-num-opt-enc-d',L.adv_num_opt_enc_d);
+  se('adv-num-opt-dec-e',L.adv_num_opt_dec_e); se('adv-num-opt-dec-d',L.adv_num_opt_dec_d);
+  se('adv-nums-num-lbl',L.adv_nums_num_lbl); se('adv-nums-exp-lbl',L.adv_nums_exp_lbl);
+  se('adv-nums-btn',L.adv_nums_btn); se('adv-nums-result-lbl',L.adv_nums_result_lbl);
+  se('adv-nums-copy-btn',L.copy);
+  // AVANZADO — cifrar/descifrar texto
+  se('adv-text-title',L.adv_text_title); se('adv-text-mode-lbl',L.adv_text_mode_lbl);
+  se('adv-text-opt-enc-e',L.adv_num_opt_enc_e); se('adv-text-opt-enc-d',L.adv_num_opt_enc_d);
+  se('adv-text-opt-dec-e',L.adv_num_opt_dec_e); se('adv-text-opt-dec-d',L.adv_num_opt_dec_d);
+  se('adv-text-input-lbl',L.adv_text_input_lbl); se('adv-text-exp-lbl',L.adv_text_exp_lbl);
+  se('adv-text-seed-lbl',L.adv_text_seed_lbl); se('adv-text-seed-sub',L.adv_text_seed_sub);
+  se('adv-text-btn',L.adv_text_btn); se('adv-text-result-lbl',L.adv_text_result_lbl);
+  se('adv-text-copy-btn',L.copy);
+  // AVANZADO — PEM
+  se('adv-pem-page-title',L.adv_pem_page_title);
+  se('adv-pem-dec-title',L.adv_pem_dec_title); se('adv-pem-enc-title',L.adv_pem_enc_title);
+  se('adv-pem-decode-title',L.adv_pem_decode_title); se('adv-pem-file-lbl',L.adv_pem_file_lbl);
+  se('adv-pem-drop-text',L.adv_pem_drop_text);
+  se('adv-pem-decode-btn',L.adv_pem_decode_btn); se('adv-pem-decode-result-lbl',L.adv_pem_decode_result_lbl);
+  se('adv-pem-decode-copy-btn',L.copy);
+  se('adv-pem-encode-title',L.adv_pem_encode_title); se('adv-pem-type-lbl',L.adv_pem_type_lbl);
+  se('adv-pem-type-cipher',L.adv_pem_type_cipher);
+  se('adv-pem-encode-btn',L.adv_pem_encode_btn); se('adv-pem-encode-result-lbl',L.adv_pem_encode_result_lbl);
+  se('adv-pem-encode-copy-btn',L.copy); se('adv-pem-encode-dl-btn',L.download);
+  // AVANZADO — Seeds
+  se('adv-seeds-page-title',L.adv_seeds_page_title); se('adv-seeds-lbl',L.adv_seeds_lbl);
+  se('adv-seeds-random-btn',L.adv_seeds_random_btn); se('adv-seeds-result-lbl',L.adv_seeds_result_lbl);
+  se('adv-seeds-copy-btn',L.adv_seeds_copy_btn); se('adv-seeds-sub-text',L.adv_seeds_sub_text);
+  se('adv-seeds-custom-title',L.adv_seeds_custom_title); se('adv-seeds-custom-sub',L.adv_seeds_custom_sub);
+  se('adv-seeds-add-btn',L.adv_seeds_add_btn); se('adv-seeds-gen-btn',L.adv_seeds_gen_btn);
+  se('adv-seeds-reset-btn',L.adv_seeds_reset_btn); se('adv-seeds-view-btn',L.adv_seeds_view_btn);
+  se('adv-seeds-custom-result-lbl',L.adv_seeds_custom_result_lbl); se('adv-seeds-custom-copy-btn',L.copy);
+  // AVANZADO — Generar claves
+  se('adv-genkeys-page-title',L.adv_genkeys_page_title);
+  se('adv-genkeys-digits-n-lbl',L.adv_genkeys_digits_n_lbl); se('adv-genkeys-digits-n-sub',L.adv_genkeys_digits_n_sub);
+  se('adv-genkeys-digits-e-lbl',L.adv_genkeys_digits_e_lbl);
+  se('adv-genkeys-dl-pub-btn',L.adv_genkeys_dl_pub_btn); se('adv-genkeys-dl-priv-btn',L.adv_genkeys_dl_priv_btn);
+  // AVANZADO — Firma
+  se('adv-sign-title',L.adv_sign_title);
+  se('adv-sign-create-title',L.adv_sign_create_title); se('adv-sign-create-sub',L.adv_sign_create_sub);
+  se('adv-sign-verify-title',L.adv_sign_verify_title); se('adv-sign-verify-sub',L.adv_sign_verify_sub);
 }
 
 </script>
