@@ -522,30 +522,30 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <div class="home-cards">
     <button class="card" onclick="showView('genkeys')">
       <div class="card-icon">🔑</div>
-      <div class="card-title">Generar claves</div>
-      <div class="card-desc">Genera las dos claves. Cada uno se queda con la suya, sin compartirla con nadie más.</div>
+      <div class="card-title" id="home-card-gen-title">Generar claves</div>
+      <div class="card-desc" id="home-card-gen-desc">Genera las dos claves. Cada uno se queda con la suya, sin compartirla con nadie más.</div>
     </button>
     <button class="card" onclick="showView('encrypt')">
       <div class="card-icon">🔒</div>
-      <div class="card-title">Cifrar</div>
-      <div class="card-desc">Cifra un mensaje con tu clave. Solo el receptor podrá leerlo con su clave.</div>
+      <div class="card-title" id="home-card-enc-title">Cifrar</div>
+      <div class="card-desc" id="home-card-enc-desc">Cifra un mensaje con tu clave. Solo el receptor podrá leerlo con su clave.</div>
     </button>
     <button class="card" onclick="showView('decrypt')">
       <div class="card-icon">🔓</div>
-      <div class="card-title">Descifrar</div>
-      <div class="card-desc">Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.</div>
+      <div class="card-title" id="home-card-dec-title">Descifrar</div>
+      <div class="card-desc" id="home-card-dec-desc">Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.</div>
     </button>
     <button class="card" onclick="showView('sign')">
       <div class="card-icon">✍️</div>
-      <div class="card-title">Firmar</div>
-      <div class="card-desc">Demuestra que un mensaje es tuyo, o verifica si es de alguien.</div>
+      <div class="card-title" id="home-card-sign-title">Firmar</div>
+      <div class="card-desc" id="home-card-sign-desc">Demuestra que un mensaje es tuyo, o verifica si es de alguien.</div>
     </button>
   </div>
   <button class="card-full" onclick="showView('advanced')">
     <div class="card-icon">⚙️</div>
     <div class="card-full-text">
-      <div class="card-title">Avanzado</div>
-      <div class="card-desc">Control total: claves, PEM, seeds y operaciones manuales.</div>
+      <div class="card-title" id="home-card-adv-title">Avanzado</div>
+      <div class="card-desc" id="home-card-adv-desc">Control total: claves, PEM, seeds y operaciones manuales.</div>
     </div>
   </button>
 </div>
@@ -2450,7 +2450,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // ══════════════════════════════════
 const TR = {
   es: {
-    back:'← volver', gen_title:'Generar claves', gen_size:'Tamaño de clave',
+    back:'← volver',
+    home_title:'Cifra mensajes.<br><em>Sin complicaciones.</em>',
+    home_sub:'Cada uno guarda una clave. Nadie más sabe ninguna de las dos.',
+    home_card_gen_title:'Generar claves', home_card_gen_desc:'Genera las dos claves. Cada uno se queda con la suya, sin compartirla con nadie más.',
+    home_card_enc_title:'Cifrar', home_card_enc_desc:'Cifra un mensaje con tu clave. Solo el receptor podrá leerlo con su clave.',
+    home_card_dec_title:'Descifrar', home_card_dec_desc:'Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.',
+    home_card_sign_title:'Firmar', home_card_sign_desc:'Demuestra que un mensaje es tuyo, o verifica si es de alguien.',
+    home_card_adv_title:'Avanzado', home_card_adv_desc:'Control total: claves, PEM, seeds y operaciones manuales.',
+    gen_title:'Generar claves', gen_size:'Tamaño de clave',
     gen_fast:'Rápido', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
     gen_secure:'Seguro', gen_secure_s:'~2min',
     gen_hint:'Para uso personal, "Normal" es más que suficiente.',
@@ -2486,7 +2494,15 @@ const TR = {
     generating:'Generando primos aleatorios...',
   },
   en: {
-    back:'← back', gen_title:'Generate keys', gen_size:'Key size',
+    back:'← back',
+    home_title:'Encrypt messages.<br><em>Without the hassle.</em>',
+    home_sub:'Each person keeps one key. Nobody else knows either of them.',
+    home_card_gen_title:'Generate keys', home_card_gen_desc:'Generate both keys. Each person keeps theirs, without sharing it with anyone else.',
+    home_card_enc_title:'Encrypt', home_card_enc_desc:'Encrypt a message with your key. Only the recipient can read it with their key.',
+    home_card_dec_title:'Decrypt', home_card_dec_desc:'Read a message sent to you. Use your own key to decrypt it.',
+    home_card_sign_title:'Sign', home_card_sign_desc:'Prove a message is yours, or verify if it is from someone else.',
+    home_card_adv_title:'Advanced', home_card_adv_desc:'Full control: keys, PEM, seeds and manual operations.',
+    gen_title:'Generate keys', gen_size:'Key size',
     gen_fast:'Fast', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
     gen_secure:'Secure', gen_secure_s:'~2min',
     gen_hint:'For personal use, "Normal" is more than enough.',
@@ -2528,202 +2544,63 @@ function t(k){return(TR[_lang]&&TR[_lang][k])||TR.es[k]||k;}
 
 function setLang(lang){
   _lang=lang;
+  document.documentElement.lang=lang;
   document.getElementById('lang-es').classList.toggle('active',lang==='es');
   document.getElementById('lang-en').classList.toggle('active',lang==='en');
   applyLang();
 }
 
 function applyLang(){
-  function se(id,v){const el=document.getElementById(id);if(el&&v)el.textContent=v;}
-  function sp(id,v){const el=document.getElementById(id);if(el&&v)el.placeholder=v;}
+  function se(id,v){const el=document.getElementById(id);if(el&&v!==undefined)el.textContent=v;}
+  function sh(id,v){const el=document.getElementById(id);if(el&&v!==undefined)el.innerHTML=v;}
+  function sp(id,v){const el=document.getElementById(id);if(el&&v!==undefined)el.placeholder=v;}
   const L=TR[_lang];
+  // Botones volver
   document.querySelectorAll('[data-back]').forEach(el=>el.textContent=L.back);
   document.querySelectorAll('.or-divider').forEach(el=>el.textContent=L.or);
+  // HOME
+  sh('home-main-title',L.home_title);
+  se('home-main-sub',L.home_sub);
+  se('home-card-gen-title',L.home_card_gen_title); se('home-card-gen-desc',L.home_card_gen_desc);
+  se('home-card-enc-title',L.home_card_enc_title); se('home-card-enc-desc',L.home_card_enc_desc);
+  se('home-card-dec-title',L.home_card_dec_title); se('home-card-dec-desc',L.home_card_dec_desc);
+  se('home-card-sign-title',L.home_card_sign_title); se('home-card-sign-desc',L.home_card_sign_desc);
+  se('home-card-adv-title',L.home_card_adv_title); se('home-card-adv-desc',L.home_card_adv_desc);
+  // GENERAR
   se('gen-title',L.gen_title); se('gen-size-lbl',L.gen_size);
   se('gen-fast',L.gen_fast); se('gen-fast-s',L.gen_fast_s);
   se('gen-normal',L.gen_normal); se('gen-normal-s',L.gen_normal_s);
   se('gen-secure',L.gen_secure); se('gen-secure-s',L.gen_secure_s);
   se('gen-hint',L.gen_hint); se('btn-gen',L.gen_btn);
   se('btn-dl-pub',L.gen_dl_pub); se('btn-dl-priv',L.gen_dl_priv);
-  const gOk=document.getElementById('gen-ok');
-  if(gOk){const s=gOk.querySelector('span:last-child');if(s)s.textContent=L.gen_ok;}
-  se('gen-msg',L.generating); se('adv-gen-msg',L.generating);
+  se('gen-ok-text',L.gen_ok); se('gen-msg',L.generating); se('adv-gen-msg',L.generating);
+  // CIFRAR
   se('enc-title',L.enc_title); se('enc-mode-lbl',L.enc_mode);
   se('enc-pub-name',L.enc_pub_name); se('enc-pub-sub',L.enc_pub_sub);
   se('enc-priv-name',L.enc_priv_name); se('enc-priv-sub',L.enc_priv_sub);
   se('enc-key-label',L.enc_key_lbl); se('enc-msg-lbl',L.enc_msg_lbl);
   sp('enc-msg',L.enc_msg_ph); se('enc-seed-lbl',L.enc_seed_lbl);
   se('btn-enc',L.enc_btn); se('enc-result-lbl',L.enc_result_lbl);
+  // DESCIFRAR
   se('dec-title',L.dec_title);
   se('dec-priv-name',L.dec_priv_name); se('dec-priv-sub',L.dec_priv_sub);
   se('dec-pub-name',L.dec_pub_name); se('dec-pub-sub',L.dec_pub_sub);
   se('dec-key-label',L.dec_key_lbl); se('dec-cipher-lbl',L.dec_cipher_lbl);
   se('btn-dec',L.dec_btn); se('dec-result-lbl',L.dec_result_lbl);
+  // FIRMAR
   se('sign-title',L.sign_title);
-  se('sign-create-card-title',L.sign_create_card_title);
-  se('sign-create-card-sub',L.sign_create_card_sub);
-  se('sign-verify-card-title',L.sign_verify_card_title);
-  se('sign-verify-card-sub',L.sign_verify_card_sub);
-  se('sign-create-title',L.sign_create_title);
-  se('sign-create-sub',L.sign_create_sub);
-  se('sign-key-lbl',L.sign_key_lbl);
-  se('sign-msg-lbl',L.sign_msg_lbl); sp('sign-msg',L.sign_msg_ph);
-  se('btn-sign',L.sign_btn); se('sign-result-lbl',L.sign_result_lbl);
-  se('sign-verify-title',L.sign_verify_title);
-  se('sign-verify-sub',L.sign_verify_sub);
+  se('sign-create-card-title',L.sign_create_card_title); se('sign-create-card-sub',L.sign_create_card_sub);
+  se('sign-verify-card-title',L.sign_verify_card_title); se('sign-verify-card-sub',L.sign_verify_card_sub);
+  se('sign-create-title',L.sign_create_title); se('sign-create-sub',L.sign_create_sub);
+  se('sign-key-lbl',L.sign_key_lbl); se('sign-msg-lbl',L.sign_msg_lbl);
+  sp('sign-msg',L.sign_msg_ph); se('btn-sign',L.sign_btn); se('sign-result-lbl',L.sign_result_lbl);
+  se('sign-verify-title',L.sign_verify_title); se('sign-verify-sub',L.sign_verify_sub);
   se('sign-msg-v-lbl',L.sign_msg_v_lbl); sp('verify-msg',L.sign_msg_v_ph);
-  se('sign-file-lbl',L.sign_file_lbl); se('sign-pub-lbl',L.sign_pub_lbl);
+  se('sign-file-lbl',L.sign_file_lbl); sp('verify-sign-paste',L.sign_file_ph);
+  se('sign-pub-lbl',L.sign_pub_lbl); sp('verify-pub-paste',L.sign_pub_ph);
   se('btn-verify',L.sign_verify_btn);
+  // AVANZADO
   se('adv-title',L.adv_title); se('adv-sub',L.adv_sub);
-}
-// Función para cambiar de idioma (añadir al final de tus scripts)
-function setLang(lang) {
-  // 1. Alternar la clase activa en los botones de idioma
-  document.getElementById('lang-es').classList.toggle('active', lang === 'es');
-  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-  
-  // 2. Cambiar el atributo lang de la página HTML
-  document.documentElement.lang = lang;
-
-  // 3. Obtener el diccionario de traducción correspondiente
-  const L = TR[lang];
-  if (!L) return;
-
-  // 4. Mapear y reemplazar los textos de la interfaz por ID
-  const se = (id, text) => { const el = document.getElementById(id); if(el) el.textContent = text; };
-  const sp = (id, ph) => { const el = document.getElementById(id); if(el) el.placeholder = ph; };
-
-  se('gen-title', L.gen_title); se('gen-size-lbl', L.gen_size);
-  se('gen-fast', L.gen_fast); se('gen-fast-s', L.gen_fast_s);
-  se('gen-normal', L.gen_normal); se('gen-normal-s', L.gen_normal_s);
-  se('gen-secure', L.gen_secure); se('gen-secure-s', L.gen_secure_s);
-  se('btn-gen', L.gen_btn); se('btn-dl-pub', L.gen_dl_pub); se('btn-dl-priv', L.gen_dl_priv);
-  
-  se('enc-title', L.enc_title); se('enc-mode-lbl', L.enc_mode);
-  se('enc-pub-name', L.enc_pub_name); se('enc-pub-sub', L.enc_pub_sub);
-  se('enc-priv-name', L.enc_priv_name); se('enc-priv-sub', L.enc_priv_sub);
-  se('enc-key-label', L.enc_key_lbl); se('enc-msg-lbl', L.enc_msg_lbl);
-  sp('enc-msg', L.enc_msg_ph); se('btn-enc', L.enc_btn);
-  
-  se('dec-title', L.dec_title);
-  se('dec-priv-name', L.dec_priv_name); se('dec-priv-sub', L.dec_priv_sub);
-  se('dec-pub-name', L.dec_pub_name); se('dec-pub-sub', L.dec_pub_sub);
-  se('dec-key-label', L.dec_key_lbl); se('dec-cipher-lbl', L.dec_cipher_lbl);
-  se('btn-dec', L.dec_btn);
-  
-  se('sign-title', L.sign_title);
-  se('sign-create-card-title', L.sign_create_card_title); se('sign-create-card-sub', L.sign_create_card_sub);
-  se('sign-verify-card-title', L.sign_verify_card_title); se('sign-verify-card-sub', L.sign_verify_card_sub);
-  
-  se('sign-create-title', L.sign_create_title); se('sign-create-sub', L.sign_create_sub);
-  se('sign-key-lbl', L.sign_key_lbl); se('sign-msg-lbl', L.sign_msg_lbl);
-  sp('sign-msg', L.sign_msg_ph); se('btn-sign', L.sign_btn);
-  
-  se('sign-verify-title', L.sign_verify_title); se('sign-verify-sub', L.sign_verify_sub);
-  se('sign-msg-v-lbl', L.sign_msg_v_lbl); sp('verify-msg', L.sign_msg_v_ph);
-  se('sign-file-lbl', L.sign_file_lbl); sp('verify-sign-paste', L.sign_file_ph);
-  se('sign-pub-lbl', L.sign_pub_lbl); sp('verify-pub-paste', L.sign_pub_ph);
-  se('btn-verify', L.sign_verify_btn);
-}
-// Función para actualizar el texto de un elemento por su ID
-function actualizarTextoPorId(id, texto) {
-  const elemento = document.getElementById(id);
-  if (elemento) {
-    elemento.textContent = texto;
-  }
-}
-
-// Función para actualizar el placeholder de un input por su ID
-function actualizarPlaceholderPorId(id, textoPlaceholder) {
-  const elemento = document.getElementById(id);
-  if (elemento) {
-    elemento.placeholder = textoPlaceholder;
-  }
-}
-
-// Función principal encargada de cambiar el idioma de la aplicación
-function setLang(idiomaSeleccionado) {
-  // 1. Activar o desactivar las clases visuales de los botones de banderas
-  document.getElementById('lang-es').classList.toggle('active', idiomaSeleccionado === 'es');
-  document.getElementById('lang-en').classList.toggle('active', idiomaSeleccionado === 'en');
-  
-  // 2. Cambiar el atributo de idioma global en el HTML
-  document.documentElement.lang = idiomaSeleccionado;
-
-  // 3. Obtener el diccionario de palabras (TR debe estar definido globalmente)
-  const diccionario = TR[idiomaSeleccionado];
-  if (!diccionario) return;
-
-  // 4. Traducir automáticamente todos los botones de "volver"
-  document.querySelectorAll('.section-back').forEach(botonVolver => {
-    botonVolver.textContent = idiomaSeleccionado === 'es' ? '← volver' : '← back';
-  });
-
-  // 5. Traducciones de la sección: GENERAR CLAVES
-  actualizarTextoPorId('gen-title', diccionario.gen_title); 
-  actualizarTextoPorId('gen-size-lbl', diccionario.gen_size);
-  actualizarTextoPorId('gen-fast', diccionario.gen_fast); 
-  actualizarTextoPorId('gen-fast-s', diccionario.gen_fast_s);
-  actualizarTextoPorId('gen-normal', diccionario.gen_normal); 
-  actualizarTextoPorId('gen-normal-s', diccionario.gen_normal_s);
-  actualizarTextoPorId('gen-secure', diccionario.gen_secure); 
-  actualizarTextoPorId('gen-secure-s', diccionario.gen_secure_s);
-  actualizarTextoPorId('btn-gen', diccionario.gen_btn); 
-  actualizarTextoPorId('btn-dl-pub', diccionario.gen_dl_pub); 
-  actualizarTextoPorId('btn-dl-priv', diccionario.gen_dl_priv);
-  actualizarTextoPorId('gen-ok-text', diccionario.gen_ok);
-
-  // 6. Traducciones de la sección: CIFRAR
-  actualizarTextoPorId('enc-title', diccionario.enc_title); 
-  actualizarTextoPorId('enc-mode-lbl', diccionario.enc_mode);
-  actualizarTextoPorId('enc-pub-name', diccionario.enc_pub_name); 
-  actualizarTextoPorId('enc-pub-sub', diccionario.enc_pub_sub);
-  actualizarTextoPorId('enc-priv-name', diccionario.enc_priv_name); 
-  actualizarTextoPorId('enc-priv-sub', diccionario.enc_priv_sub);
-  actualizarTextoPorId('enc-key-label', diccionario.enc_key_lbl); 
-  actualizarTextoPorId('enc-msg-lbl', diccionario.enc_msg_lbl);
-  actualizarPlaceholderPorId('enc-msg', diccionario.enc_msg_ph); 
-  actualizarTextoPorId('enc-seed-lbl', diccionario.enc_seed_lbl);
-  actualizarTextoPorId('btn-enc', diccionario.enc_btn);
-  actualizarTextoPorId('enc-result-lbl', diccionario.enc_result_lbl);
-
-  // 7. Traducciones de la sección: DESCIFRAR
-  actualizarTextoPorId('dec-title', diccionario.dec_title);
-  actualizarTextoPorId('dec-priv-name', diccionario.dec_priv_name); 
-  actualizarTextoPorId('dec-priv-sub', diccionario.dec_priv_sub);
-  actualizarTextoPorId('dec-pub-name', diccionario.dec_pub_name); 
-  actualizarTextoPorId('dec-pub-sub', diccionario.dec_pub_sub);
-  actualizarTextoPorId('dec-key-label', diccionario.dec_key_lbl); 
-  actualizarTextoPorId('dec-cipher-lbl', diccionario.dec_cipher_lbl);
-  actualizarTextoPorId('btn-dec', diccionario.dec_btn); 
-  actualizarTextoPorId('dec-result-lbl', diccionario.dec_result_lbl);
-
-  // 8. Traducciones de la sección: FIRMAR / VERIFICAR
-  actualizarTextoPorId('sign-title', diccionario.sign_title);
-  actualizarTextoPorId('sign-create-card-title', diccionario.sign_create_card_title); 
-  actualizarTextoPorId('sign-create-card-sub', diccionario.sign_create_card_sub);
-  actualizarTextoPorId('sign-verify-card-title', diccionario.sign_verify_card_title); 
-  actualizarTextoPorId('sign-verify-card-sub', diccionario.sign_verify_card_sub);
-
-  // Subsección: Crear Firma
-  actualizarTextoPorId('sign-create-title', diccionario.sign_create_title); 
-  actualizarTextoPorId('sign-create-sub', diccionario.sign_create_sub);
-  actualizarTextoPorId('sign-key-lbl', diccionario.sign_key_lbl); 
-  actualizarTextoPorId('sign-msg-lbl', diccionario.sign_msg_lbl);
-  actualizarPlaceholderPorId('sign-msg', diccionario.sign_msg_ph); 
-  actualizarTextoPorId('btn-sign', diccionario.sign_btn);
-  actualizarTextoPorId('sign-result-lbl', diccionario.sign_result_lbl);
-
-  // Subsección: Verificar Firma
-  actualizarTextoPorId('sign-verify-title', diccionario.sign_verify_title); 
-  actualizarTextoPorId('sign-verify-sub', diccionario.sign_verify_sub);
-  actualizarTextoPorId('sign-msg-v-lbl', diccionario.sign_msg_v_lbl); 
-  actualizarPlaceholderPorId('verify-msg', diccionario.sign_msg_v_ph);
-  actualizarTextoPorId('sign-file-lbl', diccionario.sign_file_lbl); 
-  actualizarPlaceholderPorId('verify-sign-paste', diccionario.sign_file_ph);
-  actualizarTextoPorId('sign-pub-lbl', diccionario.sign_pub_lbl); 
-  actualizarPlaceholderPorId('verify-pub-paste', diccionario.sign_pub_ph);
-  actualizarTextoPorId('btn-verify', diccionario.sign_verify_btn);
 }
 
 </script>
