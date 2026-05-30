@@ -74,25 +74,13 @@ header {
 }
 .lang-btn {
   background: none; border: none; border-radius: 5px;
-  width: 44px; height: 30px; cursor: pointer; font-size: 13px;
-  font-family: var(--sans); font-weight: 500;
-  opacity: 0.35; display: flex; align-items: center; justify-content: center; gap: 4px;
-  transition: all 0.15s; -webkit-tap-highlight-color: transparent; color: var(--text);
+  width: 34px; height: 30px; cursor: pointer; font-size: 20px;
+  opacity: 0.35; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
 }
 .lang-btn:hover { opacity: 0.7; }
 .lang-btn.active { background: var(--surface); opacity: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-.lang-flag { width: 20px; height: 14px; border-radius: 2px; display: inline-block; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.08); }
-.flag-es {
-  background: linear-gradient(to bottom, #c60b1e 25%, #f1bf00 25% 75%, #c60b1e 75%);
-}
-.flag-us {
-  background: repeating-linear-gradient(to bottom, #B22234 0px, #B22234 3.7%, #fff 3.7%, #fff 7.4%);
-  position: relative; overflow: hidden;
-}
-.flag-us::before {
-  content: ''; position: absolute; top: 0; left: 0;
-  width: 45%; height: 52%; background: #3C3B6E;
-}
 
 main { flex: 1; padding: 48px 32px; max-width: 680px; margin: 0 auto; width: 100%; }
 
@@ -521,8 +509,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 <header>
   <a class="logo" href="#" onclick="goHome();return false;">ciphr</a>
   <div class="lang-sw">
-    <button class="lang-btn active" id="lang-es" onclick="setLang('es')" title="Español"><span class="lang-flag flag-es"></span>ES</button>
-    <button class="lang-btn" id="lang-en" onclick="setLang('en')" title="English"><span class="lang-flag flag-us"></span>EN</button>
+    <button class="lang-btn active" id="lang-es" onclick="setLang('es')" title="Español">🇪🇸</button>
+    <button class="lang-btn" id="lang-en" onclick="setLang('en')" title="English">🇺🇸</button>
   </div>
 </header>
 
