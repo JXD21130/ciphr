@@ -2930,47 +2930,6 @@ function kxGenCode() {
   return Array.from(arr).map(b => chars[b % chars.length]).join('');
 }
 
-async function kxCreateRoom() {
-  const keyText = document.getElementById('kx-sender-key-input').value.trim();
-  hideAlert('kx-sender-err');
-  if (!keyText) { showAlert('kx-sender-err', _lang==='es'?'Pega tu clave B o carga el archivo.':'Paste your key B or load the file.','error'); return; }
-  if (!keyText.includes('RSA PUBLIC KEY')) { showAlert('kx-sender-err', _lang==='es'?'Eso no parece una clave B (pública).':"That doesn't look like a key B (public).", 'error'); return; }
-
-  const btn = document.getElementById('kx-sender-btn');
-  btn.disabled = true;
-  document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Creando...':'Creating...';
-
-  _kxRoomCode = kxGenCode();
-  try {
-    const res = await fetch(`${KX_BASE}/${KX_PREFIX}${_kxRoomCode}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      body: keyText
-    });
-    if (!res.ok) throw new Error('ntfy ' + res.status);
-    document.getElementById('kx-step-sender').style.display = 'none';
-    document.getElementById('kx-step-sender-wait').style.display = 'block';
-    document.getElementById('kx-room-code').textContent = _kxRoomCode;
-    const ok = document.getElementById('kx-sender-ok');
-    ok.style.display = 'block';
-    ok.textContent = _lang==='es'?'✓ Clave publicada. Comparte el código con tu contacto. Expira en ~10 min.':'✓ Key published. Share the code with your contact. Expires in ~10 min.';
-    document.querySelector('#kx-step-sender-wait .kx-waiting').style.display = 'none';
-  } catch(e) {
-    btn.disabled = false;
-    document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
-    showAlert('kx-sender-err', (_lang==='es'?'Error de red: ':'Network error: ')+e.message, 'error');
-  }
-}
-
-function kxCopyCode() {
-  navigator.clipboard.writeText(_kxRoomCode).then(() => {
-    const btn = document.getElementById('kx-copy-code-btn');
-    const orig = btn.textContent;
-    btn.textContent = _lang==='es'?'✓ Copiado':'✓ Copied';
-    setTimeout(() => btn.textContent = orig, 2000);
-  });
-}
-
 async function kxFetchKey() {
   const code = document.getElementById('kx-code-input').value.trim().toUpperCase();
   hideAlert('kx-receiver-err');
@@ -2980,10 +2939,19 @@ async function kxFetchKey() {
   btn.disabled = true;
   document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargando...':'Downloading...';
 
+  // 1. Creamos un controlador para abortar si tarda mucho
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 segundos de límite
+
   try {
-    // ntfy poll: GET /<topic>/json?poll=1&since=10m returns NDJSON
-    const res = await fetch(`${KX_BASE}/${KX_PREFIX}${code}/json?poll=1&since=10m`);
-    if (!res.ok) throw new Error('ntfy ' + res.status);
+    // 2. Pasamos la señal al fetch
+    const res = await fetch(`${KX_BASE}/${KX_PREFIX}${code}/json?poll=1&since=10m`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId); // Si la petición tiene éxito a tiempo, limpiamos el temporizador
+
+    if (!res.ok) throw new Error('ntfy HTTP ' + res.status);
 
     const raw = (await res.text()).trim();
     if (!raw) throw new Error(_lang==='es'
@@ -3005,9 +2973,64 @@ async function kxFetchKey() {
     document.getElementById('kx-received-key').textContent = keyContent;
     document.getElementById('kx-receiver-ok').textContent = _lang==='es'?'✓ Clave recibida correctamente.':'✓ Key received successfully.';
   } catch(e) {
+    clearTimeout(timeoutId); // Limpiamos por si falló por otra razón
     btn.disabled = false;
     document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
-    showAlert('kx-receiver-err', e.message, 'error');
+    
+    // 3. Informamos al usuario si fue culpa del timeout
+    if (e.name === 'AbortError') {
+      showAlert('kx-receiver-err', _lang==='es'?'El servidor de intercambio tardó demasiado. Revisa tu conexión.':'The server took too long. Check your connection.', 'error');
+    } else {
+      showAlert('kx-receiver-err', e.message, 'error');
+    }
+  }
+}
+
+async function kxCreateRoom() {
+  const keyText = document.getElementById('kx-sender-key-input').value.trim();
+  hideAlert('kx-sender-err');
+  if (!keyText) { showAlert('kx-sender-err', _lang==='es'?'Pega tu clave B o carga el archivo.':'Paste your key B or load the file.','error'); return; }
+  if (!keyText.includes('RSA PUBLIC KEY')) { showAlert('kx-sender-err', _lang==='es'?'Eso no parece una clave B (pública).':"That doesn't look like a key B (public).", 'error'); return; }
+
+  const btn = document.getElementById('kx-sender-btn');
+  btn.disabled = true;
+  document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Creando...':'Creating...';
+
+  _kxRoomCode = kxGenCode();
+  
+  // Mismo sistema de protección de 8 segundos para enviar la clave
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const res = await fetch(`${KX_BASE}/${KX_PREFIX}${_kxRoomCode}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      body: keyText,
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) throw new Error('ntfy HTTP ' + res.status);
+    
+    document.getElementById('kx-step-sender').style.display = 'none';
+    document.getElementById('kx-step-sender-wait').style.display = 'block';
+    document.getElementById('kx-room-code').textContent = _kxRoomCode;
+    const ok = document.getElementById('kx-sender-ok');
+    ok.style.display = 'block';
+    ok.textContent = _lang==='es'?'✓ Clave publicada. Comparte el código con tu contacto. Expira en ~10 min.':'✓ Key published. Share the code with your contact. Expires in ~10 min.';
+    document.querySelector('#kx-step-sender-wait .kx-waiting').style.display = 'none';
+  } catch(e) {
+    clearTimeout(timeoutId);
+    btn.disabled = false;
+    document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
+    
+    if (e.name === 'AbortError') {
+      showAlert('kx-sender-err', _lang==='es'?'El servidor no responde. Inténtalo de nuevo.':'Server is not responding. Try again.', 'error');
+    } else {
+      showAlert('kx-sender-err', (_lang==='es'?'Error de red: ':'Network error: ') + e.message, 'error');
+    }
   }
 }
 
