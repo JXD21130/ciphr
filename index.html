@@ -1225,8 +1225,9 @@ const DEFAULT_ABC = {
 let ABECEDARIO = {...DEFAULT_ABC};
 let NUMERO_A_LETRA = Object.fromEntries(Object.entries(ABECEDARIO).map(([k,v])=>[v,k]));
 
-const MARCADOR_DIGITO = -1;
-const OFFSET_DIGITO = 27;
+const MARCADOR_DIGITO = 27;
+const OFFSET_DIGITO  = 28;  // dígitos: 28(0) 29(1) ... 37(9)
+const ESPACIO        = 0;   // espacio sigue siendo 0
 
 function resetAbc() {
   ABECEDARIO = {...DEFAULT_ABC};
@@ -1491,16 +1492,13 @@ function genCipherPEM(nums, n, e, d_val, modoCifrado, seed, incluirClaves, inclu
     new DataView(seedLen.buffer).setUint16(0, seedBytes.length, false);
     seedPart = concat([seedLen, seedBytes]);
   }
-  // mensaje raw
+  // mensaje raw — cada número: 4B(len) + nB(value); 0n = espacio
   const parts = [];
   for (const num of nums) {
-    const isNeg = num < 0n;
-    const abs = isNeg ? -num : num;
-    const nb = bigIntToBytes(abs);
-    const sign = new Uint8Array([isNeg ? 1 : 0]);
+    const nb = num === 0n ? new Uint8Array([0]) : bigIntToBytes(num);
     const lenBytes = new Uint8Array(4);
     new DataView(lenBytes.buffer).setUint32(0, nb.length, false);
-    parts.push(sign, lenBytes, nb);
+    parts.push(lenBytes, nb);
   }
   const msgPart = concat(parts);
   return wrapPEM('RSA CIPHER', concat([modoByte, tieneClavesByte, clavesPart, tieneSeedByte, seedPart, msgPart]));
@@ -1524,14 +1522,14 @@ function parseCipherPEM(pem) {
     const seedBytes = data.slice(off, off + seedLen); off += seedLen;
     seed = new TextDecoder().decode(seedBytes);
   }
-  // parse nums
+  // parse nums — 4B(len) + nB(value)
   const nums = [];
   while (off < data.length) {
-    const sign = data[off++];
     const len = new DataView(data.buffer, data.byteOffset + off, 4).getUint32(0, false); off += 4;
     const nb = data.slice(off, off + len); off += len;
+    if (len === 1 && nb[0] === 0) { nums.push(0n); continue; }
     let val = 0n; for (const b of nb) val = (val << 8n) | BigInt(b);
-    nums.push(sign === 1 ? -val : val);
+    nums.push(val);
   }
   return { n, e, modo: modo === 1 ? 'd' : 'e', seed, nums };
 }
@@ -2111,9 +2109,8 @@ async function doEncrypt() {
     }
     const nums = textoANumeros(msg);
     const cifrados = nums.map(v => {
-      if (v===MARCADOR_DIGITO) return -modPow(BigInt(Math.abs(MARCADOR_DIGITO)),exp,n);
-      if (v===0) return 0n;
-      return modPow(BigInt(v),exp,n);
+      if (v===ESPACIO) return 0n;
+      return modPow(BigInt(v), exp, n);
     });
     resetAbc();
     // Sin claves públicas en el PEM — solo el mensaje cifrado
@@ -2152,9 +2149,8 @@ async function doDecrypt() {
     }
     if (seedUsada) applyAbc(genAbcWithSeed(seedUsada));
     const descifrados = nums.map(c => {
-      if (c<0n) return MARCADOR_DIGITO;
-      if (c===0n) return 0;
-      return Number(modPow(c,exp,n));
+      if (c===0n) return ESPACIO;
+      return Number(modPow(c, exp, n));
     });
     const texto = numerosATexto(descifrados);
     resetAbc();
@@ -2235,16 +2231,14 @@ function doAdvText() {
     if (mode.startsWith('enc')) {
       const nums = textoANumeros(input);
       const cifrados = nums.map(v => {
-        if (v===MARCADOR_DIGITO) return -modPow(BigInt(Math.abs(MARCADOR_DIGITO)),exp,n);
-        if (v===0) return 0n;
+        if (v===ESPACIO) return 0n;
         return modPow(BigInt(v),exp,n);
       });
       result = cifrados.map(x=>x.toString()).join(' ');
     } else {
       const cifrados = input.trim().split(/\s+/).map(s=>BigInt(s));
       const descifrados = cifrados.map(c=>{
-        if(c<0n) return MARCADOR_DIGITO;
-        if(c===0n) return 0;
+        if(c===0n) return ESPACIO;
         return Number(modPow(c,exp,n));
       });
       result = numerosATexto(descifrados);
