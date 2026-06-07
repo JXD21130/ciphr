@@ -1,7 +1,8 @@
+
 <html lang="es"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>cipher</title>
+<title>ciphr</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M11 30 L11 18 Q11 4 24 4 Q37 4 37 18 L37 30' stroke='%231a1916' stroke-width='5.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='3' y='30' width='42' height='16' rx='5' fill='%231a1916'/%3E%3Ctext x='24' y='45' text-anchor='middle' font-family='monospace' font-size='19' font-weight='bold' fill='%23f5f4f0'%3Ec%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
@@ -2930,67 +2931,6 @@ function kxGenCode() {
   return Array.from(arr).map(b => chars[b % chars.length]).join('');
 }
 
-function kxFetchKey() {
-  const code = document.getElementById('kx-code-input').value.trim().toUpperCase();
-  hideAlert('kx-receiver-err');
-  if (code.length < 4) { 
-    showAlert('kx-receiver-err', _lang==='es'?'Introduce el código de sala.':'Enter the room code.','error'); 
-    return; 
-  }
-
-  const btn = document.getElementById('kx-receiver-btn');
-  btn.disabled = true;
-  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Esperando clave...':'Waiting for key...';
-
-  // 1. Abrimos un canal de escucha en tiempo real (SSE) pidiendo el histórico de 10 min
-  const eventSource = new EventSource(`${KX_BASE}/${KX_PREFIX}${code}/sse?since=10m`);
-
-  // 2. Ponemos un límite de seguridad (2 minutos) por si nadie emite nada, para no dejar la conexión abierta
-  const timeoutId = setTimeout(() => {
-    eventSource.close();
-    btn.disabled = false;
-    document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
-    showAlert('kx-receiver-err', _lang==='es'?'Tiempo de espera agotado. Asegúrate de que el emisor haya creado la sala.':'Timeout. Make sure the sender has created the room.', 'error');
-  }, 120000); 
-
-  // 3. Escuchamos los mensajes que envía el servidor ntfy
-  eventSource.onmessage = (event) => {
-    try {
-      const msg = JSON.parse(event.data);
-      
-      // Ignorar mensajes internos de apertura de ntfy
-      if (msg.event === 'open') return;
-
-      // Si el mensaje contiene la estructura de tu clave pública RSA
-      if (msg.message && msg.message.includes('RSA PUBLIC KEY')) {
-        
-        // ¡ÉXITO! Cerramos la conexión inmediatamente ya que tenemos lo que queríamos
-        eventSource.close();
-        clearTimeout(timeoutId);
-
-        _kxReceivedKey = msg.message;
-        
-        // Actualizamos la interfaz exactamente como lo hacía tu código original
-        document.getElementById('kx-step-receiver').style.display = 'none';
-        document.getElementById('kx-step-receiver-done').style.display = 'block';
-        document.getElementById('kx-received-key').textContent = _kxReceivedKey;
-        document.getElementById('kx-receiver-ok').textContent = _lang==='es'?'✓ Clave recibida correctamente.':'✓ Key received successfully.';
-      }
-    } catch(e) {
-      // Si llega un texto que no es JSON válido o no es la clave, lo ignoramos y seguimos escuchando
-    }
-  };
-
-  // 4. Control de errores si falla la conexión con el servidor ntfy
-  eventSource.onerror = () => {
-    eventSource.close();
-    clearTimeout(timeoutId);
-    btn.disabled = false;
-    document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
-    showAlert('kx-receiver-err', _lang==='es'?'Error al conectar con el servidor de intercambio. Revisa tu red.':'Error connecting to the exchange server. Check your network.', 'error');
-  };
-}
-
 async function kxCreateRoom() {
   const keyText = document.getElementById('kx-sender-key-input').value.trim();
   hideAlert('kx-sender-err');
@@ -3002,23 +2942,13 @@ async function kxCreateRoom() {
   document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Creando...':'Creating...';
 
   _kxRoomCode = kxGenCode();
-  
-  // Mismo sistema de protección de 8 segundos para enviar la clave
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
-
   try {
     const res = await fetch(`${KX_BASE}/${KX_PREFIX}${_kxRoomCode}`, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      body: keyText,
-      signal: controller.signal
+      body: keyText
     });
-    
-    clearTimeout(timeoutId);
-    
-    if (!res.ok) throw new Error('ntfy HTTP ' + res.status);
-    
+    if (!res.ok) throw new Error('ntfy ' + res.status);
     document.getElementById('kx-step-sender').style.display = 'none';
     document.getElementById('kx-step-sender-wait').style.display = 'block';
     document.getElementById('kx-room-code').textContent = _kxRoomCode;
@@ -3027,15 +2957,58 @@ async function kxCreateRoom() {
     ok.textContent = _lang==='es'?'✓ Clave publicada. Comparte el código con tu contacto. Expira en ~10 min.':'✓ Key published. Share the code with your contact. Expires in ~10 min.';
     document.querySelector('#kx-step-sender-wait .kx-waiting').style.display = 'none';
   } catch(e) {
-    clearTimeout(timeoutId);
     btn.disabled = false;
     document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
-    
-    if (e.name === 'AbortError') {
-      showAlert('kx-sender-err', _lang==='es'?'El servidor no responde. Inténtalo de nuevo.':'Server is not responding. Try again.', 'error');
-    } else {
-      showAlert('kx-sender-err', (_lang==='es'?'Error de red: ':'Network error: ') + e.message, 'error');
+    showAlert('kx-sender-err', (_lang==='es'?'Error de red: ':'Network error: ')+e.message, 'error');
+  }
+}
+
+function kxCopyCode() {
+  navigator.clipboard.writeText(_kxRoomCode).then(() => {
+    const btn = document.getElementById('kx-copy-code-btn');
+    const orig = btn.textContent;
+    btn.textContent = _lang==='es'?'✓ Copiado':'✓ Copied';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+async function kxFetchKey() {
+  const code = document.getElementById('kx-code-input').value.trim().toUpperCase();
+  hideAlert('kx-receiver-err');
+  if (code.length < 4) { showAlert('kx-receiver-err', _lang==='es'?'Introduce el código de sala.':'Enter the room code.','error'); return; }
+
+  const btn = document.getElementById('kx-receiver-btn');
+  btn.disabled = true;
+  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargando...':'Downloading...';
+
+  try {
+    // ntfy poll: GET /<topic>/json?poll=1&since=10m returns NDJSON
+    const res = await fetch(`${KX_BASE}/${KX_PREFIX}${code}/json?poll=1&since=10m`);
+    if (!res.ok) throw new Error('ntfy ' + res.status);
+
+    const raw = (await res.text()).trim();
+    if (!raw) throw new Error(_lang==='es'
+      ?'No se encontró ninguna clave. ¿Código correcto? Puede haber expirado (10 min).'
+      :'No key found. Correct code? It may have expired (10 min).');
+
+    let keyContent = '';
+    for (const line of raw.split('\n')) {
+      try {
+        const msg = JSON.parse(line);
+        if (msg.message && msg.message.includes('RSA')) keyContent = msg.message;
+      } catch {}
     }
+    if (!keyContent) throw new Error(_lang==='es'?'Contenido no reconocido. ¿Código correcto?':'Unrecognised content. Correct code?');
+
+    _kxReceivedKey = keyContent;
+    document.getElementById('kx-step-receiver').style.display = 'none';
+    document.getElementById('kx-step-receiver-done').style.display = 'block';
+    document.getElementById('kx-received-key').textContent = keyContent;
+    document.getElementById('kx-receiver-ok').textContent = _lang==='es'?'✓ Clave recibida correctamente.':'✓ Key received successfully.';
+  } catch(e) {
+    btn.disabled = false;
+    document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
+    showAlert('kx-receiver-err', e.message, 'error');
   }
 }
 
