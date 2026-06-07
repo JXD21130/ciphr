@@ -501,6 +501,46 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   .btn-row { flex-direction: column; }
   .btn-row .btn { width: 100%; }
 }
+/* ── KEY EXCHANGE ── */
+.kx-role-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
+}
+.kx-role-btn {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg);
+  padding: 24px 16px; cursor: pointer; text-align: center;
+  transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.kx-role-btn:hover { border-color: var(--accent); background: var(--bg2); }
+.kx-role-icon { font-size: 28px; }
+.kx-role-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.kx-role-sub { font-size: 12px; color: var(--text2); }
+.kx-code-block {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 24px; text-align: center; margin-bottom: 24px;
+}
+.kx-code-label { font-size: 12px; color: var(--text2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+.kx-code {
+  font-family: var(--mono); font-size: 42px; font-weight: 500; letter-spacing: 0.18em;
+  color: var(--text); margin-bottom: 16px;
+}
+.kx-copy-code {
+  background: var(--accent); color: var(--bg); border: none; border-radius: var(--radius);
+  padding: 8px 20px; font-size: 13px; cursor: pointer; font-family: var(--sans);
+  transition: opacity 0.15s;
+}
+.kx-copy-code:hover { opacity: 0.8; }
+.kx-waiting {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--text2); font-size: 14px; margin-bottom: 16px;
+}
+.kx-spinner {
+  width: 18px; height: 18px; border: 2px solid var(--border2);
+  border-top-color: var(--text); border-radius: 50%;
+  animation: spin 0.8s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 600px) { .kx-role-grid { grid-template-columns: 1fr; } }
+
 </style>
 </head>
 <body>
@@ -547,6 +587,13 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="card-full-text">
       <div class="card-title" id="home-card-adv-title">Avanzado</div>
       <div class="card-desc" id="home-card-adv-desc">Control total: claves, PEM, seeds y operaciones manuales.</div>
+    </div>
+  </button>
+  <button class="card-full" onclick="showView('keyexchange')" style="border-color:var(--blue);background:var(--blue-bg)">
+    <div class="card-icon">🤝</div>
+    <div class="card-full-text">
+      <div class="card-title" id="home-card-kx-title">Intercambiar claves</div>
+      <div class="card-desc" id="home-card-kx-desc">Comparte tu clave B con tu contacto de forma segura, sin enviarla directamente.</div>
     </div>
   </button>
 </div>
@@ -1109,6 +1156,85 @@ z50jPFsWIBylX4w1
       <div class="adv-card-text"><div class="adv-title" id="adv-sign-verify-title">Verificar</div><div class="adv-sub" id="adv-sign-verify-sub">Comprueba una firma</div></div>
     </button>
   </div>
+</div>
+
+<!-- ══════════ KEY EXCHANGE ══════════ -->
+<div class="view" id="view-keyexchange">
+  <button class="section-back" data-back onclick="goHome()">← volver</button>
+  <div class="section-header">
+    <div class="section-title" id="kx-title">Intercambiar claves</div>
+    <div class="section-sub" id="kx-sub">Comparte tu clave B con tu contacto sin enviarla directamente. Usa un código de sala efímero.</div>
+  </div>
+
+  <!-- PASO 0: elegir rol -->
+  <div id="kx-step-role">
+    <div class="kx-role-grid">
+      <button class="kx-role-btn" onclick="kxSetRole('sender')">
+        <div class="kx-role-icon">📤</div>
+        <div class="kx-role-name" id="kx-role-sender-name">Enviar mi clave B</div>
+        <div class="kx-role-sub" id="kx-role-sender-sub">Creo la sala y comparto el código</div>
+      </button>
+      <button class="kx-role-btn" onclick="kxSetRole('receiver')">
+        <div class="kx-role-icon">📥</div>
+        <div class="kx-role-name" id="kx-role-receiver-name">Recibir clave B</div>
+        <div class="kx-role-sub" id="kx-role-receiver-sub">Introduzco el código que me han dado</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- PASO 1 SENDER: pegar clave y crear sala -->
+  <div id="kx-step-sender" style="display:none">
+    <div class="field">
+      <label class="field-label" id="kx-sender-key-lbl">Tu clave B (pública)</label>
+      <textarea class="mono" id="kx-sender-key-input" rows="5" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----"></textarea>
+    </div>
+    <div class="alert alert-error" id="kx-sender-err"></div>
+    <button class="btn btn-primary" id="kx-sender-btn" onclick="kxCreateRoom()">
+      <span id="kx-sender-btn-text">Crear sala</span>
+    </button>
+  </div>
+
+  <!-- PASO 2 SENDER: mostrar código y esperar -->
+  <div id="kx-step-sender-wait" style="display:none">
+    <div class="kx-code-block">
+      <div class="kx-code-label" id="kx-code-label">Código de sala</div>
+      <div class="kx-code" id="kx-room-code">------</div>
+      <button class="kx-copy-code" onclick="kxCopyCode()" id="kx-copy-code-btn">Copiar</button>
+    </div>
+    <div class="kx-waiting">
+      <div class="kx-spinner"></div>
+      <div id="kx-waiting-text">Esperando a que tu contacto descargue la clave...</div>
+    </div>
+    <div class="alert alert-success" id="kx-sender-ok" style="display:none"></div>
+  </div>
+
+  <!-- PASO 1 RECEIVER: introducir código -->
+  <div id="kx-step-receiver" style="display:none">
+    <div class="field">
+      <label class="field-label" id="kx-receiver-code-lbl">Código de sala</label>
+      <input type="text" id="kx-code-input" maxlength="6" placeholder="ABC123"
+        style="font-family:var(--mono);font-size:22px;letter-spacing:0.15em;text-align:center;text-transform:uppercase">
+    </div>
+    <div class="alert alert-error" id="kx-receiver-err"></div>
+    <button class="btn btn-primary" id="kx-receiver-btn" onclick="kxFetchKey()">
+      <span id="kx-receiver-btn-text">Descargar clave</span>
+    </button>
+  </div>
+
+  <!-- PASO 2 RECEIVER: mostrar clave recibida -->
+  <div id="kx-step-receiver-done" style="display:none">
+    <div class="result-box" id="kx-result-box">
+      <div class="result-label" id="kx-result-lbl">Clave B recibida</div>
+      <div class="result-text mono" id="kx-received-key"></div>
+      <div class="result-actions">
+        <button class="btn btn-secondary" id="kx-copy-btn" onclick="kxCopyKey()">Copiar</button>
+        <button class="btn btn-secondary" id="kx-dl-btn" onclick="kxDownloadKey()">↓ Descargar</button>
+      </div>
+    </div>
+    <div class="alert alert-success" id="kx-receiver-ok"></div>
+  </div>
+
+  <button class="btn btn-ghost" id="kx-reset-btn" onclick="kxReset()" style="display:none;margin-top:16px" id="kx-reset-btn">↩ Volver a empezar</button>
 </div>
 
 </main>
@@ -2451,7 +2577,16 @@ const TR = {
     home_card_enc_title:'Cifrar', home_card_enc_desc:'Cifra un mensaje con tu clave. Solo el receptor podrá leerlo con su clave.',
     home_card_dec_title:'Descifrar', home_card_dec_desc:'Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.',
     home_card_sign_title:'Firmar', home_card_sign_desc:'Demuestra que un mensaje es tuyo, o verifica si es de alguien.',
-    home_card_adv_title:'Avanzado', home_card_adv_desc:'Control total: claves, PEM, seeds y operaciones manuales.',
+    home_card_kx_title:'Intercambiar claves', home_card_kx_desc:'Comparte tu clave B con tu contacto de forma segura, sin enviarla directamente.',
+    kx_title:'Intercambiar claves',
+    kx_sub:'Comparte tu clave B con tu contacto sin enviarla directamente. Usa un código de sala efímero.',
+    kx_role_sender_name:'Enviar mi clave B', kx_role_sender_sub:'Creo la sala y comparto el código',
+    kx_role_receiver_name:'Recibir clave B', kx_role_receiver_sub:'Introduzco el código que me han dado',
+    kx_sender_key_lbl:'Tu clave B (pública)', kx_sender_btn:'Crear sala',
+    kx_code_label:'Código de sala', kx_copy_code:'Copiar',
+    kx_waiting:'Esperando a que tu contacto descargue la clave...',
+    kx_receiver_code_lbl:'Código de sala', kx_receiver_btn:'Descargar clave',
+    kx_result_lbl:'Clave B recibida', kx_reset:'↩ Volver a empezar',
     gen_title:'Generar claves', gen_size:'Tamaño de clave',
     gen_fast:'Rápido', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
     gen_secure:'Seguro', gen_secure_s:'~2min',
@@ -2537,6 +2672,16 @@ const TR = {
     home_card_dec_title:'Decrypt', home_card_dec_desc:'Read a message sent to you. Use your own key to decrypt it.',
     home_card_sign_title:'Sign', home_card_sign_desc:'Prove a message is yours, or verify if it is from someone else.',
     home_card_adv_title:'Advanced', home_card_adv_desc:'Full control: keys, PEM, seeds and manual operations.',
+    home_card_kx_title:'Exchange keys', home_card_kx_desc:'Share your key B with your contact securely, without sending it directly.',
+    kx_title:'Exchange keys',
+    kx_sub:'Share your key B with your contact without sending it directly. Uses an ephemeral room code.',
+    kx_role_sender_name:'Send my key B', kx_role_sender_sub:'I create the room and share the code',
+    kx_role_receiver_name:'Receive key B', kx_role_receiver_sub:'I enter the code I was given',
+    kx_sender_key_lbl:'Your key B (public)', kx_sender_btn:'Create room',
+    kx_code_label:'Room code', kx_copy_code:'Copy',
+    kx_waiting:'Waiting for your contact to download the key...',
+    kx_receiver_code_lbl:'Room code', kx_receiver_btn:'Download key',
+    kx_result_lbl:'Key B received', kx_reset:'↩ Start over',
     gen_title:'Generate keys', gen_size:'Key size',
     gen_fast:'Fast', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
     gen_secure:'Secure', gen_secure_s:'~2min',
@@ -2642,6 +2787,16 @@ function applyLang(){
   se('home-card-dec-title',L.home_card_dec_title); se('home-card-dec-desc',L.home_card_dec_desc);
   se('home-card-sign-title',L.home_card_sign_title); se('home-card-sign-desc',L.home_card_sign_desc);
   se('home-card-adv-title',L.home_card_adv_title); se('home-card-adv-desc',L.home_card_adv_desc);
+  se('home-card-kx-title',L.home_card_kx_title); se('home-card-kx-desc',L.home_card_kx_desc);
+  // KEY EXCHANGE
+  se('kx-title',L.kx_title); se('kx-sub',L.kx_sub);
+  se('kx-role-sender-name',L.kx_role_sender_name); se('kx-role-sender-sub',L.kx_role_sender_sub);
+  se('kx-role-receiver-name',L.kx_role_receiver_name); se('kx-role-receiver-sub',L.kx_role_receiver_sub);
+  se('kx-sender-key-lbl',L.kx_sender_key_lbl); se('kx-sender-btn-text',L.kx_sender_btn);
+  se('kx-code-label',L.kx_code_label); se('kx-copy-code-btn',L.kx_copy_code);
+  se('kx-waiting-text',L.kx_waiting);
+  se('kx-receiver-code-lbl',L.kx_receiver_code_lbl); se('kx-receiver-btn-text',L.kx_receiver_btn);
+  se('kx-result-lbl',L.kx_result_lbl); se('kx-reset-btn',L.kx_reset);
   // GENERAR
   se('gen-title',L.gen_title); se('gen-size-lbl',L.gen_size);
   se('gen-sub',L.gen_sub);
@@ -2732,6 +2887,177 @@ function applyLang(){
   se('adv-sign-title',L.adv_sign_title);
   se('adv-sign-create-title',L.adv_sign_create_title); se('adv-sign-create-sub',L.adv_sign_create_sub);
   se('adv-sign-verify-title',L.adv_sign_verify_title); se('adv-sign-verify-sub',L.adv_sign_verify_sub);
+}
+
+// ═══════════════════════════════════════════════════════
+//  KEY EXCHANGE (ntfy.sh)
+// ═══════════════════════════════════════════════════════
+
+const KX_BASE = 'https://ntfy.sh';
+const KX_PREFIX = 'ciphr-kx-';
+let _kxRole = null;
+let _kxRoomCode = null;
+let _kxPollTimer = null;
+let _kxReceivedKey = '';
+
+function kxSetRole(role) {
+  _kxRole = role;
+  document.getElementById('kx-step-role').style.display = 'none';
+  document.getElementById('kx-reset-btn').style.display = 'inline-flex';
+  if (role === 'sender') {
+    document.getElementById('kx-step-sender').style.display = 'block';
+  } else {
+    document.getElementById('kx-step-receiver').style.display = 'block';
+  }
+}
+
+function kxGenCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  const arr = new Uint8Array(6);
+  crypto.getRandomValues(arr);
+  for (const b of arr) code += chars[b % chars.length];
+  return code;
+}
+
+async function kxCreateRoom() {
+  const keyText = document.getElementById('kx-sender-key-input').value.trim();
+  if (!keyText) {
+    showAlert('kx-sender-err', _lang === 'es' ? 'Pega tu clave B primero.' : 'Paste your key B first.', 'error');
+    return;
+  }
+  if (!keyText.includes('RSA PUBLIC KEY')) {
+    showAlert('kx-sender-err', _lang === 'es' ? 'Eso no parece una clave B (pública).' : "That doesn't look like a key B (public).", 'error');
+    return;
+  }
+
+  const btn = document.getElementById('kx-sender-btn');
+  btn.disabled = true;
+  document.getElementById('kx-sender-btn-text').textContent = _lang === 'es' ? 'Creando...' : 'Creating...';
+
+  _kxRoomCode = kxGenCode();
+  const topic = KX_PREFIX + _kxRoomCode;
+
+  try {
+    // Publish key to ntfy topic
+    const res = await fetch(`${KX_BASE}/${topic}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: keyText
+    });
+    if (!res.ok) throw new Error('ntfy error ' + res.status);
+
+    document.getElementById('kx-step-sender').style.display = 'none';
+    document.getElementById('kx-step-sender-wait').style.display = 'block';
+    document.getElementById('kx-room-code').textContent = _kxRoomCode;
+
+    // Poll to confirm delivery (ntfy keeps messages ~10 min)
+    // Just show success after 3s — message is already there
+    setTimeout(() => {
+      const ok = document.getElementById('kx-sender-ok');
+      ok.style.display = 'block';
+      ok.textContent = _lang === 'es'
+        ? '✓ Clave publicada. Comparte el código con tu contacto. Se borrará automáticamente en ~10 minutos.'
+        : '✓ Key published. Share the code with your contact. It will be deleted automatically in ~10 minutes.';
+      document.querySelector('#kx-step-sender-wait .kx-waiting').style.display = 'none';
+    }, 3000);
+
+  } catch(e) {
+    btn.disabled = false;
+    document.getElementById('kx-sender-btn-text').textContent = _lang === 'es' ? 'Crear sala' : 'Create room';
+    showAlert('kx-sender-err', (_lang === 'es' ? 'Error de red: ' : 'Network error: ') + e.message, 'error');
+  }
+}
+
+function kxCopyCode() {
+  navigator.clipboard.writeText(_kxRoomCode).then(() => {
+    const btn = document.getElementById('kx-copy-code-btn');
+    const orig = btn.textContent;
+    btn.textContent = _lang === 'es' ? '✓ Copiado' : '✓ Copied';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+async function kxFetchKey() {
+  const code = document.getElementById('kx-code-input').value.trim().toUpperCase();
+  if (code.length < 4) {
+    showAlert('kx-receiver-err', _lang === 'es' ? 'Introduce el código de sala.' : 'Enter the room code.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('kx-receiver-btn');
+  btn.disabled = true;
+  document.getElementById('kx-receiver-btn-text').textContent = _lang === 'es' ? 'Descargando...' : 'Downloading...';
+
+  const topic = KX_PREFIX + code;
+
+  try {
+    // Fetch last message from ntfy topic via JSON API
+    const res = await fetch(`${KX_BASE}/${topic}/json?poll=1&since=10m`, {
+      headers: { 'Accept': 'application/x-ndjson' }
+    });
+    if (!res.ok) throw new Error('ntfy error ' + res.status);
+
+    const text = await res.text();
+    // Parse NDJSON — take the last message
+    const lines = text.trim().split('\n').filter(Boolean);
+    if (!lines.length) throw new Error(_lang === 'es' ? 'No se encontró ninguna clave. ¿Es correcto el código?' : 'No key found. Is the code correct?');
+
+    let keyContent = '';
+    for (const line of lines) {
+      try {
+        const msg = JSON.parse(line);
+        if (msg.message) keyContent = msg.message;
+      } catch {}
+    }
+    if (!keyContent) throw new Error(_lang === 'es' ? 'Mensaje vacío o formato inesperado.' : 'Empty message or unexpected format.');
+    if (!keyContent.includes('RSA PUBLIC KEY')) throw new Error(_lang === 'es' ? 'El contenido no parece una clave B.' : "The content doesn't look like a key B.");
+
+    _kxReceivedKey = keyContent;
+    document.getElementById('kx-step-receiver').style.display = 'none';
+    document.getElementById('kx-step-receiver-done').style.display = 'block';
+    document.getElementById('kx-received-key').textContent = keyContent;
+    const ok = document.getElementById('kx-receiver-ok');
+    ok.textContent = _lang === 'es' ? '✓ Clave recibida correctamente.' : '✓ Key received successfully.';
+
+  } catch(e) {
+    btn.disabled = false;
+    document.getElementById('kx-receiver-btn-text').textContent = _lang === 'es' ? 'Descargar clave' : 'Download key';
+    showAlert('kx-receiver-err', e.message, 'error');
+  }
+}
+
+function kxCopyKey() {
+  navigator.clipboard.writeText(_kxReceivedKey).then(() => {
+    const btn = document.getElementById('kx-copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = _lang === 'es' ? '✓ Copiado' : '✓ Copied';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function kxDownloadKey() {
+  dlText(_kxReceivedKey, 'clave_B_contacto.txt');
+}
+
+function kxReset() {
+  _kxRole = null; _kxRoomCode = null; _kxReceivedKey = '';
+  ['kx-step-role','kx-step-sender','kx-step-sender-wait','kx-step-receiver','kx-step-receiver-done']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      el.style.display = id === 'kx-step-role' ? 'block' : 'none';
+    });
+  document.getElementById('kx-reset-btn').style.display = 'none';
+  document.getElementById('kx-sender-key-input').value = '';
+  document.getElementById('kx-code-input').value = '';
+  document.getElementById('kx-sender-ok').style.display = 'none';
+  hideAlert('kx-sender-err'); hideAlert('kx-receiver-err');
+  const btn = document.getElementById('kx-sender-btn');
+  btn.disabled = false;
+  document.getElementById('kx-sender-btn-text').textContent = _lang === 'es' ? 'Crear sala' : 'Create room';
+  const rbtn = document.getElementById('kx-receiver-btn');
+  rbtn.disabled = false;
+  document.getElementById('kx-receiver-btn-text').textContent = _lang === 'es' ? 'Descargar clave' : 'Download key';
 }
 
 </script>
