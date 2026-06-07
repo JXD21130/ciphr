@@ -2930,60 +2930,65 @@ function kxGenCode() {
   return Array.from(arr).map(b => chars[b % chars.length]).join('');
 }
 
-async function kxFetchKey() {
+function kxFetchKey() {
   const code = document.getElementById('kx-code-input').value.trim().toUpperCase();
   hideAlert('kx-receiver-err');
-  if (code.length < 4) { showAlert('kx-receiver-err', _lang==='es'?'Introduce el código de sala.':'Enter the room code.','error'); return; }
+  if (code.length < 4) { 
+    showAlert('kx-receiver-err', _lang==='es'?'Introduce el código de sala.':'Enter the room code.','error'); 
+    return; 
+  }
 
   const btn = document.getElementById('kx-receiver-btn');
   btn.disabled = true;
-  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargando...':'Downloading...';
+  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Esperando clave...':'Waiting for key...';
 
-  // 1. Creamos un controlador para abortar si tarda mucho
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 segundos de límite
+  // 1. Abrimos un canal de escucha en tiempo real (SSE) pidiendo el histórico de 10 min
+  const eventSource = new EventSource(`${KX_BASE}/${KX_PREFIX}${code}/sse?since=10m`);
 
-  try {
-    // 2. Pasamos la señal al fetch
-    const res = await fetch(`${KX_BASE}/${KX_PREFIX}${code}/json?poll=1&since=10m`, {
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId); // Si la petición tiene éxito a tiempo, limpiamos el temporizador
-
-    if (!res.ok) throw new Error('ntfy HTTP ' + res.status);
-
-    const raw = (await res.text()).trim();
-    if (!raw) throw new Error(_lang==='es'
-      ?'No se encontró ninguna clave. ¿Código correcto? Puede haber expirado (10 min).'
-      :'No key found. Correct code? It may have expired (10 min).');
-
-    let keyContent = '';
-    for (const line of raw.split('\n')) {
-      try {
-        const msg = JSON.parse(line);
-        if (msg.message && msg.message.includes('RSA')) keyContent = msg.message;
-      } catch {}
-    }
-    if (!keyContent) throw new Error(_lang==='es'?'Contenido no reconocido. ¿Código correcto?':'Unrecognised content. Correct code?');
-
-    _kxReceivedKey = keyContent;
-    document.getElementById('kx-step-receiver').style.display = 'none';
-    document.getElementById('kx-step-receiver-done').style.display = 'block';
-    document.getElementById('kx-received-key').textContent = keyContent;
-    document.getElementById('kx-receiver-ok').textContent = _lang==='es'?'✓ Clave recibida correctamente.':'✓ Key received successfully.';
-  } catch(e) {
-    clearTimeout(timeoutId); // Limpiamos por si falló por otra razón
+  // 2. Ponemos un límite de seguridad (2 minutos) por si nadie emite nada, para no dejar la conexión abierta
+  const timeoutId = setTimeout(() => {
+    eventSource.close();
     btn.disabled = false;
     document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
-    
-    // 3. Informamos al usuario si fue culpa del timeout
-    if (e.name === 'AbortError') {
-      showAlert('kx-receiver-err', _lang==='es'?'El servidor de intercambio tardó demasiado. Revisa tu conexión.':'The server took too long. Check your connection.', 'error');
-    } else {
-      showAlert('kx-receiver-err', e.message, 'error');
+    showAlert('kx-receiver-err', _lang==='es'?'Tiempo de espera agotado. Asegúrate de que el emisor haya creado la sala.':'Timeout. Make sure the sender has created the room.', 'error');
+  }, 120000); 
+
+  // 3. Escuchamos los mensajes que envía el servidor ntfy
+  eventSource.onmessage = (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      
+      // Ignorar mensajes internos de apertura de ntfy
+      if (msg.event === 'open') return;
+
+      // Si el mensaje contiene la estructura de tu clave pública RSA
+      if (msg.message && msg.message.includes('RSA PUBLIC KEY')) {
+        
+        // ¡ÉXITO! Cerramos la conexión inmediatamente ya que tenemos lo que queríamos
+        eventSource.close();
+        clearTimeout(timeoutId);
+
+        _kxReceivedKey = msg.message;
+        
+        // Actualizamos la interfaz exactamente como lo hacía tu código original
+        document.getElementById('kx-step-receiver').style.display = 'none';
+        document.getElementById('kx-step-receiver-done').style.display = 'block';
+        document.getElementById('kx-received-key').textContent = _kxReceivedKey;
+        document.getElementById('kx-receiver-ok').textContent = _lang==='es'?'✓ Clave recibida correctamente.':'✓ Key received successfully.';
+      }
+    } catch(e) {
+      // Si llega un texto que no es JSON válido o no es la clave, lo ignoramos y seguimos escuchando
     }
-  }
+  };
+
+  // 4. Control de errores si falla la conexión con el servidor ntfy
+  eventSource.onerror = () => {
+    eventSource.close();
+    clearTimeout(timeoutId);
+    btn.disabled = false;
+    document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
+    showAlert('kx-receiver-err', _lang==='es'?'Error al conectar con el servidor de intercambio. Revisa tu red.':'Error connecting to the exchange server. Check your network.', 'error');
+  };
 }
 
 async function kxCreateRoom() {
