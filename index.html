@@ -2100,11 +2100,10 @@ async function doEncrypt() {
     }
     // Seed
     let seed = '';
-    let inclSeed = false;
+    let inclSeed = false; // nunca incluir la seed en el PEM
     if (_encSeedOn) {
       seed = document.getElementById('enc-seed-val').value.trim();
       if (!seed) { showAlert('enc-err','Introduce una seed o desactiva la opción.','error'); return; }
-      inclSeed = true;
       applyAbc(genAbcWithSeed(seed));
     }
     const nums = textoANumeros(msg);
@@ -2113,8 +2112,8 @@ async function doEncrypt() {
       return modPow(BigInt(v), exp, n);
     });
     resetAbc();
-    // Sin claves públicas en el PEM — solo el mensaje cifrado
-    const pem = genCipherPEM(cifrados, null, null, null, modo, seed, false, inclSeed);
+    // La seed NO se guarda en el PEM — es un secreto aparte entre los dos
+    const pem = genCipherPEM(cifrados, null, null, null, modo, '', false, false);
     showResult('enc-result', pem);
   } catch(ex) { resetAbc(); showAlert('enc-err','Error al cifrar: '+ex.message,'error'); }
 }
@@ -2140,8 +2139,8 @@ async function doDecrypt() {
       n = nCipher ?? key.n;
       exp = eCipher ?? key.e;
     }
-    // Seed: prioridad → seed del PEM si existe, luego toggle manual
-    let seedUsada = seed || '';
+    // Seed: solo del toggle manual — nunca del PEM (la seed es un secreto aparte)
+    let seedUsada = '';
     if (_decSeedOn) {
       const manualSeed = document.getElementById('dec-seed-val').value.trim();
       if (!manualSeed) { showAlert('dec-err','Introduce una seed o desactiva la opción.','error'); return; }
