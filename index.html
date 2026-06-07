@@ -556,7 +556,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title" id="gen-title">Generar claves</div>
-    <div class="section-sub">Genera las dos claves. Tú te quedas con una, tu receptor con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.</div>
+    <div class="section-sub" id="gen-sub">Genera las dos claves. Tú te quedas con una, tu receptor con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.</div>
   </div>
 
   <div class="field">
@@ -588,8 +588,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
   <div class="btn-row">
     <button class="btn btn-primary" id="btn-gen" onclick="doGenKeys()">Generar</button>
-    <button class="btn btn-secondary" id="btn-dl-pub" style="display:none" onclick="dlPub()">↓ Clave pública</button>
-    <button class="btn btn-secondary" id="btn-dl-priv" style="display:none" onclick="dlPriv()">↓ Clave privada</button>
+    <button class="btn btn-secondary" id="btn-dl-pub" style="display:none" onclick="dlPub()">↓ Clave B</button>
+    <button class="btn btn-secondary" id="btn-dl-priv" style="display:none" onclick="dlPriv()">↓ Clave A</button>
   </div>
 </div>
 
@@ -604,12 +604,12 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <label class="field-label" id="enc-mode-lbl">Modo</label>
     <div class="size-group">
       <div class="size-opt selected" id="enc-mode-pub" onclick="setEncMode('pub')">
-        <div class="size-opt-name" id="enc-pub-name">Con clave pública</div>
-        <div class="size-opt-sub" id="enc-pub-sub">Cifras con la pública, el receptor descifra con la privada</div>
+        <div class="size-opt-name" id="enc-pub-name">Con clave B</div>
+        <div class="size-opt-sub" id="enc-pub-sub">Cifras con la B, el receptor descifra con la A</div>
       </div>
       <div class="size-opt" id="enc-mode-priv" onclick="setEncMode('priv')">
-        <div class="size-opt-name" id="enc-priv-name">Con clave privada</div>
-        <div class="size-opt-sub" id="enc-priv-sub">Cifras con la privada, el receptor descifra con la pública</div>
+        <div class="size-opt-name" id="enc-priv-name">Con clave A</div>
+        <div class="size-opt-sub" id="enc-priv-sub">Cifras con la A, el receptor descifra con la B</div>
       </div>
     </div>
   </div>
@@ -666,12 +666,12 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <label class="field-label">Modo</label>
     <div class="size-group">
       <div class="size-opt selected" id="dec-mode-priv" onclick="setDecMode('priv')">
-        <div class="size-opt-name" id="dec-priv-name">Con clave privada</div>
-        <div class="size-opt-sub" id="dec-priv-sub">Descifro con mi clave privada</div>
+        <div class="size-opt-name" id="dec-priv-name">Con clave A</div>
+        <div class="size-opt-sub" id="dec-priv-sub">Descifro con mi clave A</div>
       </div>
       <div class="size-opt" id="dec-mode-pub" onclick="setDecMode('pub')">
-        <div class="size-opt-name" id="dec-pub-name">Con clave pública</div>
-        <div class="size-opt-sub" id="dec-pub-sub">Descifro con mi clave publica</div>
+        <div class="size-opt-name" id="dec-pub-name">Con clave B</div>
+        <div class="size-opt-sub" id="dec-pub-sub">Descifro con mi clave B</div>
       </div>
     </div>
   </div>
@@ -754,7 +754,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" data-back onclick="showView('sign')">← volver</button>
   <div class="section-header">
     <div class="section-title" id="sign-create-title">Firmar mensaje</div>
-    <div class="section-sub" id="sign-create-sub">Usa tu clave privada para firmar. Los demás podrán comprobar que eres tú.</div>
+    <div class="section-sub" id="sign-create-sub">Usa tu clave A para firmar. Los demás podrán comprobar que eres tú.</div>
   </div>
   <div class="field">
     <label class="field-label" id="sign-key-lbl">Tu clave</label>
@@ -790,7 +790,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <button class="section-back" data-back onclick="showView('sign')">← volver</button>
   <div class="section-header">
     <div class="section-title" id="sign-verify-title">Verificar firma</div>
-    <div class="section-sub" id="sign-verify-sub">Comprueba que el mensaje es realmente del que tiene la clave privada.</div>
+    <div class="section-sub" id="sign-verify-sub">Comprueba que el mensaje es realmente del que tiene la clave A.</div>
   </div>
   <div class="field">
     <label class="field-label" id="sign-msg-v-lbl">Mensaje</label>
@@ -810,7 +810,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 -----END RSA SIGN-----" oninput="onVerifySignPaste()"></textarea>
   </div>
   <div class="field">
-    <label class="field-label" id="sign-pub-lbl">Clave pública del firmante</label>
+    <label class="field-label" id="sign-pub-lbl">Clave B del firmante</label>
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadVerifyPubKey(this)">
       <div class="file-drop-icon">🔑</div>
@@ -1089,8 +1089,8 @@ oUERjBVfuHuy/EslhhnjRqED0+wk8I7E+qHVvRNUu85Y4IfmgkVOC617+C7rJR1G
 z50jPFsWIBylX4w1
 -----END RSA PRIVATE KEY-----</div>
     <div class="result-actions">
-      <button class="btn btn-secondary" id="adv-genkeys-dl-pub-btn" onclick="dlAdvPub()">↓ Clave pública</button>
-      <button class="btn btn-secondary" id="adv-genkeys-dl-priv-btn" onclick="dlAdvPriv()">↓ Clave Privada</button>
+      <button class="btn btn-secondary" id="adv-genkeys-dl-pub-btn" onclick="dlAdvPub()">↓ Clave B</button>
+      <button class="btn btn-secondary" id="adv-genkeys-dl-priv-btn" onclick="dlAdvPriv()">↓ Clave A</button>
     </div>
   </div>
 </div>
@@ -2066,8 +2066,8 @@ async function doGenKeys() {
     showAlert('gen-ok','Error: '+ex.message,'error');
   }
 }
-function dlPub() { if(_genPubPEM) dlText(_genPubPEM,'clave_publica.txt'); }
-function dlPriv() { if(_genPrivPEM) dlText(_genPrivPEM,'clave_privada.txt'); }
+function dlPub() { if(_genPubPEM) dlText(_genPubPEM,'clave_B.txt'); }
+function dlPriv() { if(_genPrivPEM) dlText(_genPrivPEM,'clave_A.txt'); }
 
 // ── ENCRYPT (EASY) ──
 // ── SEED TOGGLES ──
@@ -2364,8 +2364,8 @@ async function doAdvGenKeys() {
     showAlert('adv-gen-err','Error: '+ex.message,'error');
   }
 }
-function dlAdvPub() { if(_advGenPubPEM) dlText(_advGenPubPEM,'clave_publica.txt'); }
-function dlAdvPriv() { if(_advGenPrivPEM) dlText(_advGenPrivPEM,'clave_privada.txt'); }
+function dlAdvPub() { if(_advGenPubPEM) dlText(_advGenPubPEM,'clave_B.txt'); }
+function dlAdvPriv() { if(_advGenPrivPEM) dlText(_advGenPrivPEM,'clave_A.txt'); }
 
 // ── ADV: SEEDS ──
 function genRandomSeedUI() {
@@ -2463,30 +2463,37 @@ const TR = {
     gen_fast:'Rápido', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
     gen_secure:'Seguro', gen_secure_s:'~2min',
     gen_hint:'Para uso personal, "Normal" es más que suficiente.',
-    gen_btn:'Generar', gen_dl_pub:'↓ Clave pública', gen_dl_priv:'↓ Clave privada',
+    gen_btn:'Generar', gen_dl_pub:'↓ Clave B', gen_dl_priv:'↓ Clave A',
+    gen_sub:'Genera las dos claves. Tú te quedas con una, tu receptor con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.',
+    or_paste:'o pega el contenido',
+    drop_text:'Arrastra el archivo o haz clic para seleccionar',
+    drop_text_short:'Arrastra el archivo o haz clic',
+    drop_sign:'Arrastra el archivo de firma o haz clic',
+    seed_desc:' — abecedario personalizado',
+    seed_ph:'escribe tu seed...',
     gen_ok:'Claves generadas. Descarga ambos archivos y guárdalos bien.',
     enc_title:'Cifrar mensaje', enc_mode:'Modo',
-    enc_pub_name:'Con clave pública', enc_pub_sub:'Cifras con la pública, el receptor descifra con la privada',
-    enc_priv_name:'Con clave privada', enc_priv_sub:'Cifras con la privada, el receptor descifra con la pública',
+    enc_pub_name:'Con clave B', enc_pub_sub:'Cifras con la B, el receptor descifra con la A',
+    enc_priv_name:'Con clave A', enc_priv_sub:'Cifras con la A, el receptor descifra con la B',
     enc_key_lbl:'Tu clave', enc_msg_lbl:'Mensaje', enc_msg_ph:'Escribe el mensaje a cifrar...',
     enc_seed_lbl:'Seed — abecedario personalizado', enc_btn:'Cifrar',
     enc_result_lbl:'Mensaje cifrado — compártelo con tu contacto',
     dec_title:'Descifrar mensaje',
-    dec_priv_name:'Con clave privada', dec_priv_sub:'Descifro con mi clave privada',
-    dec_pub_name:'Con clave pública', dec_pub_sub:'Descifro con mi clave pública',
+    dec_priv_name:'Con clave A', dec_priv_sub:'Descifro con mi clave A',
+    dec_pub_name:'Con clave B', dec_pub_sub:'Descifro con mi clave B',
     dec_key_lbl:'Tu clave', dec_cipher_lbl:'Mensaje cifrado',
     dec_btn:'Descifrar', dec_result_lbl:'Mensaje descifrado',
     sign_title:'Verificar identidad',
     sign_create_card_title:'Firmar mensaje', sign_create_card_sub:'Demuestra con tu clave que el mensaje es tuyo',
     sign_verify_card_title:'Verificar firma', sign_verify_card_sub:'Confirma que un mensaje es de tu contacto',
     sign_create_title:'Firmar mensaje',
-    sign_create_sub:'Usa tu clave privada para firmar. Los demás podrán comprobar que eres tú.',
+    sign_create_sub:'Usa tu clave A para firmar. Los demás podrán comprobar que eres tú.',
     sign_key_lbl:'Tu clave', sign_msg_lbl:'Mensaje a firmar', sign_msg_ph:'Escribe el mensaje...',
     sign_btn:'Firmar', sign_result_lbl:'Firma digital',
     sign_verify_title:'Verificar firma',
-    sign_verify_sub:'Comprueba que el mensaje es realmente del que tiene la clave privada.',
+    sign_verify_sub:'Comprueba que el mensaje es realmente del que tiene la clave A.',
     sign_msg_v_lbl:'Mensaje', sign_msg_v_ph:'El mensaje que recibiste...',
-    sign_file_lbl:'Firma', sign_pub_lbl:'Clave pública del firmante',
+    sign_file_lbl:'Firma', sign_pub_lbl:'Clave B del firmante',
     sign_verify_btn:'Verificar',
     adv_title:'Avanzado', adv_sub:'Operaciones manuales con control total.',
     adv_pem_title:'PEM universal', adv_pem_sub:'Codificar y decodificar cualquier PEM',
@@ -2520,7 +2527,7 @@ const TR = {
     adv_genkeys_page_title:'Generar claves (avanzado)',
     adv_genkeys_digits_n_lbl:'Cifras de n', adv_genkeys_digits_n_sub:'Deja vacío para aleatorio (10-30 cifras).',
     adv_genkeys_digits_e_lbl:'Cifras de e',
-    adv_genkeys_dl_pub_btn:'↓ Clave pública', adv_genkeys_dl_priv_btn:'↓ Clave privada',
+    adv_genkeys_dl_pub_btn:'↓ Key B', adv_genkeys_dl_priv_btn:'↓ Key A',
     adv_sign_title:'Firma digital (avanzado)', adv_sign_create_title:'Firmar', adv_sign_create_sub:'Firma un mensaje',
     adv_sign_verify_title:'Verificar', adv_sign_verify_sub:'Comprueba una firma',
     or:'o pega el contenido',
@@ -2541,30 +2548,37 @@ const TR = {
     gen_fast:'Fast', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
     gen_secure:'Secure', gen_secure_s:'~2min',
     gen_hint:'For personal use, "Normal" is more than enough.',
-    gen_btn:'Generate', gen_dl_pub:'↓ Public key', gen_dl_priv:'↓ Private key',
+    gen_btn:'Generate', gen_dl_pub:'↓ Key B', gen_dl_priv:'↓ Key A',
+    gen_sub:'Generate both keys. You keep one, your contact keeps the other. Neither shares theirs with anyone — not even each other.',
+    or_paste:'or paste the content',
+    drop_text:'Drag the file or click to select',
+    drop_text_short:'Drag the file or click',
+    drop_sign:'Drag the signature file or click',
+    seed_desc:' — custom alphabet',
+    seed_ph:'type your seed...',
     gen_ok:'Keys generated. Download both files and keep them safe.',
     enc_title:'Encrypt message', enc_mode:'Mode',
-    enc_pub_name:'With public key', enc_pub_sub:'Encrypt with public, recipient decrypts with private',
-    enc_priv_name:'With private key', enc_priv_sub:'Encrypt with private, recipient decrypts with public',
+    enc_pub_name:'With key B', enc_pub_sub:'Encrypt with B, recipient decrypts with A',
+    enc_priv_name:'With key A', enc_priv_sub:'Encrypt with A, recipient decrypts with B',
     enc_key_lbl:'Your key', enc_msg_lbl:'Message', enc_msg_ph:'Write the message to encrypt...',
     enc_seed_lbl:'Seed — custom alphabet', enc_btn:'Encrypt',
     enc_result_lbl:'Encrypted message — share it with your contact',
     dec_title:'Decrypt message',
-    dec_priv_name:'With private key', dec_priv_sub:'I decrypt with my private key',
-    dec_pub_name:'With public key', dec_pub_sub:'I decrypt with my public key',
+    dec_priv_name:'With key A', dec_priv_sub:'I decrypt with my key A',
+    dec_pub_name:'With key B', dec_pub_sub:'I decrypt with my key B',
     dec_key_lbl:'Your key', dec_cipher_lbl:'Encrypted message',
     dec_btn:'Decrypt', dec_result_lbl:'Decrypted message',
     sign_title:'Verify identity',
     sign_create_card_title:'Sign message', sign_create_card_sub:'Prove a message is yours with your key',
     sign_verify_card_title:'Verify signature', sign_verify_card_sub:'Confirm a message is from your contact',
     sign_create_title:'Sign message',
-    sign_create_sub:'Use your private key to sign. Others can verify it is you.',
+    sign_create_sub:'Use your key A to sign. Others can verify it is you.',
     sign_key_lbl:'Your key', sign_msg_lbl:'Message to sign', sign_msg_ph:'Write the message...',
     sign_btn:'Sign', sign_result_lbl:'Digital signature',
     sign_verify_title:'Verify signature',
-    sign_verify_sub:'Confirm the message really comes from the private key holder.',
+    sign_verify_sub:'Confirm the message really comes from the key A holder.',
     sign_msg_v_lbl:'Message', sign_msg_v_ph:'The message you received...',
-    sign_file_lbl:'Signature', sign_pub_lbl:"Signer's public key",
+    sign_file_lbl:'Signature', sign_pub_lbl:"Signer's key B",
     sign_verify_btn:'Verify',
     adv_title:'Advanced', adv_sub:'Manual operations with full control.',
     adv_pem_title:'Universal PEM', adv_pem_sub:'Encode and decode any PEM',
@@ -2598,7 +2612,7 @@ const TR = {
     adv_genkeys_page_title:'Generate keys (advanced)',
     adv_genkeys_digits_n_lbl:'Digits of n', adv_genkeys_digits_n_sub:'Leave empty for random (10-30 digits).',
     adv_genkeys_digits_e_lbl:'Digits of e',
-    adv_genkeys_dl_pub_btn:'↓ Public key', adv_genkeys_dl_priv_btn:'↓ Private key',
+    adv_genkeys_dl_pub_btn:'↓ Key B', adv_genkeys_dl_priv_btn:'↓ Key A',
     adv_sign_title:'Digital signature (advanced)', adv_sign_create_title:'Sign', adv_sign_create_sub:'Sign a message',
     adv_sign_verify_title:'Verify', adv_sign_verify_sub:'Check a signature',
     or:'or paste the content',
@@ -2637,6 +2651,7 @@ function applyLang(){
   se('home-card-adv-title',L.home_card_adv_title); se('home-card-adv-desc',L.home_card_adv_desc);
   // GENERAR
   se('gen-title',L.gen_title); se('gen-size-lbl',L.gen_size);
+  se('gen-sub',L.gen_sub);
   se('gen-fast',L.gen_fast); se('gen-fast-s',L.gen_fast_s);
   se('gen-normal',L.gen_normal); se('gen-normal-s',L.gen_normal_s);
   se('gen-secure',L.gen_secure); se('gen-secure-s',L.gen_secure_s);
@@ -2650,12 +2665,16 @@ function applyLang(){
   se('enc-key-label',L.enc_key_lbl); se('enc-msg-lbl',L.enc_msg_lbl);
   sp('enc-msg',L.enc_msg_ph); se('enc-seed-lbl',L.enc_seed_lbl);
   se('btn-enc',L.enc_btn); se('enc-result-lbl',L.enc_result_lbl);
+  se('enc-drop-text',L.drop_text); sp('enc-seed-val',L.seed_ph);
+  se('enc-seed-toggle-desc',L.seed_desc);
   // DESCIFRAR
   se('dec-title',L.dec_title);
   se('dec-priv-name',L.dec_priv_name); se('dec-priv-sub',L.dec_priv_sub);
   se('dec-pub-name',L.dec_pub_name); se('dec-pub-sub',L.dec_pub_sub);
   se('dec-key-label',L.dec_key_lbl); se('dec-cipher-lbl',L.dec_cipher_lbl);
   se('btn-dec',L.dec_btn); se('dec-result-lbl',L.dec_result_lbl);
+  se('dec-key-drop-text',L.drop_text); se('dec-cipher-drop-text',L.drop_text);
+  sp('dec-seed-val',L.seed_ph); se('dec-seed-toggle-desc',L.seed_desc);
   // FIRMAR
   se('sign-title',L.sign_title);
   se('sign-create-card-title',L.sign_create_card_title); se('sign-create-card-sub',L.sign_create_card_sub);
@@ -2663,11 +2682,15 @@ function applyLang(){
   se('sign-create-title',L.sign_create_title); se('sign-create-sub',L.sign_create_sub);
   se('sign-key-lbl',L.sign_key_lbl); se('sign-msg-lbl',L.sign_msg_lbl);
   sp('sign-msg',L.sign_msg_ph); se('btn-sign',L.sign_btn); se('sign-result-lbl',L.sign_result_lbl);
+  se('sign-priv-drop-text',L.drop_text_short);
   se('sign-verify-title',L.sign_verify_title); se('sign-verify-sub',L.sign_verify_sub);
   se('sign-msg-v-lbl',L.sign_msg_v_lbl); sp('verify-msg',L.sign_msg_v_ph);
   se('sign-file-lbl',L.sign_file_lbl); sp('verify-sign-paste',L.sign_file_ph);
   se('sign-pub-lbl',L.sign_pub_lbl); sp('verify-pub-paste',L.sign_pub_ph);
   se('btn-verify',L.sign_verify_btn);
+  se('verify-sign-drop-text',L.drop_sign); se('verify-pub-drop-text',L.drop_text_short);
+  // or-paste dividers
+  document.querySelectorAll('.or-divider').forEach(el=>el.textContent=L.or_paste);
   // AVANZADO — menú principal
   se('adv-title',L.adv_title); se('adv-sub',L.adv_sub);
   se('adv-pem-title',L.adv_pem_title); se('adv-pem-sub',L.adv_pem_sub);
