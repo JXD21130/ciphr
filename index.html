@@ -667,7 +667,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadEncKey(this)">
       <div class="file-drop-icon">📄</div>
-      <div>Arrastra el archivo o haz clic para seleccionar</div>
+      <div id="enc-drop-text">Arrastra el archivo o haz clic para seleccionar</div>
       <div class="file-drop-name" id="enc-key-name"></div>
     </div>
     <div class="or-divider" data-i18n="or_paste">o pega el contenido</div>
@@ -682,7 +682,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   </div>
 
   <div class="seed-toggle-row" onclick="toggleEncSeed()">
-    <div class="seed-toggle-label"><strong>Seed</strong> — abecedario personalizado</div>
+    <div class="seed-toggle-label" id="enc-seed-lbl"><strong>Seed</strong> — abecedario personalizado</div>
     <div class="sw" id="enc-seed-sw"></div>
   </div>
   <div class="seed-input-field" id="enc-seed-field">
@@ -691,14 +691,14 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
   <div class="alert alert-error" id="enc-err"></div>
 
-  <button class="btn btn-primary btn-full" onclick="doEncrypt()">Cifrar</button>
+  <button class="btn btn-primary btn-full" id="btn-enc" onclick="doEncrypt()">Cifrar</button>
 
   <div class="result-box" id="enc-result">
-    <div class="result-label">Mensaje cifrado</div>
+    <div class="result-label" id="enc-result-lbl">Mensaje cifrado</div>
     <div class="result-text mono" id="enc-result-text"></div>
     <div class="result-actions">
-      <button class="btn btn-secondary" onclick="copyResult('enc-result-text')">Copiar</button>
-      <button class="btn btn-secondary" onclick="dlResult('enc-result-text','mensaje_cifrado.txt')">↓ Descargar</button>
+      <button class="btn btn-secondary" id="enc-copy-btn" onclick="copyResult('enc-result-text')">Copiar</button>
+      <button class="btn btn-secondary" id="enc-download-btn" onclick="dlResult('enc-result-text','mensaje_cifrado.txt')">↓ Descargar</button>
     </div>
   </div>
 </div>
@@ -711,7 +711,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   </div>
 
   <div class="field">
-    <label class="field-label">Modo</label>
+    <label class="field-label" id="dec-mode-lbl">Modo</label>
     <div class="size-group">
       <div class="size-opt selected" id="dec-mode-priv" onclick="setDecMode('priv')">
         <div class="size-opt-name" id="dec-priv-name">Con clave A</div>
@@ -729,7 +729,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadDecKey(this)">
       <div class="file-drop-icon">🔐</div>
-      <div>Arrastra el archivo o haz clic para seleccionar</div>
+      <div id="dec-key-drop-text">Arrastra el archivo o haz clic para seleccionar</div>
       <div class="file-drop-name" id="dec-key-name"></div>
     </div>
     <div class="or-divider" data-i18n="or_paste">o pega el contenido</div>
@@ -743,7 +743,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="file-drop" id="dec-cipher-drop">
       <input type="file" accept=".txt,.pem" onchange="loadCipherFile(this)">
       <div class="file-drop-icon">📨</div>
-      <div>Arrastra el archivo o haz clic para seleccionar</div>
+      <div id="dec-cipher-drop-text">Arrastra el archivo o haz clic para seleccionar</div>
       <div class="file-drop-name" id="dec-cipher-name"></div>
     </div>
     <div class="or-divider" data-i18n="or_paste">o pega el contenido</div>
@@ -753,7 +753,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   </div>
 
   <div class="seed-toggle-row" onclick="toggleDecSeed()">
-    <div class="seed-toggle-label"><strong>Seed</strong> — abecedario personalizado</div>
+    <div class="seed-toggle-label" id="dec-seed-lbl"><strong>Seed</strong> — abecedario personalizado</div>
     <div class="sw" id="dec-seed-sw"></div>
   </div>
   <div class="seed-input-field" id="dec-seed-field">
@@ -762,13 +762,13 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
   <div class="alert alert-error" id="dec-err"></div>
 
-  <button class="btn btn-primary btn-full" onclick="doDecrypt()">Descifrar</button>
+  <button class="btn btn-primary btn-full" id="btn-dec" onclick="doDecrypt()">Descifrar</button>
 
   <div class="result-box" id="dec-result">
     <div class="result-label" id="dec-result-lbl">Mensaje descifrado</div>
     <div class="result-text" id="dec-result-text"></div>
     <div class="result-actions">
-      <button class="btn btn-secondary" onclick="copyResult('dec-result-text')">Copiar</button>
+      <button class="btn btn-secondary" id="dec-copy-btn" onclick="copyResult('dec-result-text')">Copiar</button>
     </div>
   </div>
 </div>
@@ -790,8 +790,8 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <button class="adv-card" onclick="showView('sign-verify')">
       <div class="adv-card-icon">🔍</div>
       <div class="adv-card-text">
-        <div class="adv-title">Verificar firma</div>
-        <div class="adv-sub">Verifica si una firma es real</div>
+        <div class="adv-title" id="sign-verify-card-title">Verificar firma</div>
+        <div class="adv-sub" id="sign-verify-card-sub">Verifica si una firma es real</div>
       </div>
     </button>
   </div>
@@ -809,7 +809,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadPrivKey(this,'sign')">
       <div class="file-drop-icon">🔐</div>
-      <div>Arrastra el archivo o haz clic</div>
+      <div id="sign-priv-drop-text">Arrastra el archivo o haz clic</div>
       <div class="file-drop-name" id="sign-priv-name"></div>
     </div>
     <div class="or-divider" data-i18n="or_paste">o pega el contenido</div>
@@ -822,13 +822,13 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <textarea id="sign-msg" placeholder="Escribe el mensaje..."></textarea>
   </div>
   <div class="alert alert-error" id="sign-err"></div>
-  <button class="btn btn-primary btn-full" onclick="doSign()">Firmar</button>
+  <button class="btn btn-primary btn-full" id="btn-sign" onclick="doSign()">Firmar</button>
   <div class="result-box" id="sign-result">
     <div class="result-label" id="sign-result-lbl">Firma digital</div>
     <div class="result-text mono" id="sign-result-text"></div>
     <div class="result-actions">
-      <button class="btn btn-secondary" onclick="copyResult('sign-result-text')">Copiar</button>
-      <button class="btn btn-secondary" onclick="dlResult('sign-result-text','firma.txt')">↓ Descargar</button>
+      <button class="btn btn-secondary" id="sign-copy-btn" onclick="copyResult('sign-result-text')">Copiar</button>
+      <button class="btn btn-secondary" id="sign-download-btn" onclick="dlResult('sign-result-text','firma.txt')">↓ Descargar</button>
     </div>
   </div>
 </div>
@@ -849,7 +849,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadSignFile(this)">
       <div class="file-drop-icon">📋</div>
-      <div>Arrastra el archivo de firma o haz clic</div>
+      <div id="verify-sign-drop-text">Arrastra el archivo de firma o haz clic</div>
       <div class="file-drop-name" id="verify-sign-name"></div>
     </div>
     <div class="or-divider" data-i18n="or_paste">o pega el contenido</div>
@@ -862,7 +862,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="file-drop">
       <input type="file" accept=".txt,.pem" onchange="loadVerifyPubKey(this)">
       <div class="file-drop-icon">🔑</div>
-      <div>Arrastra el archivo o haz clic</div>
+      <div id="verify-pub-drop-text">Arrastra el archivo o haz clic</div>
       <div class="file-drop-name" id="verify-pub-name"></div>
     </div>
     <div class="or-divider" data-i18n="or_paste">o pega el contenido</div>
@@ -966,11 +966,11 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <div class="adv-grid" style="margin-bottom:0">
     <button class="adv-card" onclick="showView('adv-pem-decode')">
       <div class="adv-card-icon">🔍</div>
-      <div class="adv-card-text"><div class="adv-title" id="adv-pem-dec-title">Decodificar</div><div class="adv-sub">PEM → valores</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-pem-dec-title">Decodificar</div><div class="adv-sub" id="adv-pem-dec-sub">PEM → valores</div></div>
     </button>
     <button class="adv-card" onclick="showView('adv-pem-encode')">
       <div class="adv-card-icon">📝</div>
-      <div class="adv-card-text"><div class="adv-title" id="adv-pem-enc-title">Codificar</div><div class="adv-sub">Valores → PEM</div></div>
+      <div class="adv-card-text"><div class="adv-title" id="adv-pem-enc-title">Codificar</div><div class="adv-sub" id="adv-pem-enc-sub">Valores → PEM</div></div>
     </button>
   </div>
 </div>
@@ -1007,10 +1007,10 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <div class="field">
     <label class="field-label" id="adv-pem-type-lbl">Tipo</label>
     <select id="pem-enc-type" onchange="updatePEMEncFields()">
-      <option value="pub">RSA PUBLIC KEY (n, e)</option>
-      <option value="priv">RSA PRIVATE KEY (n, e, d, p, q)</option>
+      <option value="pub" id="adv-pem-type-pub">RSA PUBLIC KEY (n, e)</option>
+      <option value="priv" id="adv-pem-type-priv">RSA PRIVATE KEY (n, e, d, p, q)</option>
       <option value="cipher" id="adv-pem-type-cipher">RSA CIPHER (mensaje cifrado)</option>
-      <option value="sign">RSA SIGN (firma)</option>
+      <option value="sign" id="adv-pem-type-sign">RSA SIGN (firma)</option>
     </select>
   </div>
   <div id="pem-enc-fields"><div class="field"><label class="field-label">n</label><input type="text" id="pem-enc-n" placeholder="módulo"></div><div class="field"><label class="field-label">e</label><input type="text" id="pem-enc-e" placeholder="exponente público"></div></div>
@@ -1081,7 +1081,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
   <div class="alert" id="adv-gen-err"></div>
   <button class="btn btn-primary" id="btn-adv-gen" onclick="doAdvGenKeys()">Generar</button>
   <div class="result-box show" id="adv-gen-result">
-    <div class="result-label">Claves generadas</div>
+    <div class="result-label" id="adv-genkeys-result-lbl">Claves generadas</div>
     <div class="result-text mono" id="adv-gen-result-text">-----BEGIN RSA PUBLIC KEY-----
 MIIB3AKCAX0A0UCHjF016u3Bgm9AfZ9H4Z4F9Hd/4VaqLB6Gx98AsJ01tGV+ISXo
 20iEyr+hgX7Mizgl9T2Ys/MmZsu0MxZwhXY4tpCLv4U6VUU4Wq3uIWBzJKOziSD+
@@ -1932,7 +1932,7 @@ function copyResult(id) {
   if (!el) return;
   navigator.clipboard.writeText(el.textContent).then(() => {
     const btn = el.closest('.result-box')?.querySelector('.btn');
-    if (btn) { const old = btn.textContent; btn.textContent = '✓ Copiado'; setTimeout(()=>btn.textContent=old, 1500); }
+    if (btn) { const old = btn.textContent; btn.textContent = t('copied'); setTimeout(()=>btn.textContent=old, 1500); }
   });
 }
 function dlResult(id, fname) {
@@ -1986,10 +1986,10 @@ function setEncMode(mode) {
   const lbl = document.getElementById('enc-key-label');
   if (mode==='pub') {
     lbl.textContent='Tu clave';
-    if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
+    if(ta) ta.placeholder=t('enc_key_pub_ph');
   } else {
     lbl.textContent='Tu clave';
-    if(ta) ta.placeholder='-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
+    if(ta) ta.placeholder=t('enc_key_priv_ph');
   }
 }
 
@@ -2005,10 +2005,10 @@ function setDecMode(mode) {
   const lbl = document.getElementById('dec-key-label');
   if (mode==='priv') {
     lbl.textContent='Tu clave';
-    if(ta) ta.placeholder='-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----';
+    if(ta) ta.placeholder=t('dec_key_priv_ph');
   } else {
     lbl.textContent='Clave pública del emisor';
-    if(ta) ta.placeholder='-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----';
+    if(ta) ta.placeholder=t('dec_key_pub_ph');
   }
 }
 
@@ -2191,12 +2191,12 @@ async function doGenKeys() {
     _genPubPEM = genPubKeyPEM(n,e);
     _genPrivPEM = genPrivKeyPEM(n,e,d,p,q);
     setBusy('btn-gen','gen-progress','gen-msg',false);
-    showAlert('gen-ok','Claves generadas. Descarga ambos archivos.','success');
+    showAlert('gen-ok',t('gen_ok'),'success');
     document.getElementById('btn-dl-pub').style.display='';
     document.getElementById('btn-dl-priv').style.display='';
   } catch(ex) {
     setBusy('btn-gen','gen-progress','gen-msg',false);
-    showAlert('gen-ok','Error: '+ex.message,'error');
+    showAlert('gen-ok',t('err_prefix')+ex.message,'error');
   }
 }
 function dlPub() { if(_genPubPEM) dlText(_genPubPEM,'clave_B.txt'); }
@@ -2223,14 +2223,14 @@ async function doEncrypt() {
   const pasteText = document.getElementById('enc-key-paste').value.trim();
   if (pasteText) onEncKeyPaste();
   const msg = document.getElementById('enc-msg').value.trim();
-  if (!msg) { showAlert('enc-err','Escribe el mensaje a cifrar.','error'); return; }
+  if (!msg) { showAlert('enc-err',t('err_enc_empty_msg'),'error'); return; }
   try {
     let n, e, exp, modo;
     if (_encMode==='pub') {
-      if (!_encPubKey) { showAlert('enc-err','Carga o pega la clave pública del destinatario.','error'); return; }
+      if (!_encPubKey) { showAlert('enc-err',t('err_enc_need_pub'),'error'); return; }
       n=_encPubKey.n; e=_encPubKey.e; exp=e; modo='e';
     } else {
-      if (!_encPrivKey) { showAlert('enc-err','Carga o pega tu clave privada.','error'); return; }
+      if (!_encPrivKey) { showAlert('enc-err',t('err_need_priv'),'error'); return; }
       n=_encPrivKey.n; e=_encPrivKey.e; exp=_encPrivKey.d; modo='d';
     }
     // Seed
@@ -2238,7 +2238,7 @@ async function doEncrypt() {
     let inclSeed = false; // nunca incluir la seed en el PEM
     if (_encSeedOn) {
       seed = document.getElementById('enc-seed-val').value.trim();
-      if (!seed) { showAlert('enc-err','Introduce una seed o desactiva la opción.','error'); return; }
+      if (!seed) { showAlert('enc-err',t('err_need_seed'),'error'); return; }
       applyAbc(genAbcWithSeed(seed));
     }
     const nums = textoANumeros(msg);
@@ -2250,7 +2250,7 @@ async function doEncrypt() {
     // La seed NO se guarda en el PEM — es un secreto aparte entre los dos
     const pem = genCipherPEM(cifrados, null, null, null, modo, '', false, false);
     showResult('enc-result', pem);
-  } catch(ex) { resetAbc(); showAlert('enc-err','Error al cifrar: '+ex.message,'error'); }
+  } catch(ex) { resetAbc(); showAlert('enc-err',t('err_encrypt_prefix')+ex.message,'error'); }
 }
 
 // ── DECRYPT (EASY) ──
@@ -2260,16 +2260,16 @@ async function doDecrypt() {
   if (pasteTxt) onDecPrivPaste();
   const cipherPaste = document.getElementById('dec-cipher-paste').value.trim();
   if (cipherPaste && !_cipherData) onDecCipherPaste();
-  if (!_cipherData) { showAlert('dec-err','Carga o pega el mensaje cifrado.','error'); return; }
+  if (!_cipherData) { showAlert('dec-err',t('err_dec_need_cipher'),'error'); return; }
   try {
     const {n: nCipher, e: eCipher, modo, nums, seed} = _cipherData;
     let n, exp;
     if (_decMode==='priv') {
-      if (!_decPrivKey) { showAlert('dec-err','Carga o pega tu clave privada.','error'); return; }
+      if (!_decPrivKey) { showAlert('dec-err',t('err_need_priv'),'error'); return; }
       n = nCipher ?? _decPrivKey.n;
       exp = _decPrivKey.d;
     } else {
-      if (!_decPubKey && !_decPrivKey) { showAlert('dec-err','Carga o pega la clave pública del emisor.','error'); return; }
+      if (!_decPubKey && !_decPrivKey) { showAlert('dec-err',t('err_dec_need_pub'),'error'); return; }
       const key = _decPubKey || {n:_decPrivKey.n, e:_decPrivKey.e};
       n = nCipher ?? key.n;
       exp = eCipher ?? key.e;
@@ -2278,7 +2278,7 @@ async function doDecrypt() {
     let seedUsada = '';
     if (_decSeedOn) {
       const manualSeed = document.getElementById('dec-seed-val').value.trim();
-      if (!manualSeed) { showAlert('dec-err','Introduce una seed o desactiva la opción.','error'); return; }
+      if (!manualSeed) { showAlert('dec-err',t('err_need_seed'),'error'); return; }
       seedUsada = manualSeed;
     }
     if (seedUsada) applyAbc(genAbcWithSeed(seedUsada));
@@ -2289,7 +2289,7 @@ async function doDecrypt() {
     const texto = numerosATexto(descifrados);
     resetAbc();
     showResult('dec-result', texto);
-  } catch(ex) { resetAbc(); showAlert('dec-err','Error al descifrar: '+ex.message,'error'); }
+  } catch(ex) { resetAbc(); showAlert('dec-err',t('err_decrypt_prefix')+ex.message,'error'); }
 }
 
 // ── SIGN ──
@@ -2297,16 +2297,16 @@ async function doSign() {
   hideAlert('sign-err'); hideResult('sign-result');
   const privPaste = document.getElementById('sign-priv-paste').value.trim();
   if (privPaste && !_signPrivKey) onSignPrivPaste();
-  if (!_signPrivKey) { showAlert('sign-err','Carga o pega tu clave privada.','error'); return; }
+  if (!_signPrivKey) { showAlert('sign-err',t('err_need_priv'),'error'); return; }
   const msg = document.getElementById('sign-msg').value;
-  if (!msg.trim()) { showAlert('sign-err','Escribe el mensaje a firmar.','error'); return; }
+  if (!msg.trim()) { showAlert('sign-err',t('err_sign_empty_msg'),'error'); return; }
   try {
     const {n,e,d} = _signPrivKey;
     const hashBig = await sha256BigInt(msg);
     const firma = modPow(hashBig, d, n);
     const pem = genSignPEM(firma);
     showResult('sign-result', pem);
-  } catch(ex) { showAlert('sign-err','Error al firmar: '+ex.message,'error'); }
+  } catch(ex) { showAlert('sign-err',t('err_sign_prefix')+ex.message,'error'); }
 }
 
 // ── VERIFY ──
@@ -2317,10 +2317,10 @@ async function doVerify() {
   if (signPaste && !_verifySignData) onVerifySignPaste();
   const pubPaste = document.getElementById('verify-pub-paste').value.trim();
   if (pubPaste && !_verifyPubKey) onVerifyPubPaste();
-  if (!_verifySignData) { showAlert('verify-err','Carga o pega el archivo de firma.','error'); return; }
-  if (!_verifyPubKey) { showAlert('verify-err','Carga o pega la clave pública del firmante.','error'); return; }
+  if (!_verifySignData) { showAlert('verify-err',t('err_verify_need_sign'),'error'); return; }
+  if (!_verifyPubKey) { showAlert('verify-err',t('err_verify_need_pub'),'error'); return; }
   const msg = document.getElementById('verify-msg').value;
-  if (!msg.trim()) { showAlert('verify-err','Escribe el mensaje.','error'); return; }
+  if (!msg.trim()) { showAlert('verify-err',t('err_empty_msg'),'error'); return; }
   try {
     const {firma} = _verifySignData;
     const {n, e} = _verifyPubKey;
@@ -2335,7 +2335,7 @@ async function doVerify() {
       el.className='alert alert-error show';
       el.innerHTML='<span>✗</span><span>'+t('invalid')+'</span>';
     }
-  } catch(ex) { showAlert('verify-err','Error al verificar: '+ex.message,'error'); }
+  } catch(ex) { showAlert('verify-err',t('err_verify_prefix')+ex.message,'error'); }
 }
 
 // ── ADV: NUM ──
@@ -2386,11 +2386,11 @@ function doAdvText() {
 function doDecoPEM() {
   hideAlert('pem-decode-err'); hideResult('pem-decode-result');
   const text = document.getElementById('pem-decode-input').value.trim();
-  if (!text) { showAlert('pem-decode-err','Pega o carga un bloque PEM.','error'); return; }
+  if (!text) { showAlert('pem-decode-err',t('err_pem_need_block'),'error'); return; }
   try {
     const label = (text.match(/-----BEGIN ([A-Z0-9 ]+)-----/)||[])[1]?.trim();
-    if (!label) throw new Error('cabecera PEM inválida');
-    let out = `Tipo: ${label}\n${'─'.repeat(40)}\n`;
+    if (!label) throw new Error(t('err_pem_invalid_header'));
+    let out = `${t('pem_out_type')}: ${label}\n${'─'.repeat(40)}\n`;
     if (label==='RSA PUBLIC KEY') {
       const {n,e}=parsePubKeyPEM(extraerPEM(text,'RSA PUBLIC KEY'));
       out+=`n = ${n}\ne = ${e}`;
@@ -2399,16 +2399,16 @@ function doDecoPEM() {
       out+=`n = ${n}\ne = ${e}\nd = ${d}\np = ${p}\nq = ${q}`;
     } else if (label==='RSA CIPHER') {
       const {n,e,modo,seed,nums}=parseCipherPEM(extraerPEM(text,'RSA CIPHER'));
-      out+=`Cifrado con: ${modo}\n`;
+      out+=`${t('pem_out_encrypted_with')}: ${modo}\n`;
       if(n) out+=`n = ${n}\ne = ${e}\n`;
-      else out+=`Claves: no incluidas\n`;
-      out+=`Seed: ${seed||'no incluida'}\n${nums.length} valores cifrados:\n${nums.map(x=>x.toString()).join(' ')}`;
+      else out+=`${t('pem_out_keys')}: ${t('pem_out_not_included')}\n`;
+      out+=`Seed: ${seed||t('pem_out_not_included_singular')}\n${nums.length} ${t('pem_out_encrypted_values')}:\n${nums.map(x=>x.toString()).join(' ')}`;
     } else if (label==='RSA SIGN') {
       const {firma,n,e}=parseSignPEM(extraerPEM(text,'RSA SIGN'));
-      out+=`firma = ${firma}\nn = ${n}\ne = ${e}`;
-    } else throw new Error(`tipo no reconocido: ${label}`);
+      out+=`${t('pem_out_signature')} = ${firma}\nn = ${n}\ne = ${e}`;
+    } else throw new Error(`${t('err_pem_unknown_type')}${label}`);
     showResult('pem-decode-result', out);
-  } catch(ex) { showAlert('pem-decode-err','Error: '+ex.message,'error'); }
+  } catch(ex) { showAlert('pem-decode-err',t('err_prefix')+ex.message,'error'); }
 }
 
 // ── ADV: PEM ENCODE ──
@@ -2416,17 +2416,17 @@ function updatePEMEncFields() {
   const type = document.getElementById('pem-enc-type').value;
   const c = document.getElementById('pem-enc-fields');
   const f = (label, id, ph) => `<div class="field"><label class="field-label">${label}</label><input type="text" id="${id}" placeholder="${ph}"></div>`;
-  const t = (label, id, ph) => `<div class="field"><label class="field-label">${label}</label><textarea class="mono" id="${id}" placeholder="${ph}" style="min-height:80px"></textarea></div>`;
-  if (type==='pub') c.innerHTML = f('n','pem-enc-n','módulo') + f('e','pem-enc-e','exponente público');
-  else if (type==='priv') c.innerHTML = f('n','pem-enc-n','') + f('e','pem-enc-e','') + f('d','pem-enc-d','') + f('p','pem-enc-p','') + f('q','pem-enc-q','');
+  const ta = (label, id, ph) => `<div class="field"><label class="field-label">${label}</label><textarea class="mono" id="${id}" placeholder="${ph}" style="min-height:80px"></textarea></div>`;
+  if (type==='pub') c.innerHTML = f('n','pem-enc-n',t('pem_ph_mod')) + f('e','pem-enc-e',t('pem_ph_pub_exp'));
+  else if (type==='priv') c.innerHTML = f('n','pem-enc-n',t('pem_ph_mod')) + f('e','pem-enc-e',t('pem_ph_pub_exp')) + f('d','pem-enc-d',t('pem_ph_priv_exp')) + f('p','pem-enc-p','p') + f('q','pem-enc-q','q');
   else if (type==='cipher') c.innerHTML =
-    t('Números cifrados (separados por espacios)','pem-enc-nums','12345 67890 ...') +
-    f('n (opcional)','pem-enc-n','dejar vacío = no incluir') +
-    f('e (opcional)','pem-enc-e','') +
-    `<div class="field"><label class="field-label">Modo de cifrado</label><select id="pem-enc-modo"><option value="e">Cifrado con e</option><option value="d">Cifrado con d</option></select></div>` +
-    f('Seed (opcional)','pem-enc-seed','') +
-    `<div class="field"><label class="field-label">¿Incluir seed en el PEM?</label><select id="pem-enc-inclseed"><option value="n">No</option><option value="y">Sí</option></select></div>`;
-  else if (type==='sign') c.innerHTML = f('Firma (entero)','pem-enc-firma','') + f('n','pem-enc-n','') + f('e','pem-enc-e','');
+    ta(t('pem_lbl_msg_nums'),'pem-enc-nums','12345 67890 ...') +
+    f('n ('+t('pem_ph_seed')+')','pem-enc-n',t('pem_ph_mod')) +
+    f('e ('+t('pem_ph_seed')+')','pem-enc-e',t('pem_ph_pub_exp')) +
+    `<div class="field"><label class="field-label">${t('pem_lbl_cipher_mode')}</label><select id="pem-enc-modo"><option value="e">${t('pem_opt_cipher_e')}</option><option value="d">${t('pem_opt_cipher_d')}</option></select></div>` +
+    f(t('pem_lbl_seed'),'pem-enc-seed',t('pem_ph_seed')) +
+    `<div class="field"><label class="field-label">${t('pem_lbl_include_seed')}</label><select id="pem-enc-inclseed"><option value="n">${t('no')}</option><option value="y">${t('yes')}</option></select></div>`;
+  else if (type==='sign') c.innerHTML = f(_lang==='es'?'Firma (entero)':'Signature (integer)','pem-enc-firma','') + f('n','pem-enc-n','') + f('e','pem-enc-e','');
   hideResult('pem-enc-result');
 }
 
@@ -2586,6 +2586,7 @@ const TR = {
     home_card_enc_title:'Cifrar', home_card_enc_desc:'Cifra un mensaje con tu clave. Solo el receptor podrá leerlo con su clave.',
     home_card_dec_title:'Descifrar', home_card_dec_desc:'Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.',
     home_card_sign_title:'Firmar', home_card_sign_desc:'Demuestra que un mensaje es tuyo, o verifica si es de alguien.',
+    home_card_adv_title:'Avanzado', home_card_adv_desc:'Control total: claves, PEM, seeds y operaciones manuales.',
     home_card_kx_title:'Intercambiar claves', home_card_kx_desc:'Comparte tu clave B con tu contacto de forma segura, sin enviarla directamente.',
     kx_title:'Intercambiar claves',
     kx_sub:'Comparte tu clave B con tu contacto sin enviarla directamente. Usa un código de sala efímero.',
@@ -2595,7 +2596,8 @@ const TR = {
     kx_code_label:'Código de sala', kx_copy_code:'Copiar',
     kx_waiting:'Esperando a que tu contacto descargue la clave...',
     kx_receiver_code_lbl:'Código de sala', kx_receiver_btn:'Descargar clave',
-    kx_result_lbl:'Clave B recibida', kx_reset:'↩ Volver a empezar',
+    kx_result_lbl:'Clave B recibida', kx_copy_key:'Copiar', kx_download_key:'↓ Descargar', kx_reset:'↩ Volver a empezar',
+    kx_drop_text:'Arrastra el archivo o haz clic',
     gen_title:'Generar claves', gen_size:'Tamaño de clave',
     gen_fast:'Rápido', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
     gen_secure:'Seguro', gen_secure_s:'~2min',
@@ -2615,11 +2617,17 @@ const TR = {
     enc_key_lbl:'Tu clave', enc_msg_lbl:'Mensaje', enc_msg_ph:'Escribe el mensaje a cifrar...',
     enc_seed_lbl:'Seed — abecedario personalizado', enc_btn:'Cifrar',
     enc_result_lbl:'Mensaje cifrado — compártelo con tu contacto',
+    enc_key_pub_ph:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----',
+    enc_key_priv_ph:'-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----',
     dec_title:'Descifrar mensaje',
     dec_priv_name:'Con clave A', dec_priv_sub:'Descifro con mi clave A',
     dec_pub_name:'Con clave B', dec_pub_sub:'Descifro con mi clave B',
+    dec_mode:'Modo',
     dec_key_lbl:'Tu clave', dec_cipher_lbl:'Mensaje cifrado',
     dec_btn:'Descifrar', dec_result_lbl:'Mensaje descifrado',
+    dec_key_priv_ph:'-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----',
+    dec_key_pub_ph:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----',
+    dec_cipher_ph:'-----BEGIN RSA CIPHER-----\n...\n-----END RSA CIPHER-----',
     sign_title:'Verificar identidad',
     sign_create_card_title:'Firmar mensaje', sign_create_card_sub:'Demuestra con tu clave que el mensaje es tuyo',
     sign_verify_card_title:'Verificar firma', sign_verify_card_sub:'Confirma que un mensaje es de tu contacto',
@@ -2631,6 +2639,9 @@ const TR = {
     sign_verify_sub:'Comprueba que el mensaje es realmente del que tiene la clave A.',
     sign_msg_v_lbl:'Mensaje', sign_msg_v_ph:'El mensaje que recibiste...',
     sign_file_lbl:'Firma', sign_pub_lbl:'Clave B del firmante',
+    sign_file_ph:'-----BEGIN RSA SIGN-----\n...\n-----END RSA SIGN-----',
+    sign_pub_ph:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----',
+    sign_priv_ph:'-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----',
     sign_verify_btn:'Verificar',
     adv_title:'Avanzado', adv_sub:'Operaciones manuales con control total.',
     adv_pem_title:'PEM universal', adv_pem_sub:'Codificar y decodificar cualquier PEM',
@@ -2640,37 +2651,80 @@ const TR = {
     adv_num_opt_enc_e:'Cifrar con e', adv_num_opt_enc_d:'Cifrar con d',
     adv_num_opt_dec_e:'Descifrar con e', adv_num_opt_dec_d:'Descifrar con d',
     adv_nums_num_lbl:'Número', adv_nums_exp_lbl:'Exponente (e o d)',
+    adv_num_n_ph:'módulo', adv_num_exp_ph:'exponente',
     adv_nums_btn:'Calcular', adv_nums_result_lbl:'Resultado', copy:'Copiar',
     adv_text_title:'Cifrar / Descifrar texto', adv_text_mode_lbl:'Modo',
     adv_text_input_lbl:'Texto / Números cifrados', adv_text_exp_lbl:'Exponente (e o d)',
+    adv_text_input_ph:'Texto a cifrar o números separados por espacios...',
     adv_text_seed_lbl:'Seed (opcional)',
+    adv_text_seed_ph:'vacío = abecedario normal',
     adv_text_seed_sub:'Genera un abecedario personalizado para mayor ofuscación.',
     adv_text_btn:'Ejecutar', adv_text_result_lbl:'Resultado',
-    adv_pem_page_title:'PEM universal', adv_pem_dec_title:'Decodificar', adv_pem_enc_title:'Codificar',
+    adv_pem_page_title:'PEM universal', adv_pem_dec_title:'Decodificar', adv_pem_dec_sub:'PEM → valores', adv_pem_enc_title:'Codificar', adv_pem_enc_sub:'Valores → PEM',
     adv_pem_decode_title:'Decodificar PEM', adv_pem_file_lbl:'Archivo PEM',
     adv_pem_drop_text:'Arrastra el archivo o haz clic',
+    adv_pem_decode_ph:'-----BEGIN ...-----\n...\n-----END ...-----',
     adv_pem_decode_btn:'Decodificar', adv_pem_decode_result_lbl:'Contenido',
     adv_pem_encode_title:'Codificar PEM', adv_pem_type_lbl:'Tipo',
+    adv_pem_type_pub:'RSA PUBLIC KEY (n, e)', adv_pem_type_priv:'RSA PRIVATE KEY (n, e, d, p, q)',
+    adv_pem_type_sign:'RSA SIGN (firma)',
     adv_pem_type_cipher:'RSA CIPHER (mensaje cifrado)',
+    pem_ph_mod:'módulo', pem_ph_pub_exp:'exponente público', pem_ph_priv_exp:'exponente privado',
+    pem_lbl_msg_nums:'Números cifrados', pem_ph_msg_nums:'separados por espacios',
+    pem_lbl_cipher_mode:'Modo de cifrado', pem_opt_cipher_e:'Cifrado con e', pem_opt_cipher_d:'Cifrado con d',
+    pem_lbl_seed:'Seed', pem_ph_seed:'opcional',
+    pem_lbl_include_seed:'¿Incluir seed en el PEM?', yes:'Sí', no:'No',
     adv_pem_encode_btn:'Generar PEM', adv_pem_encode_result_lbl:'PEM generado', download:'↓ Descargar',
     adv_seeds_page_title:'Seeds', adv_seeds_lbl:'Seed',
+    adv_seeds_ph:'escribe una seed o genera aleatoria',
     adv_seeds_random_btn:'Aleatoria', adv_seeds_result_lbl:'Abecedario',
     adv_seeds_copy_btn:'Copiar seed',
     adv_seeds_sub_text:'Una seed personaliza el abecedario numérico. Compatible con el programa Python.',
     adv_seeds_custom_title:'Crear seed personalizada',
     adv_seeds_custom_sub:'Intercambia letras manualmente. Introduce pares separados por espacio (ej: a z).',
+    adv_seeds_custom_ph:'ej: a z',
     adv_seeds_add_btn:'Añadir', adv_seeds_gen_btn:'Generar seed', adv_seeds_reset_btn:'Reiniciar',
     adv_seeds_view_btn:'Ver abecedario', adv_seeds_custom_result_lbl:'Seed generada',
     adv_genkeys_page_title:'Generar claves (avanzado)',
     adv_genkeys_digits_n_lbl:'Cifras de n', adv_genkeys_digits_n_sub:'Deja vacío para aleatorio (10-30 cifras).',
+    adv_genkeys_digits_n_ph:'ej: 200',
     adv_genkeys_digits_e_lbl:'Cifras de e',
-    adv_genkeys_dl_pub_btn:'↓ Key B', adv_genkeys_dl_priv_btn:'↓ Key A',
+    adv_genkeys_digits_e_ph:'vacío = 65537',
+    adv_genkeys_btn:'Generar',
+    adv_genkeys_result_lbl:'Claves generadas',
+    adv_genkeys_dl_pub_btn:'↓ Clave B', adv_genkeys_dl_priv_btn:'↓ Clave A',
     adv_sign_title:'Firma digital (avanzado)', adv_sign_create_title:'Firmar', adv_sign_create_sub:'Firma un mensaje',
     adv_sign_verify_title:'Verificar', adv_sign_verify_sub:'Comprueba una firma',
     or:'o pega el contenido',
     valid:'Firma válida. El mensaje es auténtico.',
     invalid:'Firma inválida. El mensaje puede haber sido alterado.',
     generating:'Generando primos aleatorios...',
+    copied:'✓ Copiado',
+    err_prefix:'Error: ',
+    err_enc_empty_msg:'Escribe el mensaje a cifrar.',
+    err_enc_need_pub:'Carga o pega la clave pública del destinatario.',
+    err_need_priv:'Carga o pega tu clave privada.',
+    err_need_seed:'Introduce una seed o desactiva la opción.',
+    err_encrypt_prefix:'Error al cifrar: ',
+    err_dec_need_cipher:'Carga o pega el mensaje cifrado.',
+    err_dec_need_pub:'Carga o pega la clave pública del emisor.',
+    err_decrypt_prefix:'Error al descifrar: ',
+    err_sign_empty_msg:'Escribe el mensaje a firmar.',
+    err_sign_prefix:'Error al firmar: ',
+    err_verify_need_sign:'Carga o pega el archivo de firma.',
+    err_verify_need_pub:'Carga o pega la clave pública del firmante.',
+    err_empty_msg:'Escribe el mensaje.',
+    err_verify_prefix:'Error al verificar: ',
+    err_pem_need_block:'Pega o carga un bloque PEM.',
+    err_pem_invalid_header:'cabecera PEM inválida',
+    err_pem_unknown_type:'tipo no reconocido: ',
+    pem_out_type:'Tipo',
+    pem_out_encrypted_with:'Cifrado con',
+    pem_out_keys:'Claves',
+    pem_out_not_included:'no incluidas',
+    pem_out_not_included_singular:'no incluida',
+    pem_out_encrypted_values:'valores cifrados',
+    pem_out_signature:'firma',
   },
   en: {
     back:'← back',
@@ -2690,7 +2744,8 @@ const TR = {
     kx_code_label:'Room code', kx_copy_code:'Copy',
     kx_waiting:'Waiting for your contact to download the key...',
     kx_receiver_code_lbl:'Room code', kx_receiver_btn:'Download key',
-    kx_result_lbl:'Key B received', kx_reset:'↩ Start over',
+    kx_result_lbl:'Key B received', kx_copy_key:'Copy', kx_download_key:'↓ Download', kx_reset:'↩ Start over',
+    kx_drop_text:'Drag the file or click',
     gen_title:'Generate keys', gen_size:'Key size',
     gen_fast:'Fast', gen_fast_s:'~2s', gen_normal:'Normal', gen_normal_s:'~15s',
     gen_secure:'Secure', gen_secure_s:'~2min',
@@ -2710,11 +2765,17 @@ const TR = {
     enc_key_lbl:'Your key', enc_msg_lbl:'Message', enc_msg_ph:'Write the message to encrypt...',
     enc_seed_lbl:'Seed — custom alphabet', enc_btn:'Encrypt',
     enc_result_lbl:'Encrypted message — share it with your contact',
+    enc_key_pub_ph:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----',
+    enc_key_priv_ph:'-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----',
     dec_title:'Decrypt message',
     dec_priv_name:'With key A', dec_priv_sub:'I decrypt with my key A',
     dec_pub_name:'With key B', dec_pub_sub:'I decrypt with my key B',
+    dec_mode:'Mode',
     dec_key_lbl:'Your key', dec_cipher_lbl:'Encrypted message',
     dec_btn:'Decrypt', dec_result_lbl:'Decrypted message',
+    dec_key_priv_ph:'-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----',
+    dec_key_pub_ph:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----',
+    dec_cipher_ph:'-----BEGIN RSA CIPHER-----\n...\n-----END RSA CIPHER-----',
     sign_title:'Verify identity',
     sign_create_card_title:'Sign message', sign_create_card_sub:'Prove a message is yours with your key',
     sign_verify_card_title:'Verify signature', sign_verify_card_sub:'Confirm a message is from your contact',
@@ -2726,6 +2787,9 @@ const TR = {
     sign_verify_sub:'Confirm the message really comes from the key A holder.',
     sign_msg_v_lbl:'Message', sign_msg_v_ph:'The message you received...',
     sign_file_lbl:'Signature', sign_pub_lbl:"Signer's key B",
+    sign_file_ph:'-----BEGIN RSA SIGN-----\n...\n-----END RSA SIGN-----',
+    sign_pub_ph:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----',
+    sign_priv_ph:'-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----',
     sign_verify_btn:'Verify',
     adv_title:'Advanced', adv_sub:'Manual operations with full control.',
     adv_pem_title:'Universal PEM', adv_pem_sub:'Encode and decode any PEM',
@@ -2735,30 +2799,47 @@ const TR = {
     adv_num_opt_enc_e:'Encrypt with e', adv_num_opt_enc_d:'Encrypt with d',
     adv_num_opt_dec_e:'Decrypt with e', adv_num_opt_dec_d:'Decrypt with d',
     adv_nums_num_lbl:'Number', adv_nums_exp_lbl:'Exponent (e or d)',
+    adv_num_n_ph:'modulus', adv_num_exp_ph:'exponent',
     adv_nums_btn:'Calculate', adv_nums_result_lbl:'Result', copy:'Copy',
     adv_text_title:'Encrypt / Decrypt text', adv_text_mode_lbl:'Mode',
     adv_text_input_lbl:'Text / Encrypted numbers', adv_text_exp_lbl:'Exponent (e or d)',
+    adv_text_input_ph:'Text to encrypt or numbers separated by spaces...',
     adv_text_seed_lbl:'Seed (optional)',
+    adv_text_seed_ph:'empty = normal alphabet',
     adv_text_seed_sub:'Generates a custom alphabet for extra obfuscation.',
     adv_text_btn:'Run', adv_text_result_lbl:'Result',
-    adv_pem_page_title:'Universal PEM', adv_pem_dec_title:'Decode', adv_pem_enc_title:'Encode',
+    adv_pem_page_title:'Universal PEM', adv_pem_dec_title:'Decode', adv_pem_dec_sub:'PEM → values', adv_pem_enc_title:'Encode', adv_pem_enc_sub:'Values → PEM',
     adv_pem_decode_title:'Decode PEM', adv_pem_file_lbl:'PEM file',
     adv_pem_drop_text:'Drag the file or click',
+    adv_pem_decode_ph:'-----BEGIN ...-----\n...\n-----END ...-----',
     adv_pem_decode_btn:'Decode', adv_pem_decode_result_lbl:'Content',
     adv_pem_encode_title:'Encode PEM', adv_pem_type_lbl:'Type',
+    adv_pem_type_pub:'RSA PUBLIC KEY (n, e)', adv_pem_type_priv:'RSA PRIVATE KEY (n, e, d, p, q)',
+    adv_pem_type_sign:'RSA SIGN (signature)',
     adv_pem_type_cipher:'RSA CIPHER (encrypted message)',
+    pem_ph_mod:'modulus', pem_ph_pub_exp:'public exponent', pem_ph_priv_exp:'private exponent',
+    pem_lbl_msg_nums:'Encrypted numbers', pem_ph_msg_nums:'separated by spaces',
+    pem_lbl_cipher_mode:'Encryption mode', pem_opt_cipher_e:'Encrypted with e', pem_opt_cipher_d:'Encrypted with d',
+    pem_lbl_seed:'Seed', pem_ph_seed:'optional',
+    pem_lbl_include_seed:'Include seed in the PEM?', yes:'Yes', no:'No',
     adv_pem_encode_btn:'Generate PEM', adv_pem_encode_result_lbl:'Generated PEM', download:'↓ Download',
     adv_seeds_page_title:'Seeds', adv_seeds_lbl:'Seed',
+    adv_seeds_ph:'type a seed or generate a random one',
     adv_seeds_random_btn:'Random', adv_seeds_result_lbl:'Alphabet',
     adv_seeds_copy_btn:'Copy seed',
     adv_seeds_sub_text:'A seed customises the numeric alphabet. Compatible with the Python program.',
     adv_seeds_custom_title:'Create custom seed',
     adv_seeds_custom_sub:'Swap letters manually. Enter pairs separated by a space (e.g. a z).',
+    adv_seeds_custom_ph:'e.g. a z',
     adv_seeds_add_btn:'Add', adv_seeds_gen_btn:'Generate seed', adv_seeds_reset_btn:'Reset',
     adv_seeds_view_btn:'View alphabet', adv_seeds_custom_result_lbl:'Generated seed',
     adv_genkeys_page_title:'Generate keys (advanced)',
     adv_genkeys_digits_n_lbl:'Digits of n', adv_genkeys_digits_n_sub:'Leave empty for random (10-30 digits).',
+    adv_genkeys_digits_n_ph:'e.g. 200',
     adv_genkeys_digits_e_lbl:'Digits of e',
+    adv_genkeys_digits_e_ph:'empty = 65537',
+    adv_genkeys_btn:'Generate',
+    adv_genkeys_result_lbl:'Generated keys',
     adv_genkeys_dl_pub_btn:'↓ Key B', adv_genkeys_dl_priv_btn:'↓ Key A',
     adv_sign_title:'Digital signature (advanced)', adv_sign_create_title:'Sign', adv_sign_create_sub:'Sign a message',
     adv_sign_verify_title:'Verify', adv_sign_verify_sub:'Check a signature',
@@ -2766,6 +2847,32 @@ const TR = {
     valid:'Valid signature. The message is authentic.',
     invalid:'Invalid signature. The message may have been altered.',
     generating:'Generating random primes...',
+    copied:'✓ Copied',
+    err_prefix:'Error: ',
+    err_enc_empty_msg:'Write the message to encrypt.',
+    err_enc_need_pub:"Load or paste the recipient's public key.",
+    err_need_priv:'Load or paste your private key.',
+    err_need_seed:'Enter a seed or turn the option off.',
+    err_encrypt_prefix:'Encryption error: ',
+    err_dec_need_cipher:'Load or paste the encrypted message.',
+    err_dec_need_pub:"Load or paste the sender's public key.",
+    err_decrypt_prefix:'Decryption error: ',
+    err_sign_empty_msg:'Write the message to sign.',
+    err_sign_prefix:'Signing error: ',
+    err_verify_need_sign:'Load or paste the signature file.',
+    err_verify_need_pub:"Load or paste the signer's public key.",
+    err_empty_msg:'Write the message.',
+    err_verify_prefix:'Verification error: ',
+    err_pem_need_block:'Paste or load a PEM block.',
+    err_pem_invalid_header:'invalid PEM header',
+    err_pem_unknown_type:'unknown type: ',
+    pem_out_type:'Type',
+    pem_out_encrypted_with:'Encrypted with',
+    pem_out_keys:'Keys',
+    pem_out_not_included:'not included',
+    pem_out_not_included_singular:'not included',
+    pem_out_encrypted_values:'encrypted values',
+    pem_out_signature:'signature',
   }
 };
 
@@ -2786,7 +2893,7 @@ function applyLang(){
   function sp(id,v){const el=document.getElementById(id);if(el&&v!==undefined)el.placeholder=v;}
   const L=TR[_lang];
   // Botones volver
-  document.querySelectorAll('[data-back]').forEach(el=>el.textContent=L.back);
+  document.querySelectorAll('.section-back').forEach(el=>el.textContent=L.back);
   document.querySelectorAll('.or-divider').forEach(el=>el.textContent=L.or);
   // HOME
   sh('home-main-title',L.home_title);
@@ -2802,10 +2909,11 @@ function applyLang(){
   se('kx-role-sender-name',L.kx_role_sender_name); se('kx-role-sender-sub',L.kx_role_sender_sub);
   se('kx-role-receiver-name',L.kx_role_receiver_name); se('kx-role-receiver-sub',L.kx_role_receiver_sub);
   se('kx-sender-key-lbl',L.kx_sender_key_lbl); se('kx-sender-btn-text',L.kx_sender_btn);
+  se('kx-drop-text',L.kx_drop_text);
   se('kx-code-label',L.kx_code_label); se('kx-copy-code-btn',L.kx_copy_code);
   se('kx-waiting-text',L.kx_waiting);
   se('kx-receiver-code-lbl',L.kx_receiver_code_lbl); se('kx-receiver-btn-text',L.kx_receiver_btn);
-  se('kx-result-lbl',L.kx_result_lbl); se('kx-reset-btn',L.kx_reset);
+  se('kx-result-lbl',L.kx_result_lbl); se('kx-copy-btn',L.kx_copy_key); se('kx-dl-btn',L.kx_download_key); se('kx-reset-btn',L.kx_reset);
   // GENERAR
   se('gen-title',L.gen_title); se('gen-size-lbl',L.gen_size);
   se('gen-sub',L.gen_sub);
@@ -2822,16 +2930,21 @@ function applyLang(){
   se('enc-key-label',L.enc_key_lbl); se('enc-msg-lbl',L.enc_msg_lbl);
   sp('enc-msg',L.enc_msg_ph); se('enc-seed-lbl',L.enc_seed_lbl);
   se('btn-enc',L.enc_btn); se('enc-result-lbl',L.enc_result_lbl);
+  se('enc-copy-btn',L.copy); se('enc-download-btn',L.download);
   se('enc-drop-text',L.drop_text); sp('enc-seed-val',L.seed_ph);
-  se('enc-seed-toggle-desc',L.seed_desc);
+  sp('enc-key-paste',_encMode==='pub'?L.enc_key_pub_ph:L.enc_key_priv_ph);
   // DESCIFRAR
   se('dec-title',L.dec_title);
+  se('dec-mode-lbl',L.dec_mode);
   se('dec-priv-name',L.dec_priv_name); se('dec-priv-sub',L.dec_priv_sub);
   se('dec-pub-name',L.dec_pub_name); se('dec-pub-sub',L.dec_pub_sub);
   se('dec-key-label',L.dec_key_lbl); se('dec-cipher-lbl',L.dec_cipher_lbl);
   se('btn-dec',L.dec_btn); se('dec-result-lbl',L.dec_result_lbl);
+  se('dec-copy-btn',L.copy);
   se('dec-key-drop-text',L.drop_text); se('dec-cipher-drop-text',L.drop_text);
-  sp('dec-seed-val',L.seed_ph); se('dec-seed-toggle-desc',L.seed_desc);
+  sp('dec-seed-val',L.seed_ph);
+  sp('dec-priv-paste',_decMode==='priv'?L.dec_key_priv_ph:L.dec_key_pub_ph);
+  sp('dec-cipher-paste',L.dec_cipher_ph);
   // FIRMAR
   se('sign-title',L.sign_title);
   se('sign-create-card-title',L.sign_create_card_title); se('sign-create-card-sub',L.sign_create_card_sub);
@@ -2839,7 +2952,9 @@ function applyLang(){
   se('sign-create-title',L.sign_create_title); se('sign-create-sub',L.sign_create_sub);
   se('sign-key-lbl',L.sign_key_lbl); se('sign-msg-lbl',L.sign_msg_lbl);
   sp('sign-msg',L.sign_msg_ph); se('btn-sign',L.sign_btn); se('sign-result-lbl',L.sign_result_lbl);
+  se('sign-copy-btn',L.copy); se('sign-download-btn',L.download);
   se('sign-priv-drop-text',L.drop_text_short);
+  sp('sign-priv-paste',L.sign_priv_ph);
   se('sign-verify-title',L.sign_verify_title); se('sign-verify-sub',L.sign_verify_sub);
   se('sign-msg-v-lbl',L.sign_msg_v_lbl); sp('verify-msg',L.sign_msg_v_ph);
   se('sign-file-lbl',L.sign_file_lbl); sp('verify-sign-paste',L.sign_file_ph);
@@ -2858,6 +2973,7 @@ function applyLang(){
   se('adv-num-opt-enc-e',L.adv_num_opt_enc_e); se('adv-num-opt-enc-d',L.adv_num_opt_enc_d);
   se('adv-num-opt-dec-e',L.adv_num_opt_dec_e); se('adv-num-opt-dec-d',L.adv_num_opt_dec_d);
   se('adv-nums-num-lbl',L.adv_nums_num_lbl); se('adv-nums-exp-lbl',L.adv_nums_exp_lbl);
+  sp('adv-num-n',L.adv_num_n_ph); sp('adv-num-exp',L.adv_num_exp_ph);
   se('adv-nums-btn',L.adv_nums_btn); se('adv-nums-result-lbl',L.adv_nums_result_lbl);
   se('adv-nums-copy-btn',L.copy);
   // AVANZADO — cifrar/descifrar texto
@@ -2865,22 +2981,30 @@ function applyLang(){
   se('adv-text-opt-enc-e',L.adv_num_opt_enc_e); se('adv-text-opt-enc-d',L.adv_num_opt_enc_d);
   se('adv-text-opt-dec-e',L.adv_num_opt_dec_e); se('adv-text-opt-dec-d',L.adv_num_opt_dec_d);
   se('adv-text-input-lbl',L.adv_text_input_lbl); se('adv-text-exp-lbl',L.adv_text_exp_lbl);
+  sp('adv-text-input',L.adv_text_input_ph); sp('adv-text-n',L.adv_num_n_ph); sp('adv-text-exp',L.adv_num_exp_ph);
   se('adv-text-seed-lbl',L.adv_text_seed_lbl); se('adv-text-seed-sub',L.adv_text_seed_sub);
+  sp('adv-text-seed',L.adv_text_seed_ph);
   se('adv-text-btn',L.adv_text_btn); se('adv-text-result-lbl',L.adv_text_result_lbl);
   se('adv-text-copy-btn',L.copy);
   // AVANZADO — PEM
   se('adv-pem-page-title',L.adv_pem_page_title);
-  se('adv-pem-dec-title',L.adv_pem_dec_title); se('adv-pem-enc-title',L.adv_pem_enc_title);
+  se('adv-pem-dec-title',L.adv_pem_dec_title); se('adv-pem-dec-sub',L.adv_pem_dec_sub);
+  se('adv-pem-enc-title',L.adv_pem_enc_title); se('adv-pem-enc-sub',L.adv_pem_enc_sub);
   se('adv-pem-decode-title',L.adv_pem_decode_title); se('adv-pem-file-lbl',L.adv_pem_file_lbl);
   se('adv-pem-drop-text',L.adv_pem_drop_text);
+  sp('pem-decode-input',L.adv_pem_decode_ph);
   se('adv-pem-decode-btn',L.adv_pem_decode_btn); se('adv-pem-decode-result-lbl',L.adv_pem_decode_result_lbl);
   se('adv-pem-decode-copy-btn',L.copy);
   se('adv-pem-encode-title',L.adv_pem_encode_title); se('adv-pem-type-lbl',L.adv_pem_type_lbl);
+  se('adv-pem-type-pub',L.adv_pem_type_pub); se('adv-pem-type-priv',L.adv_pem_type_priv);
+  se('adv-pem-type-sign',L.adv_pem_type_sign);
   se('adv-pem-type-cipher',L.adv_pem_type_cipher);
   se('adv-pem-encode-btn',L.adv_pem_encode_btn); se('adv-pem-encode-result-lbl',L.adv_pem_encode_result_lbl);
   se('adv-pem-encode-copy-btn',L.copy); se('adv-pem-encode-dl-btn',L.download);
+  updatePEMEncFields();
   // AVANZADO — Seeds
   se('adv-seeds-page-title',L.adv_seeds_page_title); se('adv-seeds-lbl',L.adv_seeds_lbl);
+  sp('seed-input',L.adv_seeds_ph); sp('custom-seed-input',L.adv_seeds_custom_ph);
   se('adv-seeds-random-btn',L.adv_seeds_random_btn); se('adv-seeds-result-lbl',L.adv_seeds_result_lbl);
   se('adv-seeds-copy-btn',L.adv_seeds_copy_btn); se('adv-seeds-sub-text',L.adv_seeds_sub_text);
   se('adv-seeds-custom-title',L.adv_seeds_custom_title); se('adv-seeds-custom-sub',L.adv_seeds_custom_sub);
@@ -2890,7 +3014,10 @@ function applyLang(){
   // AVANZADO — Generar claves
   se('adv-genkeys-page-title',L.adv_genkeys_page_title);
   se('adv-genkeys-digits-n-lbl',L.adv_genkeys_digits_n_lbl); se('adv-genkeys-digits-n-sub',L.adv_genkeys_digits_n_sub);
+  sp('adv-gen-digits-n',L.adv_genkeys_digits_n_ph);
   se('adv-genkeys-digits-e-lbl',L.adv_genkeys_digits_e_lbl);
+  sp('adv-gen-digits-e',L.adv_genkeys_digits_e_ph); se('btn-adv-gen',L.adv_genkeys_btn);
+  se('adv-genkeys-result-lbl',L.adv_genkeys_result_lbl);
   se('adv-genkeys-dl-pub-btn',L.adv_genkeys_dl_pub_btn); se('adv-genkeys-dl-priv-btn',L.adv_genkeys_dl_priv_btn);
   // AVANZADO — Firma
   se('adv-sign-title',L.adv_sign_title);
