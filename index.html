@@ -1,4 +1,3 @@
-
 <html lang="es"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -521,7 +520,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 }
 .kx-code-label { font-size: 12px; color: var(--text2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
 .kx-code {
-  font-family: var(--mono); font-size: 42px; font-weight: 500; letter-spacing: 0.18em;
+  font-family: var(--mono); font-size: 36px; font-weight: 500; letter-spacing: 0.2em;
   color: var(--text); margin-bottom: 16px;
 }
 .kx-copy-code {
@@ -590,11 +589,11 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
       <div class="card-desc" id="home-card-adv-desc">Control total: claves, PEM, seeds y operaciones manuales.</div>
     </div>
   </button>
-  <button class="card-full" onclick="showView('keyexchange')">
+  <button class="card-full" onclick="showView('keyexchange')" style="border-color:var(--blue);background:var(--blue-bg)">
     <div class="card-icon">🤝</div>
     <div class="card-full-text">
       <div class="card-title" id="home-card-kx-title">Intercambiar claves</div>
-      <div class="card-desc" id="home-card-kx-desc">Comparte tu clave B de forma segura, sin enviarla directamente.</div>
+      <div class="card-desc" id="home-card-kx-desc">Comparte tu clave B con tu contacto de forma segura, sin enviarla directamente.</div>
     </div>
   </button>
 </div>
@@ -1164,7 +1163,7 @@ z50jPFsWIBylX4w1
   <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title" id="kx-title">Intercambiar claves</div>
-    <div class="section-sub" id="kx-sub">Comparte tu clave B sin enviarla directamente. Usa un código de sala único.</div>
+    <div class="section-sub" id="kx-sub">Comparte tu clave B con tu contacto sin enviarla directamente. Usa un código de sala efímero.</div>
   </div>
 
   <!-- PASO 0: elegir rol -->
@@ -1221,8 +1220,8 @@ z50jPFsWIBylX4w1
     <div class="field">
       <label class="field-label" id="kx-receiver-code-lbl">Código de sala</label>
       <input type="text" id="kx-code-input" maxlength="6" placeholder="ABC123"
-        style="font-family:var(--mono);font-size:22px;letter-spacing:0.15em;text-align:center;text-transform:uppercase"
-        oninput="this.value=this.value.toUpperCase()">
+        style="font-family:var(--mono);font-size:28px;letter-spacing:0.15em;text-align:center"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
     </div>
     <div class="alert alert-error" id="kx-receiver-err"></div>
     <button class="btn btn-primary" id="kx-receiver-btn" onclick="kxFetchKey()">
@@ -2899,14 +2898,293 @@ function applyLang(){
 }
 
 // ═══════════════════════════════════════════════════════
-//  KEY EXCHANGE (ntfy.sh)
+// ═══════════════════════════════════════════════════════
+//  KEY EXCHANGE (Cloudflare Worker)
 // ═══════════════════════════════════════════════════════
 
-const KX_BASE = 'https://ntfy.sh';
-const KX_PREFIX = 'ciphr-kx-';
+const KX_WORKER = 'https://cosa.ciphr.workers.dev';
 let _kxRole = null;
 let _kxRoomCode = null;
 let _kxReceivedKey = '';
+
+function kxLoadFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('kx-file-name').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => { document.getElementById('kx-sender-key-input').value = e.target.result.trim(); };
+  reader.readAsText(file);
+}
+
+function kxSetRole(role) {
+  _kxRole = role;
+  document.getElementById('kx-step-role').style.display = 'none';
+  document.getElementById('kx-reset-btn').style.display = 'inline-flex';
+  document.getElementById(role === 'sender' ? 'kx-step-sender' : 'kx-step-receiver').style.display = 'block';
+}
+
+async function kxCreateRoom() {
+  const keyText = document.getElementById('kx-sender-key-input').value.trim();
+  hideAlert('kx-sender-err');
+  if (!keyText) { showAlert('kx-sender-err', _lang==='es'?'Pega tu clave B o carga el archivo.':'Paste your key B or load the file.', 'error'); return; }
+  if (!keyText.includes('RSA PUBLIC KEY')) { showAlert('kx-sender-err', _lang==='es'?'Eso no parece una clave B (pública).':\"That doesn't look like a key B.\", 'error'); return; }
+
+  const btn = document.getElementById('kx-sender-btn');
+  btn.disabled = true;
+  document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Creando...':'Creating...';
+
+  try {
+    const res = await fetch(KX_WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: keyText
+    });
+    if (!res.ok) throw new Error('Error ' + res.status);
+    _kxRoomCode = (await res.text()).trim();
+
+    document.getElementById('kx-step-sender').style.display = 'none';
+    document.getElementById('kx-step-sender-wait').style.display = 'block';
+    document.getElementById('kx-room-code').textContent = _kxRoomCode;
+    const ok = document.getElementById('kx-sender-ok');
+    ok.style.display = 'block';
+    ok.textContent = _lang==='es'
+      ?'✓ Clave publicada. Comparte el código. Expira en 15 min.'
+      :'✓ Key published. Share the code. Expires in 15 min.';
+    document.querySelector('#kx-step-sender-wait .kx-waiting').style.display = 'none';
+
+  } catch(e) {
+    btn.disabled = false;
+    document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
+    showAlert('kx-sender-err', (_lang==='es'?'Error: ':'Error: ')+e.message, 'error');
+  }
+}
+
+function kxCopyCode() {
+  navigator.clipboard.writeText(_kxRoomCode).then(() => {
+    const btn = document.getElementById('kx-copy-code-btn');
+    const orig = btn.textContent;
+    btn.textContent = _lang==='es'?'✓ Copiado':'✓ Copied';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+async function kxFetchKey() {
+  const code = document.getElementById('kx-code-input').value.trim().toUpperCase();
+  hideAlert('kx-receiver-err');
+  if (code.length < 4) { showAlert('kx-receiver-err', _lang==='es'?'Introduce el código de sala.':'Enter the room code.', 'error'); return; }
+
+  const btn = document.getElementById('kx-receiver-btn');
+  btn.disabled = true;
+  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargando...':'Downloading...';
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(`${KX_WORKER}/${code}`, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (res.status === 404) throw new Error(_lang==='es'?'Código no encontrado. ¿Es correcto? Puede haber expirado.':'Code not found. Correct? It may have expired.');
+    if (!res.ok) throw new Error('Error ' + res.status);
+
+    const keyContent = (await res.text()).trim();
+    if (!keyContent.includes('RSA PUBLIC KEY'))
+      throw new Error(_lang==='es'?'Contenido no reconocido.':'Unrecognised content.');
+
+    _kxReceivedKey = keyContent;
+    document.getElementById('kx-step-receiver').style.display = 'none';
+    document.getElementById('kx-step-receiver-done').style.display = 'block';
+    document.getElementById('kx-received-key').textContent = keyContent;
+    document.getElementById('kx-receiver-ok').textContent = _lang==='es'
+      ?'✓ Clave recibida correctamente.'
+      :'✓ Key received successfully.';
+
+  } catch(e) {
+    btn.disabled = false;
+    document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
+    const msg = e.name==='AbortError'
+      ?(_lang==='es'?'Tiempo agotado. Inténtalo de nuevo.':'Timed out. Try again.')
+      : e.message;
+    showAlert('kx-receiver-err', msg, 'error');
+  }
+}
+
+function kxCopyKey() {
+  navigator.clipboard.writeText(_kxReceivedKey).then(() => {
+    const btn = document.getElementById('kx-copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = _lang==='es'?'✓ Copiado':'✓ Copied';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function kxDownloadKey() { dlText(_kxReceivedKey, 'clave_B_contacto.txt'); }
+
+function kxReset() {
+  _kxRole = null; _kxRoomCode = null; _kxReceivedKey = '';
+  document.getElementById('kx-step-role').style.display = 'block';
+  ['kx-step-sender','kx-step-sender-wait','kx-step-receiver','kx-step-receiver-done']
+    .forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('kx-reset-btn').style.display = 'none';
+  document.getElementById('kx-sender-key-input').value = '';
+  document.getElementById('kx-file-name').textContent = '';
+  document.getElementById('kx-code-input').value = '';
+  document.getElementById('kx-sender-ok').style.display = 'none';
+  hideAlert('kx-sender-err'); hideAlert('kx-receiver-err');
+  document.getElementById('kx-sender-btn').disabled = false;
+  document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
+  document.getElementById('kx-receiver-btn').disabled = false;
+  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
+}
+let _kxRole = null;
+let _kxRoomCode = null;  // gist ID (primeros 8 chars)
+let _kxGistId   = null;  // gist ID completo
+let _kxReceivedKey = '';
+
+function kxLoadFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('kx-file-name').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => { document.getElementById('kx-sender-key-input').value = e.target.result.trim(); };
+  reader.readAsText(file);
+}
+
+function kxSetRole(role) {
+  _kxRole = role;
+  document.getElementById('kx-step-role').style.display = 'none';
+  document.getElementById('kx-reset-btn').style.display = 'inline-flex';
+  document.getElementById(role === 'sender' ? 'kx-step-sender' : 'kx-step-receiver').style.display = 'block';
+}
+
+async function kxCreateRoom() {
+  const keyText = document.getElementById('kx-sender-key-input').value.trim();
+  hideAlert('kx-sender-err');
+  if (!keyText) { showAlert('kx-sender-err', _lang==='es'?'Pega tu clave B o carga el archivo.':'Paste your key B or load the file.','error'); return; }
+  if (!keyText.includes('RSA PUBLIC KEY')) { showAlert('kx-sender-err', _lang==='es'?'Eso no parece una clave B (pública).':\"That doesn't look like a key B (public).\", 'error'); return; }
+
+  const btn = document.getElementById('kx-sender-btn');
+  btn.disabled = true;
+  document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Creando...':'Creating...';
+
+  try {
+    const res = await fetch(KX_GIST_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({
+        description: 'ciphr key exchange',
+        public: false,
+        files: { 'ciphr_key_b.txt': { content: keyText } }
+      })
+    });
+    if (!res.ok) throw new Error('GitHub ' + res.status);
+    const data = await res.json();
+    _kxGistId = data.id;
+    _kxRoomCode = data.id;
+
+    document.getElementById('kx-step-sender').style.display = 'none';
+    document.getElementById('kx-step-sender-wait').style.display = 'block';
+    document.getElementById('kx-room-code').textContent = _kxRoomCode;
+
+    const ok = document.getElementById('kx-sender-ok');
+    ok.style.display = 'block';
+    ok.textContent = _lang==='es'
+      ?'✓ Clave publicada. Comparte el código con tu contacto.'
+      :'✓ Key published. Share the code with your contact.';
+    document.querySelector('#kx-step-sender-wait .kx-waiting').style.display = 'none';
+
+  } catch(e) {
+    btn.disabled = false;
+    document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
+    showAlert('kx-sender-err', (_lang==='es'?'Error: ':'Error: ')+e.message, 'error');
+  }
+}
+
+function kxCopyCode() {
+  navigator.clipboard.writeText(_kxRoomCode).then(() => {
+    const btn = document.getElementById('kx-copy-code-btn');
+    const orig = btn.textContent;
+    btn.textContent = _lang==='es'?'✓ Copiado':'✓ Copied';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+async function kxFetchKey() {
+  const code = document.getElementById('kx-code-input').value.trim().toLowerCase();
+  hideAlert('kx-receiver-err');
+  if (code.length < 8) { showAlert('kx-receiver-err', _lang==='es'?'Introduce el código completo.':'Enter the full code.','error'); return; }
+
+  const btn = document.getElementById('kx-receiver-btn');
+  btn.disabled = true;
+  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargando...':'Downloading...';
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    const res = await fetch(`${KX_GIST_API}/${code}`, {
+      headers: { 'Accept': 'application/vnd.github+json' },
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (res.status === 404) throw new Error(_lang==='es'?'Código no encontrado. ¿Es correcto?':'Code not found. Is it correct?');
+    if (!res.ok) throw new Error('GitHub ' + res.status);
+
+    const gistData = await res.json();
+    if (gistData.description !== 'ciphr key exchange')
+      throw new Error(_lang==='es'?'Este código no es de ciphr.':'This code is not from ciphr.');
+
+    const file = Object.values(gistData.files)[0];
+    const keyContent = file.content || '';
+
+    if (!keyContent.includes('RSA PUBLIC KEY'))
+      throw new Error(_lang==='es'?'Contenido no reconocido.':'Unrecognised content.');
+
+    _kxReceivedKey = keyContent;
+    document.getElementById('kx-step-receiver').style.display = 'none';
+    document.getElementById('kx-step-receiver-done').style.display = 'block';
+    document.getElementById('kx-received-key').textContent = keyContent;
+    document.getElementById('kx-receiver-ok').textContent = _lang==='es'
+      ?'✓ Clave recibida correctamente.'
+      :'✓ Key received successfully.';
+
+  } catch(e) {
+    btn.disabled = false;
+    document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
+    const msg = e.name==='AbortError'
+      ?(_lang==='es'?'Tiempo agotado. Inténtalo de nuevo.':'Timed out. Please try again.')
+      : e.message;
+    showAlert('kx-receiver-err', msg, 'error');
+  }
+}
+
+function kxCopyKey() {
+  navigator.clipboard.writeText(_kxReceivedKey).then(() => {
+    const btn = document.getElementById('kx-copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = _lang==='es'?'✓ Copiado':'✓ Copied';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function kxDownloadKey() { dlText(_kxReceivedKey, 'clave_B_contacto.txt'); }
+
+function kxReset() {
+  _kxRole = null; _kxRoomCode = null; _kxGistId = null; _kxReceivedKey = '';
+  document.getElementById('kx-step-role').style.display = 'block';
+  ['kx-step-sender','kx-step-sender-wait','kx-step-receiver','kx-step-receiver-done']
+    .forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('kx-reset-btn').style.display = 'none';
+  document.getElementById('kx-sender-key-input').value = '';
+  document.getElementById('kx-file-name').textContent = '';
+  document.getElementById('kx-code-input').value = '';
+  document.getElementById('kx-sender-ok').style.display = 'none';
+  hideAlert('kx-sender-err'); hideAlert('kx-receiver-err');
+  document.getElementById('kx-sender-btn').disabled = false;
+  document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
+  document.getElementById('kx-receiver-btn').disabled = false;
+  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
+}
 
 function kxLoadFile(input) {
   const file = input.files[0];
@@ -2943,10 +3221,14 @@ async function kxCreateRoom() {
 
   _kxRoomCode = kxGenCode();
   try {
+    // Extraer solo el base64 (sin cabeceras ni saltos) para no superar 4KB de ntfy
+    const b64 = keyText.replace(/-----[^-]+-----/g,'').replace(/\s+/g,'').trim();
+    if (!b64) throw new Error(_lang==='es'?'Clave vacía o inválida.':'Empty or invalid key.');
+
     const res = await fetch(`${KX_BASE}/${KX_PREFIX}${_kxRoomCode}`, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      body: keyText
+      body: 'CIPHR:RSA_PUBLIC:' + b64   // prefijo para identificar + base64 puro
     });
     if (!res.ok) throw new Error('ntfy ' + res.status);
     document.getElementById('kx-step-sender').style.display = 'none';
@@ -2982,20 +3264,34 @@ async function kxFetchKey() {
   document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargando...':'Downloading...';
 
   try {
-    // ntfy poll: GET /<topic>/json?poll=1&since=10m returns NDJSON
-    const res = await fetch(`${KX_BASE}/${KX_PREFIX}${code}/json?poll=1&since=10m`);
+    // ntfy: poll=1 hace que cierre inmediatamente en vez de stream
+    // since=<unix timestamp hace 15 min> para buscar mensajes recientes
+    const since = Math.floor(Date.now()/1000) - 900; // 15 minutos atrás
+    const url = `${KX_BASE}/${KX_PREFIX}${code}/json?poll=1&since=${since}`;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+
     if (!res.ok) throw new Error('ntfy ' + res.status);
 
     const raw = (await res.text()).trim();
     if (!raw) throw new Error(_lang==='es'
-      ?'No se encontró ninguna clave. ¿Código correcto? Puede haber expirado (10 min).'
-      :'No key found. Correct code? It may have expired (10 min).');
+      ?'No se encontró ninguna clave. ¿Código correcto? Puede haber expirado.'
+      :'No key found. Correct code? It may have expired.');
 
     let keyContent = '';
     for (const line of raw.split('\n')) {
       try {
         const msg = JSON.parse(line);
-        if (msg.message && msg.message.includes('RSA')) keyContent = msg.message;
+        if (msg.message && msg.message.startsWith('CIPHR:RSA_PUBLIC:')) {
+          const b64 = msg.message.replace('CIPHR:RSA_PUBLIC:','').trim();
+          // Reconstruir PEM con saltos de línea cada 64 chars
+          const wrapped = b64.match(/.{1,64}/g).join('\n');
+          keyContent = `-----BEGIN RSA PUBLIC KEY-----\n${wrapped}\n-----END RSA PUBLIC KEY-----`;
+        }
       } catch {}
     }
     if (!keyContent) throw new Error(_lang==='es'?'Contenido no reconocido. ¿Código correcto?':'Unrecognised content. Correct code?');
@@ -3008,7 +3304,10 @@ async function kxFetchKey() {
   } catch(e) {
     btn.disabled = false;
     document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
-    showAlert('kx-receiver-err', e.message, 'error');
+    const msg = e.name==='AbortError'
+      ? (_lang==='es'?'Tiempo de espera agotado. Comprueba el código e inténtalo de nuevo.':'Request timed out. Check the code and try again.')
+      : e.message;
+    showAlert('kx-receiver-err', msg, 'error');
   }
 }
 
