@@ -594,7 +594,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="card-icon">🤝</div>
     <div class="card-full-text">
       <div class="card-title" id="home-card-kx-title">Intercambiar claves</div>
-      <div class="card-desc" id="home-card-kx-desc">Comparte tu clave B con tu contacto de forma segura, sin enviarla directamente.</div>
+      <div class="card-desc" id="home-card-kx-desc">Comparte tu clave B de forma segura, sin enviarla directamente.</div>
     </div>
   </button>
 </div>
@@ -1164,7 +1164,7 @@ z50jPFsWIBylX4w1
   <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title" id="kx-title">Intercambiar claves</div>
-    <div class="section-sub" id="kx-sub">Comparte tu clave B con tu contacto sin enviarla directamente. Usa un código de sala efímero.</div>
+    <div class="section-sub" id="kx-sub">Comparte tu clave B sin enviarla directamente. Usa un código de sala efímero.</div>
   </div>
 
   <!-- PASO 0: elegir rol -->
@@ -1211,7 +1211,7 @@ z50jPFsWIBylX4w1
     </div>
     <div class="kx-waiting">
       <div class="kx-spinner"></div>
-      <div id="kx-waiting-text">La clave está lista. Comparte el código con tu contacto.</div>
+      <div id="kx-waiting-text">La clave está lista. Comparte el código.</div>
     </div>
     <div class="alert alert-success" id="kx-sender-ok" style="display:none"></div>
   </div>
@@ -2587,14 +2587,14 @@ const TR = {
     home_card_dec_title:'Descifrar', home_card_dec_desc:'Lee un mensaje que te han enviado. Usa tu propia clave para descifrarlo.',
     home_card_sign_title:'Firmar', home_card_sign_desc:'Demuestra que un mensaje es tuyo, o verifica si es de alguien.',
     home_card_adv_title:'Avanzado', home_card_adv_desc:'Control total: claves, PEM, seeds y operaciones manuales.',
-    home_card_kx_title:'Intercambiar claves', home_card_kx_desc:'Comparte tu clave B con tu contacto de forma segura, sin enviarla directamente.',
+    home_card_kx_title:'Intercambiar claves', home_card_kx_desc:'Comparte tu clave B de forma segura, sin enviarla directamente.',
     kx_title:'Intercambiar claves',
-    kx_sub:'Comparte tu clave B con tu contacto sin enviarla directamente. Usa un código de sala efímero.',
+    kx_sub:'Comparte tu clave B sin enviarla directamente. Usa un código de sala efímero.',
     kx_role_sender_name:'Enviar mi clave B', kx_role_sender_sub:'Creo la sala y comparto el código',
     kx_role_receiver_name:'Recibir clave B', kx_role_receiver_sub:'Introduzco el código que me han dado',
     kx_sender_key_lbl:'Tu clave B (pública)', kx_sender_btn:'Crear sala',
     kx_code_label:'Código de sala', kx_copy_code:'Copiar',
-    kx_waiting:'Esperando a que tu contacto descargue la clave...',
+    kx_waiting:'Esperando a que descarguen la clave...',
     kx_receiver_code_lbl:'Código de sala', kx_receiver_btn:'Descargar clave',
     kx_result_lbl:'Clave B recibida', kx_copy_key:'Copiar', kx_download_key:'↓ Descargar', kx_reset:'↩ Volver a empezar',
     kx_drop_text:'Arrastra el archivo o haz clic',
@@ -2616,7 +2616,7 @@ const TR = {
     enc_priv_name:'Con clave A', enc_priv_sub:'Cifras con la A, el receptor descifra con la B',
     enc_key_lbl:'Tu clave', enc_msg_lbl:'Mensaje', enc_msg_ph:'Escribe el mensaje a cifrar...',
     enc_seed_lbl:'Seed — abecedario personalizado', enc_btn:'Cifrar',
-    enc_result_lbl:'Mensaje cifrado — compártelo con tu contacto',
+    enc_result_lbl:'Mensaje cifrado — compártelo',
     enc_key_pub_ph:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----',
     enc_key_priv_ph:'-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----',
     dec_title:'Descifrar mensaje',
@@ -2630,7 +2630,7 @@ const TR = {
     dec_cipher_ph:'-----BEGIN RSA CIPHER-----\n...\n-----END RSA CIPHER-----',
     sign_title:'Verificar identidad',
     sign_create_card_title:'Firmar mensaje', sign_create_card_sub:'Demuestra con tu clave que el mensaje es tuyo',
-    sign_verify_card_title:'Verificar firma', sign_verify_card_sub:'Confirma que un mensaje es de tu contacto',
+    sign_verify_card_title:'Verificar firma', sign_verify_card_sub:'Confirma que un mensaje es de tu alguien',
     sign_create_title:'Firmar mensaje',
     sign_create_sub:'Usa tu clave A para firmar. Los demás podrán comprobar que eres tú.',
     sign_key_lbl:'Tu clave', sign_msg_lbl:'Mensaje a firmar', sign_msg_ph:'Escribe el mensaje...',
@@ -3148,7 +3148,7 @@ function kxCopyKey() {
   });
 }
 
-function kxDownloadKey() { dlText(_kxReceivedKey, 'clave_B_contacto.txt'); }
+function kxDownloadKey() { dlText(_kxReceivedKey, 'clave_B.txt'); }
 
 function kxReset() {
   _kxRole = null; _kxRoomCode = null; _kxReceivedKey = '';
