@@ -608,7 +608,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
     <div class="card-icon">🤝</div>
     <div class="card-full-text">
       <div class="card-title" id="home-card-kx-title">Intercambiar claves</div>
-      <div class="card-desc" id="home-card-kx-desc">Comparte tus claves de forma segura, sin enviarlas directamente.</div>
+      <div class="card-desc" id="home-card-kx-desc">Comparte tu clave B de forma segura, sin enviarla directamente.</div>
     </div>
   </button>
 </div>
@@ -1258,7 +1258,7 @@ z50jPFsWIBylX4w1
   <!-- PASO 2 RECEIVER: contenido recibido -->
   <div id="kx-step-receiver-done" style="display:none">
     <div class="kx-received-type" id="kx-received-type-badge"></div>
-    <div class="result-box" id="kx-result-box">
+    <div class="result-box show" id="kx-result-box">
       <div class="result-label" id="kx-result-lbl">Contenido recibido</div>
       <div class="result-text mono" id="kx-received-key"></div>
       <div class="result-actions">
@@ -3195,7 +3195,9 @@ async function kxFetchKey() {
     document.getElementById('kx-step-receiver').style.display = 'none';
     document.getElementById('kx-step-receiver-done').style.display = 'block';
     document.getElementById('kx-received-key').textContent = content;
-    document.getElementById('kx-receiver-ok').textContent = _lang==='es'
+    const rok = document.getElementById('kx-receiver-ok');
+    rok.classList.add('show');
+    rok.textContent = _lang==='es'
       ?'✓ Recibido correctamente. Puedes volver a descargarlo mientras no expire.'
       :'✓ Received successfully. You can download it again before it expires.';
 
@@ -3215,6 +3217,8 @@ function kxReceiveAnother() {
   document.getElementById('kx-code-input').value = '';
   document.getElementById('kx-receiver-btn').disabled = false;
   document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar':'Download';
+  document.getElementById('kx-receiver-ok').classList.remove('show');
+  document.getElementById('kx-received-type-badge').style.display = 'none';
   hideAlert('kx-receiver-err');
 }
 
