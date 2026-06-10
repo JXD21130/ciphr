@@ -1,4 +1,3 @@
-
 <html lang="es"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -541,6 +540,21 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 600px) { .kx-role-grid { grid-template-columns: 1fr; } }
+.kx-type-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px;
+}
+.kx-type-btn {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 10px 8px; cursor: pointer; font-size: 13px; font-family: var(--sans);
+  color: var(--text2); transition: all 0.15s; text-align: center;
+}
+.kx-type-btn:hover { border-color: var(--accent); color: var(--text); }
+.kx-type-btn.active { border-color: var(--accent); background: var(--bg2); color: var(--text); font-weight: 500; }
+.kx-received-type-badge {
+  display: inline-block; font-size: 12px; font-weight: 500;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 20px;
+  padding: 4px 12px; margin-bottom: 12px; color: var(--text2);
+}
 
 </style>
 </head>
@@ -1159,12 +1173,13 @@ z50jPFsWIBylX4w1
   </div>
 </div>
 
+
 <!-- ══════════ KEY EXCHANGE ══════════ -->
 <div class="view" id="view-keyexchange">
   <button class="section-back" data-back onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title" id="kx-title">Intercambiar claves</div>
-    <div class="section-sub" id="kx-sub">Comparte tu clave B sin enviarla directamente. Usa un código de sala efímero.</div>
+    <div class="section-title" id="kx-title">Buzón seguro</div>
+    <div class="section-sub" id="kx-sub">Envía claves, mensajes cifrados, firmas o cualquier texto. El receptor lo descarga con un código de 6 letras. Expira en 15 min.</div>
   </div>
 
   <!-- PASO 0: elegir rol -->
@@ -1172,21 +1187,30 @@ z50jPFsWIBylX4w1
     <div class="kx-role-grid">
       <button class="kx-role-btn" onclick="kxSetRole('sender')">
         <div class="kx-role-icon">📤</div>
-        <div class="kx-role-name" id="kx-role-sender-name">Enviar mi clave B</div>
-        <div class="kx-role-sub" id="kx-role-sender-sub">Creo la sala y comparto el código</div>
+        <div class="kx-role-name" id="kx-role-sender-name">Enviar</div>
+        <div class="kx-role-sub" id="kx-role-sender-sub">Subo el contenido y comparto el código</div>
       </button>
       <button class="kx-role-btn" onclick="kxSetRole('receiver')">
         <div class="kx-role-icon">📥</div>
-        <div class="kx-role-name" id="kx-role-receiver-name">Recibir clave B</div>
+        <div class="kx-role-name" id="kx-role-receiver-name">Recibir</div>
         <div class="kx-role-sub" id="kx-role-receiver-sub">Introduzco el código que me han dado</div>
       </button>
     </div>
   </div>
 
-  <!-- PASO 1 SENDER: subir/pegar clave y crear sala -->
+  <!-- PASO 1 SENDER: elegir tipo -->
   <div id="kx-step-sender" style="display:none">
     <div class="field">
-      <label class="field-label" id="kx-sender-key-lbl">Tu clave B (pública)</label>
+      <label class="field-label" id="kx-type-lbl">Tipo de contenido</label>
+      <div class="kx-type-grid">
+        <button class="kx-type-btn active" id="kx-type-key" onclick="kxSetType('key')">🔑 Clave B</button>
+        <button class="kx-type-btn" id="kx-type-cipher" onclick="kxSetType('cipher')">🔒 Mensaje cifrado</button>
+        <button class="kx-type-btn" id="kx-type-sign" onclick="kxSetType('sign')">✍️ Firma</button>
+        <button class="kx-type-btn" id="kx-type-text" onclick="kxSetType('text')">📝 Texto libre</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label" id="kx-sender-content-lbl">Contenido</label>
       <div class="file-drop" onclick="document.getElementById('kx-file-input').click()">
         <input type="file" id="kx-file-input" accept=".txt,.pem" style="display:none" onchange="kxLoadFile(this)">
         <div class="file-drop-icon">📄</div>
@@ -1194,7 +1218,7 @@ z50jPFsWIBylX4w1
         <div class="file-drop-name" id="kx-file-name"></div>
       </div>
       <div class="or-divider">o pega el contenido</div>
-      <textarea class="mono" id="kx-sender-key-input" rows="5" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----"></textarea>
+      <textarea class="mono" id="kx-sender-key-input" rows="6" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----"></textarea>
     </div>
     <div class="alert alert-error" id="kx-sender-err"></div>
     <button class="btn btn-primary" id="kx-sender-btn" onclick="kxCreateRoom()">
@@ -1211,29 +1235,31 @@ z50jPFsWIBylX4w1
     </div>
     <div class="kx-waiting">
       <div class="kx-spinner"></div>
-      <div id="kx-waiting-text">La clave está lista. Comparte el código.</div>
+      <div id="kx-waiting-text">Listo. Comparte el código con tu contacto.</div>
     </div>
     <div class="alert alert-success" id="kx-sender-ok" style="display:none"></div>
+    <button class="btn btn-ghost" style="margin-top:12px" onclick="kxSendAnother()"><span id="kx-send-another">↑ Enviar otro</span></button>
   </div>
 
   <!-- PASO 1 RECEIVER: introducir código -->
   <div id="kx-step-receiver" style="display:none">
     <div class="field">
       <label class="field-label" id="kx-receiver-code-lbl">Código de sala</label>
-      <input type="text" id="kx-code-input" maxlength="12" placeholder="ABC123"
+      <input type="text" id="kx-code-input" maxlength="6" placeholder="ABC123"
         style="font-family:var(--mono);font-size:28px;letter-spacing:0.15em;text-align:center"
         oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
     </div>
     <div class="alert alert-error" id="kx-receiver-err"></div>
     <button class="btn btn-primary" id="kx-receiver-btn" onclick="kxFetchKey()">
-      <span id="kx-receiver-btn-text">Descargar clave</span>
+      <span id="kx-receiver-btn-text">Descargar</span>
     </button>
   </div>
 
-  <!-- PASO 2 RECEIVER: clave recibida -->
+  <!-- PASO 2 RECEIVER: contenido recibido -->
   <div id="kx-step-receiver-done" style="display:none">
+    <div class="kx-received-type" id="kx-received-type-badge"></div>
     <div class="result-box" id="kx-result-box">
-      <div class="result-label" id="kx-result-lbl">Clave B recibida</div>
+      <div class="result-label" id="kx-result-lbl">Contenido recibido</div>
       <div class="result-text mono" id="kx-received-key"></div>
       <div class="result-actions">
         <button class="btn btn-secondary" id="kx-copy-btn" onclick="kxCopyKey()">Copiar</button>
@@ -1241,6 +1267,7 @@ z50jPFsWIBylX4w1
       </div>
     </div>
     <div class="alert alert-success" id="kx-receiver-ok"></div>
+    <button class="btn btn-ghost" style="margin-top:12px" onclick="kxReceiveAnother()"><span id="kx-receive-another">↓ Recibir otro</span></button>
   </div>
 
   <button class="btn btn-ghost" id="kx-reset-btn" onclick="kxReset()" style="display:none;margin-top:16px">↩ Volver a empezar</button>
@@ -3034,6 +3061,14 @@ const KX_WORKER = 'https://cosa.ciphr.workers.dev';
 let _kxRole = null;
 let _kxRoomCode = null;
 let _kxReceivedKey = '';
+let _kxContentType = 'key'; // key | cipher | sign | text
+
+const KX_TYPES = {
+  key:    { es:'🔑 Clave B',           en:'🔑 Key B',              ph_es:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----', ph_en:'-----BEGIN RSA PUBLIC KEY-----\n...\n-----END RSA PUBLIC KEY-----' },
+  cipher: { es:'🔒 Mensaje cifrado',   en:'🔒 Encrypted message',  ph_es:'-----BEGIN RSA CIPHER-----\n...\n-----END RSA CIPHER-----',     ph_en:'-----BEGIN RSA CIPHER-----\n...\n-----END RSA CIPHER-----' },
+  sign:   { es:'✍️ Firma',             en:'✍️ Signature',           ph_es:'-----BEGIN RSA SIGN-----\n...\n-----END RSA SIGN-----',         ph_en:'-----BEGIN RSA SIGN-----\n...\n-----END RSA SIGN-----' },
+  text:   { es:'📝 Texto libre',       en:'📝 Free text',           ph_es:'Escribe o pega cualquier texto...',                               ph_en:'Type or paste any text...' },
+};
 
 function kxLoadFile(input) {
   const file = input.files[0];
@@ -3044,6 +3079,14 @@ function kxLoadFile(input) {
   reader.readAsText(file);
 }
 
+function kxSetType(type) {
+  _kxContentType = type;
+  document.querySelectorAll('.kx-type-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('kx-type-' + type).classList.add('active');
+  const t = KX_TYPES[type];
+  document.getElementById('kx-sender-key-input').placeholder = (_lang==='es' ? t.ph_es : t.ph_en).replace(/\n/g,'\n');
+}
+
 function kxSetRole(role) {
   _kxRole = role;
   document.getElementById('kx-step-role').style.display = 'none';
@@ -3052,20 +3095,24 @@ function kxSetRole(role) {
 }
 
 async function kxCreateRoom() {
-  const keyText = document.getElementById('kx-sender-key-input').value.trim();
+  const content = document.getElementById('kx-sender-key-input').value.trim();
   hideAlert('kx-sender-err');
-  if (!keyText) { showAlert('kx-sender-err', _lang==='es'?'Pega tu clave B o carga el archivo.':'Paste your key B or load the file.', 'error'); return; }
-  if (!keyText.includes('RSA PUBLIC KEY')) { showAlert('kx-sender-err', _lang==='es'?'Eso no parece una clave B (pública).':"That doesn't look like a key B.", 'error'); return; }
+  if (!content) {
+    showAlert('kx-sender-err', _lang==='es'?'Pega el contenido o carga un archivo.':'Paste content or load a file.', 'error');
+    return;
+  }
 
   const btn = document.getElementById('kx-sender-btn');
   btn.disabled = true;
   document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Creando...':'Creating...';
 
   try {
+    // Wrap content with type metadata
+    const payload = JSON.stringify({ type: _kxContentType, content });
     const res = await fetch(KX_WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: keyText
+      body: payload
     });
     if (!res.ok) throw new Error('Error ' + res.status);
     _kxRoomCode = (await res.text()).trim();
@@ -3075,9 +3122,8 @@ async function kxCreateRoom() {
     document.getElementById('kx-room-code').textContent = _kxRoomCode;
     const ok = document.getElementById('kx-sender-ok');
     ok.style.display = 'block';
-    ok.textContent = _lang==='es'
-      ?'✓ Clave publicada. Comparte el código. Expira en 15 min.'
-      :'✓ Key published. Share the code. Expires in 15 min.';
+    const typeLabel = KX_TYPES[_kxContentType][_lang==='es'?'es':'en'];
+    ok.textContent = (_lang==='es'?'✓ ':'✓ ') + typeLabel + (_lang==='es'?' publicado. Expira en 15 min.':' published. Expires in 15 min.');
     document.querySelector('#kx-step-sender-wait .kx-waiting').style.display = 'none';
 
   } catch(e) {
@@ -3096,10 +3142,24 @@ function kxCopyCode() {
   });
 }
 
+function kxSendAnother() {
+  document.getElementById('kx-step-sender-wait').style.display = 'none';
+  document.getElementById('kx-step-sender').style.display = 'block';
+  document.getElementById('kx-sender-key-input').value = '';
+  document.getElementById('kx-file-name').textContent = '';
+  document.getElementById('kx-sender-ok').style.display = 'none';
+  document.getElementById('kx-sender-btn').disabled = false;
+  document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
+  hideAlert('kx-sender-err');
+}
+
 async function kxFetchKey() {
   const code = document.getElementById('kx-code-input').value.trim().toUpperCase();
   hideAlert('kx-receiver-err');
-  if (code.length < 4) { showAlert('kx-receiver-err', _lang==='es'?'Introduce el código de sala.':'Enter the room code.', 'error'); return; }
+  if (code.length < 4) {
+    showAlert('kx-receiver-err', _lang==='es'?'Introduce el código de sala.':'Enter the room code.', 'error');
+    return;
+  }
 
   const btn = document.getElementById('kx-receiver-btn');
   btn.disabled = true;
@@ -3114,29 +3174,48 @@ async function kxFetchKey() {
     if (res.status === 404) throw new Error(_lang==='es'?'Código no encontrado. ¿Es correcto? Puede haber expirado.':'Code not found. Correct? It may have expired.');
     if (!res.ok) throw new Error('Error ' + res.status);
 
-    const keyContent = (await res.text()).trim();
-    if (!keyContent.includes('RSA PUBLIC KEY'))
-      throw new Error(_lang==='es'?'Contenido no reconocido.':'Unrecognised content.');
+    const raw = (await res.text()).trim();
 
-    _kxReceivedKey = keyContent;
+    // Try to parse as JSON (new format with type)
+    let content = raw;
+    let type = 'text';
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.content) { content = parsed.content; type = parsed.type || 'text'; }
+    } catch { /* old format or plain text */ }
+
+    _kxReceivedKey = content;
+
+    // Show type badge
+    const badge = document.getElementById('kx-received-type-badge');
+    const typeLabel = KX_TYPES[type] ? KX_TYPES[type][_lang==='es'?'es':'en'] : type;
+    badge.textContent = typeLabel;
+    badge.style.display = 'inline-block';
+
     document.getElementById('kx-step-receiver').style.display = 'none';
     document.getElementById('kx-step-receiver-done').style.display = 'block';
-    document.getElementById('kx-result-box').classList.add('show');
-    document.getElementById('kx-received-key').textContent = keyContent;
-    const ok = document.getElementById('kx-receiver-ok');
-    ok.classList.add('show');
-    ok.textContent = _lang==='es'
-      ?'✓ Clave recibida correctamente.'
-      :'✓ Key received successfully.';
+    document.getElementById('kx-received-key').textContent = content;
+    document.getElementById('kx-receiver-ok').textContent = _lang==='es'
+      ?'✓ Recibido correctamente. Puedes volver a descargarlo mientras no expire.'
+      :'✓ Received successfully. You can download it again before it expires.';
 
   } catch(e) {
     btn.disabled = false;
-    document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
+    document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar':'Download';
     const msg = e.name==='AbortError'
       ?(_lang==='es'?'Tiempo agotado. Inténtalo de nuevo.':'Timed out. Try again.')
       : e.message;
     showAlert('kx-receiver-err', msg, 'error');
   }
+}
+
+function kxReceiveAnother() {
+  document.getElementById('kx-step-receiver-done').style.display = 'none';
+  document.getElementById('kx-step-receiver').style.display = 'block';
+  document.getElementById('kx-code-input').value = '';
+  document.getElementById('kx-receiver-btn').disabled = false;
+  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar':'Download';
+  hideAlert('kx-receiver-err');
 }
 
 function kxCopyKey() {
@@ -3148,10 +3227,13 @@ function kxCopyKey() {
   });
 }
 
-function kxDownloadKey() { dlText(_kxReceivedKey, 'clave_B.txt'); }
+function kxDownloadKey() {
+  const ext = _kxReceivedKey.includes('-----') ? 'txt' : 'txt';
+  dlText(_kxReceivedKey, 'ciphr_recibido.' + ext);
+}
 
 function kxReset() {
-  _kxRole = null; _kxRoomCode = null; _kxReceivedKey = '';
+  _kxRole = null; _kxRoomCode = null; _kxReceivedKey = ''; _kxContentType = 'key';
   document.getElementById('kx-step-role').style.display = 'block';
   ['kx-step-sender','kx-step-sender-wait','kx-step-receiver','kx-step-receiver-done']
     .forEach(id => document.getElementById(id).style.display = 'none');
@@ -3160,13 +3242,13 @@ function kxReset() {
   document.getElementById('kx-file-name').textContent = '';
   document.getElementById('kx-code-input').value = '';
   document.getElementById('kx-sender-ok').style.display = 'none';
-  document.getElementById('kx-result-box').classList.remove('show');
-  document.getElementById('kx-receiver-ok').classList.remove('show');
+  document.querySelectorAll('.kx-type-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('kx-type-key').classList.add('active');
   hideAlert('kx-sender-err'); hideAlert('kx-receiver-err');
   document.getElementById('kx-sender-btn').disabled = false;
   document.getElementById('kx-sender-btn-text').textContent = _lang==='es'?'Crear sala':'Create room';
   document.getElementById('kx-receiver-btn').disabled = false;
-  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar clave':'Download key';
+  document.getElementById('kx-receiver-btn-text').textContent = _lang==='es'?'Descargar':'Download';
 }
 
 </script>
