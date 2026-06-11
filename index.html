@@ -615,7 +615,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ GENKEYS ══════════ -->
 <div class="view" id="view-genkeys">
-  <button class="section-back" data-back onclick="goHome()">← volver</button>
+  <button class="section-back" data-back="" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title" id="gen-title">Generar claves</div>
     <div class="section-sub" id="gen-sub">Genera las dos claves. Tú te quedas con una, tu receptor con la otra. Ninguno se la da a nadie más — ni siquiera entre vosotros.</div>
@@ -657,7 +657,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ ENCRYPT ══════════ -->
 <div class="view" id="view-encrypt">
-  <button class="section-back" data-back onclick="goHome()">← volver</button>
+  <button class="section-back" data-back="" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title" id="enc-title">Cifrar mensaje</div>
   </div>
@@ -719,7 +719,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ DECRYPT ══════════ -->
 <div class="view" id="view-decrypt">
-  <button class="section-back" data-back onclick="goHome()">← volver</button>
+  <button class="section-back" data-back="" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title" id="dec-title">Descifrar mensaje</div>
   </div>
@@ -789,7 +789,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ SIGN ══════════ -->
 <div class="view" id="view-sign">
-  <button class="section-back" data-back onclick="goHome()">← volver</button>
+  <button class="section-back" data-back="" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title" id="sign-title">Verificar identidad</div>
   </div>
@@ -813,7 +813,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ SIGN CREATE ══════════ -->
 <div class="view" id="view-sign-create">
-  <button class="section-back" data-back onclick="showView('sign')">← volver</button>
+  <button class="section-back" data-back="" onclick="showView('sign')">← volver</button>
   <div class="section-header">
     <div class="section-title" id="sign-create-title">Firmar mensaje</div>
     <div class="section-sub" id="sign-create-sub">Usa tu clave A para firmar. Los demás podrán comprobar que eres tú.</div>
@@ -849,7 +849,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ SIGN VERIFY ══════════ -->
 <div class="view" id="view-sign-verify">
-  <button class="section-back" data-back onclick="showView('sign')">← volver</button>
+  <button class="section-back" data-back="" onclick="showView('sign')">← volver</button>
   <div class="section-header">
     <div class="section-title" id="sign-verify-title">Verificar firma</div>
     <div class="section-sub" id="sign-verify-sub">Comprueba que el mensaje es realmente del que tiene la clave A.</div>
@@ -891,7 +891,7 @@ textarea.mono { font-family: var(--mono); font-size: 12px; min-height: 140px; }
 
 <!-- ══════════ ADVANCED ══════════ -->
 <div class="view" id="view-advanced">
-  <button class="section-back" data-back onclick="goHome()">← volver</button>
+  <button class="section-back" data-back="" onclick="goHome()">← volver</button>
   <div class="section-header">
     <div class="section-title" id="adv-title">Avanzado</div>
     <div class="section-sub" id="adv-sub">Operaciones manuales con control total.</div>
@@ -1176,14 +1176,14 @@ z50jPFsWIBylX4w1
 
 <!-- ══════════ KEY EXCHANGE ══════════ -->
 <div class="view" id="view-keyexchange">
-  <button class="section-back" data-back onclick="goHome()">← volver</button>
+  <button class="section-back" data-back="" onclick="goHome()">← volver</button>
   <div class="section-header">
-    <div class="section-title" id="kx-title">Buzón seguro</div>
+    <div class="section-title" id="kx-title">Intercambiar Claves</div>
     <div class="section-sub" id="kx-sub">Envía claves, mensajes cifrados, firmas o cualquier texto. El receptor lo descarga con un código de 6 letras. Expira en 15 min.</div>
   </div>
 
   <!-- PASO 0: elegir rol -->
-  <div id="kx-step-role" style="display:block">
+  <div id="kx-step-role" style="display: block;">
     <div class="kx-role-grid">
       <button class="kx-role-btn" onclick="kxSetRole('sender')">
         <div class="kx-role-icon">📤</div>
@@ -1218,9 +1218,11 @@ z50jPFsWIBylX4w1
         <div class="file-drop-name" id="kx-file-name"></div>
       </div>
       <div class="or-divider">o pega el contenido</div>
-      <textarea class="mono" id="kx-sender-key-input" rows="6" placeholder="-----BEGIN RSA PUBLIC KEY-----&#10;...&#10;-----END RSA PUBLIC KEY-----"></textarea>
+      <textarea class="mono" id="kx-sender-key-input" rows="6" placeholder="-----BEGIN RSA PUBLIC KEY-----
+...
+-----END RSA PUBLIC KEY-----"></textarea>
     </div>
-    <div class="alert alert-error" id="kx-sender-err"></div>
+    <div class="alert" id="kx-sender-err"></div>
     <button class="btn btn-primary" id="kx-sender-btn" onclick="kxCreateRoom()">
       <span id="kx-sender-btn-text">Crear sala</span>
     </button>
@@ -1242,35 +1244,33 @@ z50jPFsWIBylX4w1
   </div>
 
   <!-- PASO 1 RECEIVER: introducir código -->
-  <div id="kx-step-receiver" style="display:none">
+  <div id="kx-step-receiver" style="display: none;">
     <div class="field">
       <label class="field-label" id="kx-receiver-code-lbl">Código de sala</label>
-      <input type="text" id="kx-code-input" maxlength="6" placeholder="ABC123"
-        style="font-family:var(--mono);font-size:28px;letter-spacing:0.15em;text-align:center"
-        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+      <input type="text" id="kx-code-input" maxlength="6" placeholder="ABC123" style="font-family:var(--mono);font-size:28px;letter-spacing:0.15em;text-align:center" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
     </div>
-    <div class="alert alert-error" id="kx-receiver-err"></div>
+    <div class="alert" id="kx-receiver-err"></div>
     <button class="btn btn-primary" id="kx-receiver-btn" onclick="kxFetchKey()">
       <span id="kx-receiver-btn-text">Descargar</span>
     </button>
   </div>
 
   <!-- PASO 2 RECEIVER: contenido recibido -->
-  <div id="kx-step-receiver-done" style="display:none">
-    <div class="kx-received-type" id="kx-received-type-badge"></div>
+  <div id="kx-step-receiver-done" style="display: none;">
+    <div class="kx-received-type" id="kx-received-type-badge" style="display: none;">📝 Texto libre</div>
     <div class="result-box show" id="kx-result-box">
       <div class="result-label" id="kx-result-lbl">Contenido recibido</div>
-      <div class="result-text mono" id="kx-received-key"></div>
+      <div class="result-text mono" id="kx-received-key">Holaa</div>
       <div class="result-actions">
         <button class="btn btn-secondary" id="kx-copy-btn" onclick="kxCopyKey()">Copiar</button>
         <button class="btn btn-secondary" id="kx-dl-btn" onclick="kxDownloadKey()">↓ Descargar</button>
       </div>
     </div>
-    <div class="alert alert-success" id="kx-receiver-ok"></div>
+    <div class="alert alert-success" id="kx-receiver-ok">✓ Recibido correctamente. Puedes volver a descargarlo mientras no expire.</div>
     <button class="btn btn-ghost" style="margin-top:12px" onclick="kxReceiveAnother()"><span id="kx-receive-another">↓ Recibir otro</span></button>
   </div>
 
-  <button class="btn btn-ghost" id="kx-reset-btn" onclick="kxReset()" style="display:none;margin-top:16px">↩ Volver a empezar</button>
+  <button class="btn btn-ghost" id="kx-reset-btn" onclick="kxReset()" style="display: none; margin-top: 16px;">↩ Volver a empezar</button>
 </div>
 
 </main>
@@ -3256,6 +3256,7 @@ function kxReset() {
 }
 
 </script>
+
 
 
 
